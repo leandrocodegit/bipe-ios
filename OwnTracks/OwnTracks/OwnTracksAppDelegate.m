@@ -189,31 +189,55 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    OwnTracksLogDebug("[OwnTracksAppDelegate] didFinishLaunchingWithOptions %@", launchOptions);
+    OwnTracksLogDefault("[OwnTracksAppDelegate] didFinishLaunchingWithOptions %@", launchOptions);
     
+    // Inicializa a conexão (sem conectar ainda — aguarda o setup)
     self.connection = [[Connection alloc] init];
     self.connection.delegate = self;
     [self.connection start];
     
-    [self connectForcingCleanSession:FALSE];
-    
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
+    
+    // Verifica se o setup do dispositivo já foi realizado
+    BOOL setupCompleted = [[NSUserDefaults standardUserDefaults] boolForKey:@"setupCompleted"];
+    BOOL isAuthorized   = [AuthManager.shared isAuthorized];
+    
+    if (setupCompleted && isAuthorized) {
+        // Setup já realizado → inicia o monitoramento normalmente
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluído, iniciando monitoramento");
+        [self startOwnTracksMonitoring];
+    } else {
+        // Setup pendente → apresenta a tela de login
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Setup pendente (setupCompleted=%d, authorized=%d), exibindo login",
+                            setupCompleted, isAuthorized);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LoginViewController *loginVC = [[LoginViewController alloc] init];
+            loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
+            [self.window.rootViewController presentViewController:loginVC
+                                                        animated:NO
+                                                      completion:nil];
+        });
+    }
+    
+    return YES;
+}
+
+/// Inicia o monitoramento MQTT e de localização.
+/// Chamado diretamente na inicialização (se setup já feito) ou pelo LoginViewController após o setup.
+- (void)startOwnTracksMonitoring {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] startOwnTracksMonitoring");
+    
+    [self connectForcingCleanSession:FALSE];
     
     LocationManager *locationManager = [LocationManager sharedInstance];
     locationManager.delegate = self;
     
     NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
-    locationManager.monitoring = [Settings intForKey:@"monitoring_preference"
-                                               inMOC:moc];
-    locationManager.ranging = [Settings boolForKey:@"ranging_preference"
-                                             inMOC:moc];
-    locationManager.minDist = [Settings doubleForKey:@"mindist_preference"
-                                               inMOC:moc];
-    locationManager.minTime = [Settings doubleForKey:@"mintime_preference"
-                                               inMOC:moc];
+    locationManager.monitoring = [Settings intForKey:@"monitoring_preference" inMOC:moc];
+    locationManager.ranging    = [Settings boolForKey:@"ranging_preference"   inMOC:moc];
+    locationManager.minDist    = [Settings doubleForKey:@"mindist_preference" inMOC:moc];
+    locationManager.minTime    = [Settings doubleForKey:@"mintime_preference" inMOC:moc];
     [locationManager start];
-    
-    return YES;
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
@@ -268,6 +292,12 @@
            openURL:(NSURL *)url
            options:(NSDictionary<NSString *,id> *)options {
     OwnTracksLogDefault("[OwnTracksAppDelegate] openURL %@ options %@", url, options);
+    
+    // Intercepta o redirect OAuth do Keycloak (ex: owntracks://auth?code=...)
+    if ([AuthManager.shared handleRedirectURL:url]) {
+        OwnTracksLogDefault("[OwnTracksAppDelegate] URL tratada pelo AuthManager (OAuth redirect)");
+        return YES;
+    }
     if (url) {
         OwnTracksLogDebug("[OwnTracksAppDelegate] URL scheme %@", url.scheme);
         
