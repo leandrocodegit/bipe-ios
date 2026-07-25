@@ -13,6 +13,7 @@
 //
 
 import UIKit
+import AuthenticationServices
 
 @objc(LoginViewController)
 class LoginViewController: UIViewController {
@@ -272,5 +273,15 @@ class LoginViewController: UIViewController {
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+}
+
+// MARK: - ASWebAuthenticationPresentationContextProviding
+
+/// Permite que AuthManager use LoginViewController como âncora de apresentação
+/// para o browser de autenticação (ASWebAuthenticationSession).
+extension LoginViewController: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return view.window ?? UIApplication.shared.windows.first ?? UIWindow()
     }
 }
