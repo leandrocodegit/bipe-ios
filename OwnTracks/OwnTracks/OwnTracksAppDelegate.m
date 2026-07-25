@@ -211,11 +211,17 @@
         OwnTracksLogDefault("[OwnTracksAppDelegate] Setup pendente (setupCompleted=%d, authorized=%d), exibindo login",
                             setupCompleted, isAuthorized);
         dispatch_async(dispatch_get_main_queue(), ^{
-            LoginViewController *loginVC = [[LoginViewController alloc] init];
-            loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
-            [self.window.rootViewController presentViewController:loginVC
-                                                        animated:NO
-                                                      completion:nil];
+            UIViewController *loginVC = [[NSClassFromString(@"OwnTracks.LoginViewController") alloc] init];
+            if (!loginVC) {
+                // Fallback: tenta sem prefixo de módulo
+                loginVC = [[NSClassFromString(@"LoginViewController") alloc] init];
+            }
+            if (loginVC) {
+                loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
+                [self.window.rootViewController presentViewController:loginVC
+                                                            animated:NO
+                                                          completion:nil];
+            }
         });
     }
     
