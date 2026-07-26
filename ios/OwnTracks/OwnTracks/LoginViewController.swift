@@ -90,7 +90,7 @@ class LoginViewController: UIViewController {
 
     private let authManager = AuthManager.shared
     private let setupService = SetupService.shared
-    var managedObjectContext: NSManagedObjectContext?
+    @objc var managedObjectContext: NSManagedObjectContext?
 
     /// Bloco chamado quando o setup for concluído.
     /// Use `setCompletionHandler(_:)` para definir a partir do Objective-C.
