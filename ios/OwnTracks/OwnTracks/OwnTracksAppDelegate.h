@@ -47,7 +47,6 @@
 - (void)sendRegion:(nonnull Region *)region;
 - (void)sendEmpty:(nonnull NSString *)topic;
 - (void)reconnect;
-- (void)startOwnTracksMonitoring;
 - (void)connectionOff;
 - (void)terminateSession;
 - (void)syncProcessing;
