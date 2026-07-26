@@ -161,17 +161,17 @@ enum SetupError: LocalizedError {
     private func persistSetup(dto: DeviceSetupResponseDto, context: NSManagedObjectContext) {
         context.performAndWait {
             // Credenciais MQTT
-            Settings.setString(dto.username, forKey: "user_preference", inMOC: context)
-            Settings.setString(dto.password, forKey: "pass_preference", inMOC: context)
-            Settings.setString(dto.clientId, forKey: "clientid_preference", inMOC: context)
-            Settings.setString(dto.deviceId, forKey: "deviceid_preference", inMOC: context)
+            Settings.setString(dto.username as NSString, forKey: "user_preference", inMOC: context)
+            Settings.setString(dto.password as NSString, forKey: "pass_preference", inMOC: context)
+            Settings.setString(dto.clientId as NSString, forKey: "clientid_preference", inMOC: context)
+            Settings.setString(dto.deviceId as NSString, forKey: "deviceid_preference", inMOC: context)
 
             if let tid = dto.tid {
-                Settings.setString(tid, forKey: "trackerid_preference", inMOC: context)
+                Settings.setString(tid as NSString, forKey: "trackerid_preference", inMOC: context)
             }
 
             // Broker MQTT
-            Settings.setString(SetupService.mqttHost, forKey: "host_preference", inMOC: context)
+            Settings.setString(SetupService.mqttHost as NSString, forKey: "host_preference", inMOC: context)
             Settings.setInt(Int32(SetupService.mqttPort), forKey: "port_preference", inMOC: context)
 
             // Flags TLS e autenticação
