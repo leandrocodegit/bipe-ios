@@ -117,7 +117,7 @@ import AppAuth
 
     /// Retorna o Access Token atual de forma síncrona
     @objc func getAccessToken() -> String? {
-        return authState?.lastTokenResponse?.accessToken ?? authState?.accessToken
+        return authState?.lastTokenResponse?.accessToken
     }
 
     /// Extrai o `sub` do ID token (userId Keycloak)
