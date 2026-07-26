@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import WebKit
 
 class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
     @IBOutlet weak var mapView: MKMapView!;
@@ -16,7 +17,8 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     @IBOutlet weak var privacyButton: UIBarButtonItem!;
     @IBOutlet weak var askForMapButton: UIBarButtonItem!;
     @IBOutlet weak var accuracyButton: UIBarButtonItem!;
-        
+    
+    var webView: WKWebView!
     var trackingButton: MKUserTrackingButton? = nil;
     var modes: UISegmentedControl? = nil;
     var mapMode: UISegmentedControl? = nil;
@@ -36,6 +38,9 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     
     override func viewDidLoad() {
         super.viewDidLoad();
+        mapView?.isHidden = true;
+        setupWebView();
+        
         mapView.delegate = self;
         mapView.mapType = .standard;
         mapView.showsScale = false;
@@ -969,6 +974,96 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         if view.annotation is Friend {
             let friend = view.annotation as! Friend;
             mapView.removeOverlay(friend);
+        }
+    }
+
+    // MARK: - WebView Setup
+    private func setupWebView() {
+        let moc = CoreData.sharedInstance().mainMOC
+        let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
+        let username = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
+        let color = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
+        let face = Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+        let token = AuthManager.shared.getAccessToken() ?? ""
+
+        let scriptSource = """
+        window.Android = {
+            getDeviceId: function() { return "\(deviceId)"; },
+            getFace: function() { return "\(face)"; },
+            getColor: function() { return "\(color)"; },
+            getUserConfig: function() {
+                return JSON.stringify({
+                    "deviceId": "\(deviceId)",
+                    "username": "\(username)",
+                    "color": "\(color)",
+                    "icon": "\(face)",
+                    "token": "\(token)"
+                });
+            },
+            openSettings: function() { if (window.webkit && window.webkit.messageHandlers.openSettings) window.webkit.messageHandlers.openSettings.postMessage({}); },
+            openPermissions: function() { if (window.webkit && window.webkit.messageHandlers.openPermissions) window.webkit.messageHandlers.openPermissions.postMessage({}); },
+            openWaypoints: function() { if (window.webkit && window.webkit.messageHandlers.openWaypoints) window.webkit.messageHandlers.openWaypoints.postMessage({}); },
+            logout: function() { if (window.webkit && window.webkit.messageHandlers.logout) window.webkit.messageHandlers.logout.postMessage({}); },
+            startVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.startVoiceCall) window.webkit.messageHandlers.startVoiceCall.postMessage({}); },
+            stopVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.stopVoiceCall) window.webkit.messageHandlers.stopVoiceCall.postMessage({}); }
+        };
+        """
+
+        let userScript = WKUserScript(source: scriptSource, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        let userContentController = WKUserContentController()
+        userContentController.addUserScript(userScript)
+
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "logout", "startVoiceCall", "stopVoiceCall"]
+        for handler in handlers {
+            userContentController.add(self, name: handler)
+        }
+
+        let config = WKWebViewConfiguration()
+        config.userContentController = userContentController
+        config.allowsInlineMediaPlayback = true
+
+        let webPreferences = WKPreferences()
+        webPreferences.javaScriptEnabled = true
+        config.preferences = webPreferences
+
+        webView = WKWebView(frame: view.bounds, configuration: config)
+        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+
+        view.addSubview(webView)
+        view.bringSubviewToFront(webView)
+
+        if let url = URL(string: "https://bipe.simodapp.com") {
+            webView.load(URLRequest(url: url))
+        }
+    }
+}
+
+// MARK: - WKWebView Delegates
+extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
+    func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+            if let trust = challenge.protectionSpace.serverTrust {
+                completionHandler(.useCredential, URLCredential(trust: trust))
+                return
+            }
+        }
+        completionHandler(.performDefaultHandling, nil)
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        switch message.name {
+        case "logout":
+            DispatchQueue.main.async {
+                AuthManager.shared.logout()
+                SetupService.shared.resetSetup()
+                if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                    delegate.presentLoginViewController()
+                }
+            }
+        default:
+            break
         }
     }
 }

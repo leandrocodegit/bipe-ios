@@ -115,6 +115,11 @@ import AppAuth
         }
     }
 
+    /// Retorna o Access Token atual de forma síncrona
+    @objc func getAccessToken() -> String? {
+        return authState?.lastTokenResponse?.accessToken ?? authState?.accessToken
+    }
+
     /// Extrai o `sub` do ID token (userId Keycloak)
     func getUserId() -> String? {
         guard let idToken = authState?.lastTokenResponse?.idToken else { return nil }
