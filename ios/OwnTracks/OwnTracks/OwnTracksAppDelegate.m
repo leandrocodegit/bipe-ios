@@ -25,6 +25,7 @@
 //#import "OwnTracksTagIntent.h"
 //#import "OwnTracksPointOfInterestIntent.h"
 #import "OwnTracks-Swift.h"
+@import FirebaseCore;
 
 @interface OwnTracksAppDelegate()
 
@@ -191,6 +192,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     OwnTracksLogDebug("[OwnTracksAppDelegate] didFinishLaunchingWithOptions %@", launchOptions);
+    
+    [FIRApp configure];
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
