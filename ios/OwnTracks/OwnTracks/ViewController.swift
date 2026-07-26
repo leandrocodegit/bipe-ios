@@ -38,8 +38,6 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     
     override func viewDidLoad() {
         super.viewDidLoad();
-        mapView?.isHidden = true;
-        setupWebView();
         
         mapView.delegate = self;
         mapView.mapType = .standard;
@@ -75,22 +73,28 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         }
         noMap();
         reloaded();
+
+        mapView?.isHidden = true;
+        modes?.isHidden = true;
+        mapMode?.isHidden = true;
+        scaleView?.isHidden = true;
+
+        setupWebView();
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated);
-        mapModeChanged(mapMode!);
+        mapView?.isHidden = true;
+        modes?.isHidden = true;
+        mapMode?.isHidden = true;
+        scaleView?.isHidden = true;
+
+        if webView != nil {
+            view.bringSubviewToFront(webView);
+        }
         
         if !warningShown && Setting.existsSetting(withKey: "mode", inMOC: CoreData.sharedInstance().mainMOC) == nil {
             warningShown = true;
-            NavigationController.alert(title: NSLocalizedString("Setup",
-                                                                comment: "Header of an alert message regarding missing setup"),
-                                       message: NSLocalizedString("You need to setup your own OwnTracks server and edit your configuration for full privacy protection. Detailed info on https://owntracks.org/booklet",
-                                                                  comment: "Text explaining the Setup"));
-        }
-        
-        if noMap() == 0 {
-            askForMap(askForMapButton);
         }
     }
     
@@ -1026,12 +1030,18 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         webPreferences.javaScriptEnabled = true
         config.preferences = webPreferences
 
-        webView = WKWebView(frame: view.bounds, configuration: config)
-        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        webView = WKWebView(frame: .zero, configuration: config)
+        webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         webView.uiDelegate = self
 
         view.addSubview(webView)
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
         view.bringSubviewToFront(webView)
 
         if let url = URL(string: "https://bipe.simodapp.com") {
