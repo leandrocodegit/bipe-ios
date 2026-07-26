@@ -50,5 +50,7 @@
 - (void)connectionOff;
 - (void)terminateSession;
 - (void)syncProcessing;
+- (void)startOwnTracksMonitoring;
+- (void)presentLoginViewController;
 
 @end

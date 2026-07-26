@@ -191,13 +191,30 @@
     
     OwnTracksLogDebug("[OwnTracksAppDelegate] didFinishLaunchingWithOptions %@", launchOptions);
     
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
+    
+    // Verificar se o setup BIPE já foi concluído
+    BOOL setupCompleted = [SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized];
+    
+    if (setupCompleted) {
+        // Setup já feito: inicia normalmente
+        [self startOwnTracksMonitoring];
+    } else {
+        // Primeiro acesso ou logout: apresentar tela de login
+        [self presentLoginViewController];
+    }
+    
+    return YES;
+}
+
+- (void)startOwnTracksMonitoring {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] startOwnTracksMonitoring");
+    
     self.connection = [[Connection alloc] init];
     self.connection.delegate = self;
     [self.connection start];
     
     [self connectForcingCleanSession:FALSE];
-    
-    [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
     LocationManager *locationManager = [LocationManager sharedInstance];
     locationManager.delegate = self;
@@ -212,8 +229,42 @@
     locationManager.minTime = [Settings doubleForKey:@"mintime_preference"
                                                inMOC:moc];
     [locationManager start];
+}
+
+- (void)presentLoginViewController {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] presentLoginViewController");
     
-    return YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LoginViewController *loginVC = [[LoginViewController alloc] init];
+        loginVC.managedObjectContext = CoreData.sharedInstance.mainMOC;
+        loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        
+        __weak OwnTracksAppDelegate *weakSelf = self;
+        loginVC.onSetupComplete = ^{
+            OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluído — iniciando monitoramento");
+            [loginVC dismissViewControllerAnimated:YES completion:^{
+                [weakSelf startOwnTracksMonitoring];
+            }];
+        };
+        
+        UIViewController *rootVC = self.window.rootViewController;
+        [rootVC presentViewController:loginVC animated:YES completion:nil];
+    });
+}
+
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    
+    // Redirecionar para o AuthManager tratar o callback do Keycloak (owntracks://auth)
+    if ([url.scheme isEqualToString:@"owntracks"] && [url.host isEqualToString:@"auth"]) {
+        OwnTracksLogDefault("[OwnTracksAppDelegate] openURL auth callback: %@", url);
+        return [AuthManager.shared handleRedirectURL:url];
+    }
+    
+    // Outros handlers de URL do OwnTracks (configuração por URI, etc.)
+    OwnTracksLogDefault("[OwnTracksAppDelegate] openURL %@", url);
+    return NO;
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
