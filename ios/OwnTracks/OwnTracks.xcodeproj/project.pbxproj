@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F800001000002 /* GoogleService-Info.plist */; };
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
 		84001C141C78982800413E5B /* Queue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 84001C111C78982800413E5B /* Queue+CoreDataProperties.m */; };
@@ -300,6 +301,7 @@
 		84B03520261D95F2000F2ECA /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		84B0CDAC239E2EFA00CE9305 /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/BackgroundTasks.framework; sourceTree = DEVELOPER_DIR; };
 		84B1BE0012F800001000002 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		99B1BE0012F800001000002 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		84B1BE0012F800001000004 /* SetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupService.swift; sourceTree = "<group>"; };
 		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		84B739781A65629200B103F4 /* LocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationManager.h; sourceTree = "<group>"; };
@@ -537,6 +539,7 @@
 				84D6B47C25C844A500B2AC07 /* NSNumber+decimals.m */,
 				845451B03002865F00AF9FCE /* OwnTracksFormatter.swift */,
 				84B1BE0012F800001000002 /* AuthManager.swift */,
+				99B1BE0012F800001000002 /* GoogleService-Info.plist */,
 				84B1BE0012F800001000004 /* SetupService.swift */,
 				84B1BE0012F800001000006 /* LoginViewController.swift */,
 				846FFA491B40A301001482A6 /* UI */,
@@ -872,6 +875,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */,
 				8479EEB718E4529900923B24 /* MQTT.plist in Resources */,
 				8400D9731D83825E00DEA134 /* HTTP.plist in Resources */,
 				843B91721C8A14BF00DBD306 /* Storyboard.storyboard in Resources */,
