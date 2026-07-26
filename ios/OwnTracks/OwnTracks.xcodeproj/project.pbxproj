@@ -1656,7 +1656,7 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:ckrey/MQTTClient.git";
+			repositoryURL = "https://github.com/ckrey/MQTTClient.git";
 			requirement = {
 				branch = main;
 				kind = branch;

@@ -12,7 +12,7 @@
     {
       "identity" : "mqttclient",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:ckrey/MQTTClient.git",
+      "location" : "https://github.com/ckrey/MQTTClient.git",
       "state" : {
         "branch" : "main",
         "revision" : "3feee48c14d5f0783fa2b82b3bb44fe87e75807c"
