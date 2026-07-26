@@ -39,62 +39,23 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     override func viewDidLoad() {
         super.viewDidLoad();
         
-        mapView.delegate = self;
-        mapView.mapType = .standard;
-        mapView.showsScale = false;
-                
-        setupModes();
-        setupMapMode();
-        setupScaleView();
-        
-        LocationManager.sharedInstance().addObserver(self,
-                                                     forKeyPath: "monitoring",
-                                                     options: [.new],
-                                                     context: nil);
-        mapView.addObserver(self,
-                            forKeyPath: "userLocation",
-                            options: [.initial, .new],
-                            context: nil);
-        mapView.addObserver(self,
-                            forKeyPath: "userLocation.location",
-                            options: [.initial, .new],
-                            context: nil);
-        
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("reload"),
-                                               object: nil,
-                                               queue: OperationQueue.main) { notification in
-            if Thread.isMainThread {
-                self.reloaded();
-            } else {
-                DispatchQueue.main.async {
-                    self.reloaded();
-                }
-            }
-        }
-        noMap();
-        reloaded();
-
-        mapView?.isHidden = true;
-        modes?.isHidden = true;
-        mapMode?.isHidden = true;
-        scaleView?.isHidden = true;
+        navigationController?.setNavigationBarHidden(true, animated: false);
+        mapView?.removeFromSuperview();
 
         setupWebView();
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated);
+        navigationController?.setNavigationBarHidden(true, animated: false);
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated);
-        mapView?.isHidden = true;
-        modes?.isHidden = true;
-        mapMode?.isHidden = true;
-        scaleView?.isHidden = true;
+        navigationController?.setNavigationBarHidden(true, animated: false);
 
         if webView != nil {
             view.bringSubviewToFront(webView);
-        }
-        
-        if !warningShown && Setting.existsSetting(withKey: "mode", inMOC: CoreData.sharedInstance().mainMOC) == nil {
-            warningShown = true;
         }
     }
     
@@ -267,16 +228,17 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     }
     
     func updateAccuracyButton() {
-        let location = mapView.userLocation.location;
-        if location != nil {
-            accuracyButton.title = OwnTracksFormatter.accuracy(from: location!.horizontalAccuracy);
-        } else {
-            accuracyButton.title = "-";
+        guard let location = mapView?.userLocation.location else {
+            accuracyButton?.title = "-";
+            actionButton?.isEnabled = false;
+            return;
         }
-        actionButton.isEnabled = accuracyButton.title != "-";
+        accuracyButton?.title = OwnTracksFormatter.accuracy(from: location.horizontalAccuracy);
+        actionButton?.isEnabled = accuracyButton?.title != "-";
     }
     
     func reloaded() {
+        guard let mapView = mapView else { return };
         mapView.removeAnnotations(mapView.annotations);
         mapView.removeOverlays(mapView.overlays);
 
