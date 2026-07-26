@@ -2,6 +2,15 @@
   "originHash" : "e9609ca588486c3f1df7c1507af5cf67432d712c87eeebaa37609fcfc9b84daa",
   "pins" : [
     {
+      "identity" : "appauth-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/openid/AppAuth-iOS",
+      "state" : {
+        "revision" : "37ac8458a8278c37b9c97fce888d48c12f66e4d0",
+        "version" : "1.7.5"
+      }
+    },
+    {
       "identity" : "jsonschemavalidation",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dashpay/JSONSchemaValidation.git",
@@ -31,3 +40,4 @@
   ],
   "version" : 3
 }
+

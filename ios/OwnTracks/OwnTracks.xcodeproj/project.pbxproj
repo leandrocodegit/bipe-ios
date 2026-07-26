@@ -105,6 +105,7 @@
 		84B1BE0012F800001000001 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000002 /* AuthManager.swift */; };
 		84B1BE0012F800001000003 /* SetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000004 /* SetupService.swift */; };
 		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
+		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -414,6 +415,7 @@
 				84ED67922F1E9A0E0013A265 /* DSJSONSchemaValidation in Frameworks */,
 				84ED67862F1E95110013A265 /* Clibsodium in Frameworks */,
 				84A4002B2F8ABBFA00340475 /* MQTTClient in Frameworks */,
+				84B1BE0012F800001000007 /* AppAuth in Frameworks */,
 				84C3F45E2CF09F9B004DB332 /* PhotosUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -703,6 +705,13 @@
 				8452741524A8EF0B00C44340 /* PBXTargetDependency */,
 			);
 			name = OwnTracks;
+			packageProductDependencies = (
+				84A4002A2F8ABBFA00340475 /* MQTTClient */,
+				84ED67852F1E95110013A265 /* Clibsodium */,
+				84ED67872F1E95110013A265 /* Sodium */,
+				84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */,
+				84B1BE0012F800001000008 /* AppAuth */,
+			);
 			productName = OwnTracks;
 			productReference = 8411B828189FDB140019D2D6 /* OwnTracks.app */;
 			productType = "com.apple.product-type.application";
@@ -838,6 +847,7 @@
 				84ED67842F1E95110013A265 /* XCRemoteSwiftPackageReference "swift-sodium" */,
 				84ED67902F1E9A0E0013A265 /* XCRemoteSwiftPackageReference "JSONSchemaValidation" */,
 				84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */,
+				84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */,
 			);
 			productRefGroup = 8411B829189FDB140019D2D6 /* Products */;
 			projectDirPath = "";
@@ -1668,6 +1678,14 @@
 				minimumVersion = 2.0.7;
 			};
 		};
+		84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/openid/AppAuth-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.7.5;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1690,6 +1708,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 84ED67902F1E9A0E0013A265 /* XCRemoteSwiftPackageReference "JSONSchemaValidation" */;
 			productName = DSJSONSchemaValidation;
+		};
+		84B1BE0012F800001000008 /* AppAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */;
+			productName = AppAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 
