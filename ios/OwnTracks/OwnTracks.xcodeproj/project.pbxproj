@@ -102,6 +102,9 @@
 		84ED67882F1E95110013A265 /* Sodium in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67872F1E95110013A265 /* Sodium */; };
 		84ED67922F1E9A0E0013A265 /* DSJSONSchemaValidation in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */; };
 		84FAEA7225F01DA100DCD479 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84FAEA7125F01DA100DCD479 /* Launch Screen.storyboard */; };
+		84B1BE0012F800001000001 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000002 /* AuthManager.swift */; };
+		84B1BE0012F800001000003 /* SetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000004 /* SetupService.swift */; };
+		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -159,6 +162,9 @@
 		84001C111C78982800413E5B /* Queue+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Queue+CoreDataProperties.m"; sourceTree = "<group>"; };
 		8400D9721D83825E00DEA134 /* HTTP.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = HTTP.plist; sourceTree = "<group>"; };
 		8400D9741D84946E00DEA134 /* Model 9.1.7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.1.7.xcdatamodel"; sourceTree = "<group>"; };
+		84B1BE0012F800001000002 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		84B1BE0012F800001000004 /* SetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupService.swift; sourceTree = "<group>"; };
+		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCardTVC.swift; sourceTree = "<group>"; };
 		8405CB612F153DD9008C2580 /* ModesTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModesTVC.swift; sourceTree = "<group>"; };
 		840BBDD318E4274200DC113C /* Model 6.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 6.2.xcdatamodel"; sourceTree = "<group>"; };
@@ -524,6 +530,9 @@
 				84D6B47B25C844A500B2AC07 /* NSNumber+decimals.h */,
 				84D6B47C25C844A500B2AC07 /* NSNumber+decimals.m */,
 				845451B03002865F00AF9FCE /* OwnTracksFormatter.swift */,
+				84B1BE0012F800001000002 /* AuthManager.swift */,
+				84B1BE0012F800001000004 /* SetupService.swift */,
+				84B1BE0012F800001000006 /* LoginViewController.swift */,
 				846FFA491B40A301001482A6 /* UI */,
 				8411B834189FDB140019D2D6 /* Supporting Files */,
 			);
@@ -968,6 +977,9 @@
 				842E6ECE20BEE96F001928FA /* Region+CoreDataClass.m in Sources */,
 				84E03DBC2F655996006756BE /* PersonTVC.swift in Sources */,
 				84A452BA2F35157000AA6A29 /* StatusTVC.swift in Sources */,
+				84B1BE0012F800001000001 /* AuthManager.swift in Sources */,
+				84B1BE0012F800001000003 /* SetupService.swift in Sources */,
+				84B1BE0012F800001000005 /* LoginViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
