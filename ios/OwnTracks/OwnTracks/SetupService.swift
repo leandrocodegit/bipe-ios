@@ -80,14 +80,20 @@ enum SetupError: LocalizedError {
 
     // MARK: - Obtém token FCM do Firebase
 
-    private func fetchFCMToken(completion: @escaping (String?) -> Void) {
+    private func fetchFCMToken(retries: Int = 3, completion: @escaping (String?) -> Void) {
         Messaging.messaging().token { token, error in
             if let error = error {
-                NSLog("[SetupService] Erro ao obter token FCM: %@", error.localizedDescription)
-                completion(nil)
+                NSLog("[SetupService] Erro ao obter token FCM (tentativas restantes: %d): %@", retries, error.localizedDescription)
+                if retries > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.fetchFCMToken(retries: retries - 1, completion: completion)
+                    }
+                } else {
+                    completion("")
+                }
             } else {
-                NSLog("[SetupService] Token FCM obtido: %@", token ?? "nil")
-                completion(token)
+                NSLog("[SetupService] Token FCM obtido: %@", token ?? "")
+                completion(token ?? "")
             }
         }
     }
