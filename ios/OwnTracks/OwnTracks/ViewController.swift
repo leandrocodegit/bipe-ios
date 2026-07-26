@@ -40,6 +40,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         super.viewDidLoad();
         
         navigationController?.setNavigationBarHidden(true, animated: false);
+        navigationController?.setToolbarHidden(true, animated: false);
         mapView?.removeFromSuperview();
 
         setupWebView();
@@ -48,11 +49,13 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         navigationController?.setNavigationBarHidden(true, animated: false);
+        navigationController?.setToolbarHidden(true, animated: false);
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated);
         navigationController?.setNavigationBarHidden(true, animated: false);
+        navigationController?.setToolbarHidden(true, animated: false);
 
         if webView != nil {
             view.bringSubviewToFront(webView);
