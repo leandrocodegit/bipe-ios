@@ -554,6 +554,27 @@ static OwnTracking *theInstance = nil;
 - (NSDictionary *)waypointAsJSON:(Waypoint *)waypoint {
     NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
     json[@"_type"] = @"location";
+    
+    NSString *userName = [Settings stringForKey:@"user_preference" inMOC:waypoint.managedObjectContext];
+    if (userName && userName.length > 0) {
+        json[@"userName"] = userName;
+    }
+    
+    NSString *clienteId = [Settings stringForKey:@"clientid_preference" inMOC:waypoint.managedObjectContext];
+    if (clienteId && clienteId.length > 0) {
+        json[@"clienteId"] = clienteId;
+    }
+    
+    NSString *nickname = [Settings stringForKey:@"nickname_preference" inMOC:waypoint.managedObjectContext];
+    if (nickname && nickname.length > 0) {
+        json[@"nickname"] = nickname;
+    }
+    
+    NSString *opMode = [Settings stringForKey:@"opmode_preference" inMOC:waypoint.managedObjectContext];
+    if (opMode && opMode.length > 0) {
+        json[@"opMode"] = opMode;
+    }
+
     if (waypoint.trigger) {
         json[@"t"] = waypoint.trigger;
     }

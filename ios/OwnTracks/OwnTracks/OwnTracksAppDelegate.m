@@ -874,6 +874,26 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
             NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
             json[@"_type"] = @"transition";
             
+            NSString *userName = [Settings stringForKey:@"user_preference" inMOC:moc];
+            if (userName && userName.length > 0) {
+                json[@"userName"] = userName;
+            }
+            
+            NSString *clienteId = [Settings stringForKey:@"clientid_preference" inMOC:moc];
+            if (clienteId && clienteId.length > 0) {
+                json[@"clienteId"] = clienteId;
+            }
+            
+            NSString *nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
+            if (nickname && nickname.length > 0) {
+                json[@"nickname"] = nickname;
+            }
+            
+            NSString *opMode = [Settings stringForKey:@"opmode_preference" inMOC:moc];
+            if (opMode && opMode.length > 0) {
+                json[@"opMode"] = opMode;
+            }
+            
             json[@"lat"] = [NSNumber doubleValueWithSixDecimals:location.coordinate.latitude];
             
             json[@"lon"] = [NSNumber doubleValueWithSixDecimals:location.coordinate.longitude];
