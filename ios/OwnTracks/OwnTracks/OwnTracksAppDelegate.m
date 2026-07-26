@@ -239,13 +239,13 @@
         loginVC.managedObjectContext = CoreData.sharedInstance.mainMOC;
         loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
         
+        // Usa o método @objc wrapper — propriedades Swift de closure opcional não são acessíveis via ObjC.
+        // O LoginViewController dispensa a si mesmo antes de chamar este bloco.
         __weak OwnTracksAppDelegate *weakSelf = self;
-        loginVC.onSetupComplete = ^{
+        [loginVC setCompletionHandler:^{
             OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluído — iniciando monitoramento");
-            [loginVC dismissViewControllerAnimated:YES completion:^{
-                [weakSelf startOwnTracksMonitoring];
-            }];
-        };
+            [weakSelf startOwnTracksMonitoring];
+        }];
         
         UIViewController *rootVC = self.window.rootViewController;
         [rootVC presentViewController:loginVC animated:YES completion:nil];

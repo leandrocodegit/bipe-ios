@@ -92,8 +92,14 @@ class LoginViewController: UIViewController {
     private let setupService = SetupService.shared
     var managedObjectContext: NSManagedObjectContext?
 
-    /// Chamado quando o setup for concluído com sucesso — o AppDelegate pode usar isso
-    var onSetupComplete: (() -> Void)?
+    /// Bloco chamado quando o setup for concluído.
+    /// Use `setCompletionHandler(_:)` para definir a partir do Objective-C.
+    private var onSetupComplete: (() -> Void)?
+
+    /// Define o handler de conclusão a partir do Objective-C (blocks são bridged automaticamente).
+    @objc func setCompletionHandler(_ handler: @escaping () -> Void) {
+        onSetupComplete = handler
+    }
 
     // MARK: - Lifecycle
 
@@ -238,7 +244,11 @@ class LoginViewController: UIViewController {
 
     private func dismissAndStart() {
         DispatchQueue.main.async { [weak self] in
-            self?.onSetupComplete?()
+            guard let self = self else { return }
+            // O VC se dispensa e só então chama o handler — sem precisar de referência externa
+            self.dismiss(animated: true) {
+                self.onSetupComplete?()
+            }
         }
     }
 }
