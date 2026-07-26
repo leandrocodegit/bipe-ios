@@ -41,6 +41,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         
         navigationController?.setNavigationBarHidden(true, animated: false);
         navigationController?.setToolbarHidden(true, animated: false);
+        tabBarController?.tabBar.isHidden = true;
         mapView?.removeFromSuperview();
 
         setupWebView();
@@ -50,6 +51,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         super.viewWillAppear(animated);
         navigationController?.setNavigationBarHidden(true, animated: false);
         navigationController?.setToolbarHidden(true, animated: false);
+        tabBarController?.tabBar.isHidden = true;
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -999,6 +1001,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         webView.uiDelegate = self
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
 
         view.addSubview(webView)
         NSLayoutConstraint.activate([
