@@ -13,7 +13,7 @@
 
 #import <UIKit/UIKit.h>
 #import "OwnTracksLog.h"
-#import "sodium.h"
+@import Clibsodium;
 #import "LocationManager.h"
 #import "Settings.h"
 #import "OwnTracksAppDelegate.h"
