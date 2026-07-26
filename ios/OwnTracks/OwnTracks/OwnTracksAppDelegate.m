@@ -26,6 +26,7 @@
 //#import "OwnTracksPointOfInterestIntent.h"
 #import "OwnTracks-Swift.h"
 @import FirebaseCore;
+@import FirebaseMessaging;
 
 @interface OwnTracksAppDelegate()
 
@@ -194,6 +195,7 @@
     OwnTracksLogDebug("[OwnTracksAppDelegate] didFinishLaunchingWithOptions %@", launchOptions);
     
     [FIRApp configure];
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
@@ -338,6 +340,11 @@
     completionHandler(UNNotificationPresentationOptionList |
                       UNNotificationPresentationOptionBanner |
                       UNNotificationPresentationOptionSound);
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] didRegisterForRemoteNotificationsWithDeviceToken");
+    [FIRMessaging messaging].APNSToken = deviceToken;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
