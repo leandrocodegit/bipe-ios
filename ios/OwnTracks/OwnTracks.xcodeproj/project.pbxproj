@@ -75,6 +75,10 @@
 		84A452BA2F35157000AA6A29 /* StatusTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A452B92F35156F00AA6A29 /* StatusTVC.swift */; };
 		84AFD40B2434486200F1E922 /* OwnTracking.m in Sources */ = {isa = PBXBuildFile; fileRef = 84AFD40A2434486200F1E922 /* OwnTracking.m */; };
 		84B0CDAD239E2EFA00CE9305 /* BackgroundTasks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84B0CDAC239E2EFA00CE9305 /* BackgroundTasks.framework */; };
+		84B1BE0012F800001000001 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000002 /* AuthManager.swift */; };
+		84B1BE0012F800001000003 /* SetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000004 /* SetupService.swift */; };
+		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
+		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
 		84B7397A1A65629200B103F4 /* LocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84B739791A65629200B103F4 /* LocationManager.m */; };
 		84BD03AA25D5301F0077B9B8 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84AE8ADB25C165D600C0B0EE /* MapKit.framework */; };
 		84BDD0D12F2A815500358CC2 /* OwnTracksLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BDD0D02F2A815500358CC2 /* OwnTracksLog.m */; };
@@ -102,10 +106,6 @@
 		84ED67882F1E95110013A265 /* Sodium in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67872F1E95110013A265 /* Sodium */; };
 		84ED67922F1E9A0E0013A265 /* DSJSONSchemaValidation in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */; };
 		84FAEA7225F01DA100DCD479 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84FAEA7125F01DA100DCD479 /* Launch Screen.storyboard */; };
-		84B1BE0012F800001000001 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000002 /* AuthManager.swift */; };
-		84B1BE0012F800001000003 /* SetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000004 /* SetupService.swift */; };
-		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
-		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -163,9 +163,6 @@
 		84001C111C78982800413E5B /* Queue+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Queue+CoreDataProperties.m"; sourceTree = "<group>"; };
 		8400D9721D83825E00DEA134 /* HTTP.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = HTTP.plist; sourceTree = "<group>"; };
 		8400D9741D84946E00DEA134 /* Model 9.1.7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.1.7.xcdatamodel"; sourceTree = "<group>"; };
-		84B1BE0012F800001000002 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
-		84B1BE0012F800001000004 /* SetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupService.swift; sourceTree = "<group>"; };
-		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCardTVC.swift; sourceTree = "<group>"; };
 		8405CB612F153DD9008C2580 /* ModesTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModesTVC.swift; sourceTree = "<group>"; };
 		840BBDD318E4274200DC113C /* Model 6.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 6.2.xcdatamodel"; sourceTree = "<group>"; };
@@ -300,6 +297,9 @@
 		84B0351C261D95F2000F2ECA /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84B03520261D95F2000F2ECA /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		84B0CDAC239E2EFA00CE9305 /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/BackgroundTasks.framework; sourceTree = DEVELOPER_DIR; };
+		84B1BE0012F800001000002 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		84B1BE0012F800001000004 /* SetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupService.swift; sourceTree = "<group>"; };
+		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		84B739781A65629200B103F4 /* LocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationManager.h; sourceTree = "<group>"; };
 		84B739791A65629200B103F4 /* LocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationManager.m; sourceTree = "<group>"; };
 		84BA0A0F2DE6F24B00AFACA9 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Storyboard.strings; sourceTree = "<group>"; };
@@ -848,6 +848,7 @@
 				84ED67902F1E9A0E0013A265 /* XCRemoteSwiftPackageReference "JSONSchemaValidation" */,
 				84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */,
 				84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */,
+				6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 8411B829189FDB140019D2D6 /* Products */;
 			projectDirPath = "";
@@ -1654,6 +1655,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
+		84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/openid/AppAuth-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.7.5;
+			};
+		};
 		84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ckrey/MQTTClient.git";
@@ -1678,14 +1695,6 @@
 				minimumVersion = 2.0.7;
 			};
 		};
-		84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/openid/AppAuth-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.7.5;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1693,6 +1702,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */;
 			productName = MQTTClient;
+		};
+		84B1BE0012F800001000008 /* AppAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */;
+			productName = AppAuth;
 		};
 		84ED67852F1E95110013A265 /* Clibsodium */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1708,11 +1722,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 84ED67902F1E9A0E0013A265 /* XCRemoteSwiftPackageReference "JSONSchemaValidation" */;
 			productName = DSJSONSchemaValidation;
-		};
-		84B1BE0012F800001000008 /* AppAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */;
-			productName = AppAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 

@@ -1,3 +1,4 @@
+
 //
 //  OwnTracksAppDelegate.m
 //  OwnTracks
@@ -252,19 +253,79 @@
     });
 }
 
+#pragma mark - openURL (unified handler)
+//
+// NOTE: Previously this file declared TWO methods with the exact same
+// selector `application:openURL:options:` (the generic type of the
+// `options` dictionary parameter does not change the selector). Only one
+// of them was ever actually invoked at runtime, which meant the Keycloak
+// auth-callback handling below was silently dead code. They have been
+// merged into a single method.
+//
 - (BOOL)application:(UIApplication *)app
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    
+
+    OwnTracksLogDefault("[OwnTracksAppDelegate] openURL %@ options %@", url, options);
+
+    if (!url) {
+        self.processingMessage = NSLocalizedString(@"no url specified",
+                                                   @"Display after trying to process a file");
+        OwnTracksLogError("[OwnTracksAppDelegate] no url specified");
+        return FALSE;
+    }
+
     // Redirecionar para o AuthManager tratar o callback do Keycloak (owntracks://auth)
     if ([url.scheme isEqualToString:@"owntracks"] && [url.host isEqualToString:@"auth"]) {
         OwnTracksLogDefault("[OwnTracksAppDelegate] openURL auth callback: %@", url);
         return [AuthManager.shared handleRedirectURL:url];
     }
-    
-    // Outros handlers de URL do OwnTracks (configuração por URI, etc.)
-    OwnTracksLogDefault("[OwnTracksAppDelegate] openURL %@", url);
-    return NO;
+
+    OwnTracksLogDebug("[OwnTracksAppDelegate] URL scheme %@", url.scheme);
+
+    if ([url.scheme isEqualToString:@"owntracks"]) {
+        OwnTracksLogDebug("[OwnTracksAppDelegate] URL path %@ query %@", url.path, url.query);
+        if (![Settings theallowConfigurationByURIAndConfigFileInMOC:CoreData.sharedInstance.mainMOC]) {
+            self.processingMessage = NSLocalizedString(@"URI or file configuration not allowed",
+                                                       @"URI or file configuration not allowed");
+            OwnTracksLogError("[OwnTracksAppDelegate] URI or file configuration not allowed");
+            return FALSE;
+        }
+        NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:TRUE];
+        NSArray<NSURLQueryItem *> *items = [components queryItems];
+        NSMutableDictionary *queryStrings = [[NSMutableDictionary alloc] init];
+        for (NSURLQueryItem *item in items) {
+            queryStrings[item.name] = item.value;
+        }
+
+        if ([url.path isEqualToString:@"/beacon"]) {
+            return [self processURIBeacon:queryStrings];
+        } else if ([url.path isEqualToString:@"/config"]) {
+            return [self processURIConfig:queryStrings];
+        } else {
+            self.processingMessage = NSLocalizedString(@"unknown url path",
+                                                       @"Display for unknown url path");
+            OwnTracksLogError("[OwnTracksAppDelegate] unknown url path %@", url.path);
+            return FALSE;
+        }
+    } else if ([url.scheme isEqualToString:@"file"]) {
+        if (![Settings theallowConfigurationByURIAndConfigFileInMOC:CoreData.sharedInstance.mainMOC]) {
+            self.processingMessage = NSLocalizedString(@"URI or file configuration not allowed",
+                                                       @"URI or file configuration not allowed");
+            OwnTracksLogError("[OwnTracksAppDelegate] URI or file configuration not allowed");
+            return FALSE;
+        }
+        [self processFile:url];
+        return TRUE;
+
+    } else {
+        self.processingMessage = [NSString stringWithFormat:@"%@ %@",
+                                  NSLocalizedString(@"unknown scheme in url",
+                                                    @"Display after entering an unknown scheme in url"),
+                                  url.scheme];
+        OwnTracksLogError("[OwnTracksAppDelegate] unkonwn scheme in URL %@", url.scheme);
+        return FALSE;
+    }
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
@@ -313,64 +374,6 @@
     [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
         //
     }];
-}
-
--(BOOL)application:(UIApplication *)app
-           openURL:(NSURL *)url
-           options:(NSDictionary<NSString *,id> *)options {
-    OwnTracksLogDefault("[OwnTracksAppDelegate] openURL %@ options %@", url, options);
-    if (url) {
-        OwnTracksLogDebug("[OwnTracksAppDelegate] URL scheme %@", url.scheme);
-        
-        if ([url.scheme isEqualToString:@"owntracks"]) {
-            OwnTracksLogDebug("[OwnTracksAppDelegate] URL path %@ query %@", url.path, url.query);
-            if (![Settings theallowConfigurationByURIAndConfigFileInMOC:CoreData.sharedInstance.mainMOC]) {
-                self.processingMessage = NSLocalizedString(@"URI or file configuration not allowed",
-                                                           @"URI or file configuration not allowed");
-                OwnTracksLogError("[OwnTracksAppDelegate] URI or file configuration not allowed");
-                return FALSE;
-            }
-            NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:TRUE];
-            NSArray<NSURLQueryItem *> *items = [components queryItems];
-            NSMutableDictionary *queryStrings = [[NSMutableDictionary alloc] init];
-            for (NSURLQueryItem *item in items) {
-                queryStrings[item.name] = item.value;
-            }
-            
-            if ([url.path isEqualToString:@"/beacon"]) {
-                return [self processURIBeacon:queryStrings];
-            } else if ([url.path isEqualToString:@"/config"]) {
-                return [self processURIConfig:queryStrings];
-            } else {
-                self.processingMessage = NSLocalizedString(@"unknown url path",
-                                                           @"Display for unknown url path");
-                OwnTracksLogError("[OwnTracksAppDelegate] unknown url path %@", url.path);
-                return FALSE;
-            }
-        } else if ([url.scheme isEqualToString:@"file"]) {
-            if (![Settings theallowConfigurationByURIAndConfigFileInMOC:CoreData.sharedInstance.mainMOC]) {
-                self.processingMessage = NSLocalizedString(@"URI or file configuration not allowed",
-                                                           @"URI or file configuration not allowed");
-                OwnTracksLogError("[OwnTracksAppDelegate] URI or file configuration not allowed");
-                return FALSE;
-            }
-            [self processFile:url];
-            return TRUE;
-            
-        } else {
-            self.processingMessage = [NSString stringWithFormat:@"%@ %@",
-                                      NSLocalizedString(@"unknown scheme in url",
-                                                        @"Display after entering an unknown scheme in url"),
-                                      url.scheme];
-            OwnTracksLogError("[OwnTracksAppDelegate] unkonwn scheme in URL %@", url.scheme);
-            return FALSE;
-        }
-    } else {
-        self.processingMessage = NSLocalizedString(@"no url specified",
-                                                   @"Display after trying to process a file");
-        OwnTracksLogError("[OwnTracksAppDelegate] no url specified");
-        return FALSE;
-    }
 }
 
 - (BOOL)processURIConfig:(NSDictionary *)queryStrings {
@@ -457,7 +460,7 @@
         [CoreData.sharedInstance sync:CoreData.sharedInstance.mainMOC];
         self.processingMessage = NSLocalizedString(@"Beacon QR successfully processed",
                                                    @"Display after processing beacon QR code");
-        OwnTracksLogDefault("[OwnTracksAppDelegate] Beacon QR successfully processed");        
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Beacon QR successfully processed");
     }];
     
     return TRUE;
@@ -899,13 +902,18 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                         }
                     }
                     
-                    NSArray <NSString *> *components = [region.identifier componentsSeparatedByString:@"|"];
-                    if (components.count == 3) {
+                    // NOTE: previously this inner scope re-declared a local
+                    // named `components`, shadowing the outer `components`
+                    // array declared above (same name, different array).
+                    // Renamed to `identifierComponents` to remove the
+                    // shadowing/confusion; behavior is unchanged.
+                    NSArray <NSString *> *identifierComponents = [region.identifier componentsSeparatedByString:@"|"];
+                    if (identifierComponents.count == 3) {
                         LocationMonitoring newMonitoring;
                         if (enter) {
-                            newMonitoring = components[1].integerValue;
+                            newMonitoring = identifierComponents[1].integerValue;
                         } else {
-                            newMonitoring = components[2].integerValue;
+                            newMonitoring = identifierComponents[2].integerValue;
                         }
                         LocationManager.sharedInstance.monitoring = newMonitoring;
                         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -1960,4 +1968,3 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
 }
 
 @end
-

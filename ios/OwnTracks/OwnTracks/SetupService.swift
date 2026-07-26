@@ -208,8 +208,8 @@ enum SetupError: LocalizedError {
             Settings.setBool(true, forKey: "auth_preference", inMOC: context)
             Settings.setBool(true, forKey: "usepassword_preference", inMOC: context)
 
-            // Modo MQTT (CONNECTION_MODE_MQTT = 0, definido em Settings.h)
-            Settings.setMode(ConnectionMode(rawValue: 0), inMOC: context)
+            // Modo MQTT (CONNECTION_MODE_MQTT = 0)
+            Settings.setMode(ConnectionMode.CONNECTION_MODE_MQTT, inMOC: context)
 
             // Salva no CoreData
             if context.hasChanges {
