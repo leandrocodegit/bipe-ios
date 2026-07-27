@@ -145,7 +145,8 @@
                 "transition",
                 "waypoint",
                 "waypoints",
-                "call"
+                "call",
+                "rtc"
             ]
         },
         "action": {
