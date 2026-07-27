@@ -7,9 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F800001000002 /* GoogleService-Info.plist */; };
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
+		6ABFE1803016E14E000DCACE /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE17F3016E14E000DCACE /* WebRTC */; };
+		6ABFE1823016E26B000DCACE /* WebRTCManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABFE1813016E26B000DCACE /* WebRTCManager.swift */; };
+		6ABFE1843016E36F000DCACE /* MessageRTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABFE1833016E36F000DCACE /* MessageRTC.swift */; };
 		84001C141C78982800413E5B /* Queue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 84001C111C78982800413E5B /* Queue+CoreDataProperties.m */; };
 		8400D9731D83825E00DEA134 /* HTTP.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8400D9721D83825E00DEA134 /* HTTP.plist */; };
 		8405CB602F14EBEF008C2580 /* CreateCardTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */; };
@@ -109,6 +111,7 @@
 		84ED67882F1E95110013A265 /* Sodium in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67872F1E95110013A265 /* Sodium */; };
 		84ED67922F1E9A0E0013A265 /* DSJSONSchemaValidation in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */; };
 		84FAEA7225F01DA100DCD479 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84FAEA7125F01DA100DCD479 /* Launch Screen.storyboard */; };
+		99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F800001000002 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -160,6 +163,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6ABFE1813016E26B000DCACE /* WebRTCManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRTCManager.swift; sourceTree = "<group>"; };
+		6ABFE1833016E36F000DCACE /* MessageRTC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRTC.swift; sourceTree = "<group>"; };
 		84001C0D1C78729200413E5B /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		84001C0F1C78976100413E5B /* Model 9.0.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.0.2.xcdatamodel"; sourceTree = "<group>"; };
 		84001C101C78982800413E5B /* Queue+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Queue+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -301,7 +306,6 @@
 		84B03520261D95F2000F2ECA /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		84B0CDAC239E2EFA00CE9305 /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/BackgroundTasks.framework; sourceTree = DEVELOPER_DIR; };
 		84B1BE0012F800001000002 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
-		99B1BE0012F800001000002 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		84B1BE0012F800001000004 /* SetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupService.swift; sourceTree = "<group>"; };
 		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		84B739781A65629200B103F4 /* LocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationManager.h; sourceTree = "<group>"; };
@@ -383,6 +387,7 @@
 		84F9622E25F008F3007A391A /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84FA6C1722EAFF8800AC7D63 /* Model 12.0.6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 12.0.6.xcdatamodel"; sourceTree = "<group>"; };
 		84FAEA7125F01DA100DCD479 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		99B1BE0012F800001000002 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B1AC89F92E2FDF3400E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Storyboard.strings"; sourceTree = "<group>"; };
 		B1AC89FA2E2FDF3500E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Intents.strings"; sourceTree = "<group>"; };
 		B1AC89FB2E2FDF3700E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -404,6 +409,7 @@
 				8488CFDF25A45CC3000AFEE2 /* Security.framework in Frameworks */,
 				84B0CDAD239E2EFA00CE9305 /* BackgroundTasks.framework in Frameworks */,
 				841D3525209C74E70084FCD0 /* Contacts.framework in Frameworks */,
+				6ABFE1803016E14E000DCACE /* WebRTC in Frameworks */,
 				841D3523209C5DDF0084FCD0 /* UserNotifications.framework in Frameworks */,
 				8422AF681AF825C7008932A2 /* SystemConfiguration.framework in Frameworks */,
 				8470352923D5E6B10041AAFB /* SystemConfiguration.framework in Frameworks */,
@@ -513,6 +519,8 @@
 		8411B833189FDB140019D2D6 /* OwnTracks */ = {
 			isa = PBXGroup;
 			children = (
+				6ABFE1833016E36F000DCACE /* MessageRTC.swift */,
+				6ABFE1813016E26B000DCACE /* WebRTCManager.swift */,
 				8411B897189FEB790019D2D6 /* assets */,
 				8411B867189FE1ED0019D2D6 /* coredata */,
 				8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */,
@@ -719,6 +727,7 @@
 				84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */,
 				84B1BE0012F800001000008 /* AppAuth */,
 				6ABFE15F3016BE78000DCACE /* FirebaseMessaging */,
+				6ABFE17F3016E14E000DCACE /* WebRTC */,
 			);
 			productName = OwnTracks;
 			productReference = 8411B828189FDB140019D2D6 /* OwnTracks.app */;
@@ -857,6 +866,7 @@
 				84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */,
 				84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */,
 				6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				6ABFE17E3016E0C2000DCACE /* XCRemoteSwiftPackageReference "WebRTC" */,
 			);
 			productRefGroup = 8411B829189FDB140019D2D6 /* Products */;
 			projectDirPath = "";
@@ -967,6 +977,7 @@
 				846EFA392F6A963E0088232B /* OwnTracksEditTVC.swift in Sources */,
 				84DD1CFC2F431FBA00BB15C2 /* CertificatesTVC.swift in Sources */,
 				8405CB602F14EBEF008C2580 /* CreateCardTVC.swift in Sources */,
+				6ABFE1843016E36F000DCACE /* MessageRTC.swift in Sources */,
 				8474443A1DA4BC9600975BE4 /* ConnType.m in Sources */,
 				842E6ED620BEF031001928FA /* Queue+CoreDataClass.m in Sources */,
 				84BDD0D12F2A815500358CC2 /* OwnTracksLog.m in Sources */,
@@ -987,6 +998,7 @@
 				846EFA342F6813550088232B /* FriendsTVC.swift in Sources */,
 				84AFD40B2434486200F1E922 /* OwnTracking.m in Sources */,
 				8411B891189FE9CE0019D2D6 /* Settings.m in Sources */,
+				6ABFE1823016E26B000DCACE /* WebRTCManager.swift in Sources */,
 				845299E71DFA004000A4DC21 /* Friend+CoreDataClass.m in Sources */,
 				8411B88E189FE9940019D2D6 /* Connection.m in Sources */,
 				845451B13002865F00AF9FCE /* OwnTracksFormatter.swift in Sources */,
@@ -1672,6 +1684,14 @@
 				minimumVersion = 12.16.0;
 			};
 		};
+		6ABFE17E3016E0C2000DCACE /* XCRemoteSwiftPackageReference "WebRTC" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stasel/WebRTC";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 150.0.0;
+			};
+		};
 		84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/openid/AppAuth-iOS";
@@ -1711,6 +1731,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		6ABFE17F3016E14E000DCACE /* WebRTC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6ABFE17E3016E0C2000DCACE /* XCRemoteSwiftPackageReference "WebRTC" */;
+			productName = WebRTC;
 		};
 		84A4002A2F8ABBFA00340475 /* MQTTClient */ = {
 			isa = XCSwiftPackageProductDependency;

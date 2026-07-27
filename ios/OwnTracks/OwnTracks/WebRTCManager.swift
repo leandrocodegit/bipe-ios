@@ -46,17 +46,12 @@ public class WebRTCManager: NSObject {
     }
 
     private func initPeerConnectionFactory() {
-        let fieldTrials = "WebRTC-IntelVP8/Enabled/"
-        RTCInitFieldTrials(RTCFieldTrials(fieldTrials))
-        RTCInitializeSSL()
-        
-        let audioDeviceModule = RTCAudioDeviceModule()
+        // Inicialização do SSL e FieldTrials é feita automaticamente nas versões mais recentes do WebRTC.
         
         let factoryOptions = RTCPeerConnectionFactoryOptions()
         peerConnectionFactory = RTCPeerConnectionFactory(
             encoderFactory: RTCDefaultVideoEncoderFactory(),
-            decoderFactory: RTCDefaultVideoDecoderFactory(),
-            audioDeviceModule: audioDeviceModule
+            decoderFactory: RTCDefaultVideoDecoderFactory()
         )
         peerConnectionFactory?.setOptions(factoryOptions)
     }
@@ -119,7 +114,7 @@ public class WebRTCManager: NSObject {
         // To be replaced with freesound if added to project
     }
 
-    private func setupAudioMode(on: Boolean) {
+    private func setupAudioMode(on: Bool) {
         let audioSession = AVAudioSession.sharedInstance()
         do {
             if on {

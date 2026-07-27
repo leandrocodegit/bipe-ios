@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-public class MessageRTC: NSObject, Codable {
+public class MessageRTC: NSObject {
     @objc public var subtype: String?
     @objc public var sdp: String?
     @objc public var candidate: String?
