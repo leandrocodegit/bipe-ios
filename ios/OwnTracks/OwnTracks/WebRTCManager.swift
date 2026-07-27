@@ -181,8 +181,14 @@ public class WebRTCManager: NSObject {
     }
 
     private func initiateCall(sessionId: String?, userName: String?, clienteId: String?) {
-        DispatchQueue.main.async {
-            self.actuallyInitiateCall(sessionId: sessionId, userName: userName, clienteId: clienteId)
+        AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
+            DispatchQueue.main.async {
+                if granted {
+                    self?.actuallyInitiateCall(sessionId: sessionId, userName: userName, clienteId: clienteId)
+                } else {
+                    print("Microphone permission denied")
+                }
+            }
         }
     }
 
@@ -227,8 +233,14 @@ public class WebRTCManager: NSObject {
     }
 
     private func handleOffer(sdp: String, sessionId: String?, userName: String?, clienteId: String?, incomingToken: String?) {
-        DispatchQueue.main.async {
-            self.actuallyHandleOffer(sdp: sdp, sessionId: sessionId, userName: userName, clienteId: clienteId)
+        AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
+            DispatchQueue.main.async {
+                if granted {
+                    self?.actuallyHandleOffer(sdp: sdp, sessionId: sessionId, userName: userName, clienteId: clienteId)
+                } else {
+                    print("Microphone permission denied")
+                }
+            }
         }
     }
 
