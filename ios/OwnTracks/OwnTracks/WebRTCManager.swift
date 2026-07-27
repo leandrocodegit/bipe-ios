@@ -199,18 +199,29 @@ public class WebRTCManager: NSObject {
         createPeerConnection()
 
         let mandatoryConstraints = [
-            "OfferToReceiveAudio": "false",
+            "OfferToReceiveAudio": "true",
             "OfferToReceiveVideo": "false"
         ]
         let constraints = RTCMediaConstraints(mandatoryConstraints: mandatoryConstraints, optionalConstraints: nil)
 
         let sessionDescription = RTCSessionDescription(type: .offer, sdp: sdp)
         peerConnection?.setRemoteDescription(sessionDescription) { [weak self] error in
-            guard let self = self, error == nil else { return }
+            guard let self = self else { return }
+            if let err = error {
+                print("Failed to set remote description: \(err)")
+                return
+            }
             self.peerConnection?.answer(for: constraints) { sdp, error in
-                guard let answerSdp = sdp, error == nil else { return }
+                if let err = error {
+                    print("Failed to create answer: \(err)")
+                    return
+                }
+                guard let answerSdp = sdp else { return }
                 self.peerConnection?.setLocalDescription(answerSdp) { error in
-                    if error == nil {
+                    if let err = error {
+                        print("Failed to set local description: \(err)")
+                    } else {
+                        print("Successfully created answer and set local description")
                         self.sendSignalingMessage(subtype: "answer", sdp: answerSdp.sdp)
                     }
                 }
