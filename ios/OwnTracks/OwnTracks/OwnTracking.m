@@ -77,6 +77,11 @@ static OwnTracking *theInstance = nil;
                                           inManagedObjectContext:context];
                         [self processFace:friend dictionary:dictionary];
                     }];
+                } else if ([type isEqualToString:@"rtc"]) {
+                    OwnTracksLogDebug("[OwnTracking] received rtc for own device");
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"ReceiveRTCMessage"
+                                                                        object:nil
+                                                                      userInfo:@{@"message": dictionary}];
                 } else {
                     OwnTracksLogDebug("[OwnTracking] unhandled record type for own device _type:%@", dictionary[@"_type"]);
                 }

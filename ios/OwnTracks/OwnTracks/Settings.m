@@ -1126,10 +1126,11 @@ static SettingsDefaults *defaults;
             anyDevice = [anyDevice stringByAppendingString:@"+"];
         }
 
-        subscriptions = [NSString stringWithFormat:@"%@ %@/event %@/info %@/cmd",
+        subscriptions = [NSString stringWithFormat:@"%@ %@/event %@/info %@/cmd %@/call",
                          anyDevice,
                          anyDevice,
                          anyDevice,
+                         [self theGeneralTopicInMOC:context],
                          [self theGeneralTopicInMOC:context]];
     }
     NSString *userId = [Settings theUserIdInMOC:context];
