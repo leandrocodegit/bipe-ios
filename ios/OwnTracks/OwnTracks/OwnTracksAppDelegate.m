@@ -235,6 +235,35 @@
     locationManager.minTime = [Settings doubleForKey:@"mintime_preference"
                                                inMOC:moc];
     [locationManager start];
+    
+    // Inicializar WebRTCManager para escutar notificações
+    [WebRTCManager shared];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleSendRTCMQTTMessage:)
+                                                 name:@"SendRTCMQTTMessage"
+                                               object:nil];
+}
+
+- (void)handleSendRTCMQTTMessage:(NSNotification *)notification {
+    NSDictionary *json = notification.userInfo;
+    if (json) {
+        NSData *data = [self jsonToData:json];
+        NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+        
+        // Android envia para owntracks/{user}/{deviceId}/rtc/send ou similar?
+        // Na verdade, Android envia para o tópico base do rtc.
+        // Vamos usar o theGeneralTopicInMOC e adicionar /rtc/send
+        // The topic must be "owntracks/\(username)/\(deviceId)/rtc/send"
+        NSString *baseTopic = [Settings theGeneralTopicInMOC:moc];
+        NSString *topic = [baseTopic stringByAppendingString:@"/rtc/send"];
+        
+        [self.connection sendData:data
+                            topic:topic
+                       topicAlias:@(0)
+                              qos:[Settings theQosInMOC:moc]
+                           retain:FALSE];
+    }
 }
 
 - (void)presentLoginViewController {
