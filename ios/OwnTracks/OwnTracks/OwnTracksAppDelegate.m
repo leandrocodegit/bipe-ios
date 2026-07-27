@@ -1257,6 +1257,8 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                         } else {
                             OwnTracksLogError("[OwnTracksAppDelegate] remote cmd not allowed");
                         }
+                    } else if ([type isEqualToString:@"call"]) {
+                        // handled by OwnTracking.m
                     } else {
                         OwnTracksLogError("[OwnTracksAppDelegate] unhandled _type (%{public}@) in JSON", type);
                     }
