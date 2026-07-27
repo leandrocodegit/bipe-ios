@@ -237,7 +237,7 @@ public class WebRTCManager: NSObject {
     private func sendBusyMessage(sessionId: String?, userName: String?, clienteId: String?) {
         // Implementar envio de mensagem via MQTT (bridge)
         let json: [String: Any] = [
-            "_type": "rtc",
+            "_type": "call",
             "subtype": "busy",
             "sessionId": sessionId ?? "",
             "userName": userName ?? "",
@@ -248,8 +248,8 @@ public class WebRTCManager: NSObject {
 
     private func sendSignalingMessage(subtype: String, sdp: String) {
         let json: [String: Any] = [
-            "_type": "rtc",
-            "subtype": "subtype",
+            "_type": "call",
+            "subtype": subtype,
             "sdp": sdp,
             "sessionId": currentSessionId ?? "",
             "userName": currentUserName ?? "",
@@ -260,7 +260,7 @@ public class WebRTCManager: NSObject {
 
     private func sendIceCandidate(candidate: RTCIceCandidate) {
         let json: [String: Any] = [
-            "_type": "rtc",
+            "_type": "call",
             "subtype": "candidate",
             "candidate": candidate.sdp,
             "sdpMid": candidate.sdpMid ?? "",

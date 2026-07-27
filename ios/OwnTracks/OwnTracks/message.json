@@ -144,7 +144,8 @@
                 "steps",
                 "transition",
                 "waypoint",
-                "waypoints"
+                "waypoints",
+                "call"
             ]
         },
         "action": {

@@ -77,8 +77,8 @@ static OwnTracking *theInstance = nil;
                                           inManagedObjectContext:context];
                         [self processFace:friend dictionary:dictionary];
                     }];
-                } else if ([type isEqualToString:@"rtc"]) {
-                    OwnTracksLogDebug("[OwnTracking] received rtc for own device");
+                } else if ([type isEqualToString:@"call"]) {
+                    OwnTracksLogDebug("[OwnTracking] received call for own device");
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"ReceiveRTCMessage"
                                                                         object:nil
                                                                       userInfo:@{@"message": dictionary}];
@@ -121,8 +121,8 @@ static OwnTracking *theInstance = nil;
                                   device);
                         // ignore
                         
-                    } else if ([type isEqualToString:@"rtc"]) {
-                        OwnTracksLogDebug("[OwnTracking] received rtc for friend %@", device);
+                    } else if ([type isEqualToString:@"call"]) {
+                        OwnTracksLogDebug("[OwnTracking] received call for friend %@", device);
                         // Usar reflection ou instanciar dinamicamente para evitar problemas caso o Swift não esteja acessível aqui.
                         // O projeto usa Bridging Header? Assumimos que a classe MessageRTC é acessível se importada no header.
                         // Como OwnTracking.m pode não ter acesso direto a WebRTCManager sem o arquivo Swift importado,
