@@ -164,15 +164,65 @@ public class WebRTCManager: NSObject {
         if currentUserName == nil { currentUserName = message.userName }
         if currentClienteId == nil { currentClienteId = message.clienteId }
 
-        switch message.subtype {
-        case "offer":
-            handleOffer(sdp: message.sdp ?? "", sessionId: message.sessionId, userName: message.userName, clienteId: message.clienteId, incomingToken: message.token)
-        case "answer":
-            handleAnswer(sdp: message.sdp ?? "")
-        case "candidate":
-            handleCandidate(message: message)
-        default:
-            break
+        if let subtype = message.subtype {
+            switch subtype {
+            case "offer":
+                handleOffer(sdp: message.sdp ?? "", sessionId: message.sessionId, userName: message.userName, clienteId: message.clienteId, incomingToken: message.token)
+            case "answer":
+                handleAnswer(sdp: message.sdp ?? "")
+            case "candidate":
+                handleCandidate(message: message)
+            default:
+                break
+            }
+        } else if message.status == "IDLE" {
+            initiateCall(sessionId: message.sessionId, userName: message.userName, clienteId: message.clienteId)
+        }
+    }
+
+    private func initiateCall(sessionId: String?, userName: String?, clienteId: String?) {
+        DispatchQueue.main.async {
+            self.actuallyInitiateCall(sessionId: sessionId, userName: userName, clienteId: clienteId)
+        }
+    }
+
+    private func actuallyInitiateCall(sessionId: String?, userName: String?, clienteId: String?) {
+        if isCallInProgress {
+            sendBusyMessage(sessionId: sessionId, userName: userName, clienteId: clienteId)
+            return
+        }
+
+        playCustomBeep()
+
+        isCallInProgress = true
+        currentSessionId = sessionId
+        currentUserName = userName
+        currentClienteId = clienteId
+
+        setupAudioMode(on: true)
+        createPeerConnection()
+
+        let mandatoryConstraints = [
+            "OfferToReceiveAudio": "true",
+            "OfferToReceiveVideo": "false"
+        ]
+        let constraints = RTCMediaConstraints(mandatoryConstraints: mandatoryConstraints, optionalConstraints: nil)
+
+        peerConnection?.offer(for: constraints) { [weak self] sdp, error in
+            guard let self = self else { return }
+            if let err = error {
+                print("Failed to create offer: \(err)")
+                return
+            }
+            guard let offerSdp = sdp else { return }
+            self.peerConnection?.setLocalDescription(offerSdp) { error in
+                if let err = error {
+                    print("Failed to set local description: \(err)")
+                } else {
+                    print("Successfully created offer and set local description")
+                    self.sendSignalingMessage(subtype: "offer", sdp: offerSdp.sdp)
+                }
+            }
         }
     }
 

@@ -11,6 +11,7 @@ public class MessageRTC: NSObject {
     @objc public var userName: String?
     @objc public var clienteId: String?
     @objc public var token: String?
+    @objc public var status: String?
 
     @objc public init(dictionary: [String: Any]) {
         self.subtype = dictionary["subtype"] as? String
@@ -22,5 +23,6 @@ public class MessageRTC: NSObject {
         self.userName = dictionary["userName"] as? String
         self.clienteId = dictionary["clienteId"] as? String
         self.token = dictionary["token"] as? String
+        self.status = dictionary["status"] as? String
     }
 }
