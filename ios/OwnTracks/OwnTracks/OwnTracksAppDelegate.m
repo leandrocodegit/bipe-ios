@@ -913,14 +913,25 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                 json[@"clienteId"] = clienteId;
             }
             
-            NSString *nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
+            NSString *nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
+            if (!nickname || nickname.length == 0) {
+                nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
+            }
             if (nickname && nickname.length > 0) {
                 json[@"nickname"] = nickname;
             }
             
-            NSString *opMode = [Settings stringForKey:@"opmode_preference" inMOC:moc];
-            if (opMode && opMode.length > 0) {
-                json[@"opMode"] = opMode;
+            NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:moc]);
+            json[@"opMode"] = [opModeNum stringValue];
+            
+            NSString *icon = [Settings stringForKey:@"icon" inMOC:moc];
+            if (icon && icon.length > 0) {
+                json[@"icon"] = icon;
+            }
+            
+            NSString *color = [Settings stringForKey:@"color" inMOC:moc];
+            if (color && color.length > 0) {
+                json[@"color"] = color;
             }
             
             json[@"lat"] = [NSNumber doubleValueWithSixDecimals:location.coordinate.latitude];

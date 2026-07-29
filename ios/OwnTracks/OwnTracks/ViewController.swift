@@ -976,7 +976,8 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             openWaypoints: function() { if (window.webkit && window.webkit.messageHandlers.openWaypoints) window.webkit.messageHandlers.openWaypoints.postMessage({}); },
             logout: function() { if (window.webkit && window.webkit.messageHandlers.logout) window.webkit.messageHandlers.logout.postMessage({}); },
             startVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.startVoiceCall) window.webkit.messageHandlers.startVoiceCall.postMessage({}); },
-            stopVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.stopVoiceCall) window.webkit.messageHandlers.stopVoiceCall.postMessage({}); }
+            stopVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.stopVoiceCall) window.webkit.messageHandlers.stopVoiceCall.postMessage({}); },
+            saveConfig: function(json) { if (window.webkit && window.webkit.messageHandlers.saveConfig) window.webkit.messageHandlers.saveConfig.postMessage(json); }
         };
         """
 
@@ -984,7 +985,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "logout", "startVoiceCall", "stopVoiceCall"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1038,6 +1039,64 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 SetupService.shared.resetSetup()
                 if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
                     delegate.presentLoginViewController()
+                }
+            }
+        case "saveConfig":
+            if let jsonString = message.body as? String,
+               let data = jsonString.data(using: .utf8),
+               let config = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                DispatchQueue.main.async {
+                    let moc = CoreData.sharedInstance().mainMOC
+                    moc.performAndWait {
+                        if let apelido = config["apelido"] as? String {
+                            // Salvando apenas visualmente ou associado se precisar
+                            Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
+                        }
+                        if let icon = config["icon"] as? String {
+                            Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
+                        }
+                        if let displacement = config["locatorDisplacement"] as? Int32 {
+                            Settings.setInt(displacement, forKey: "displacement_preference", inMOC: moc)
+                        }
+                        if let interval = config["locatorInterval"] as? Int32 {
+                            Settings.setInt(interval, forKey: "interval_preference", inMOC: moc)
+                        }
+                        if let ping = config["ping"] as? Int32 {
+                            Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
+                        }
+                        if let pubRetain = config["pubRetain"] as? Bool {
+                            Settings.setBool(pubRetain, forKey: "retain_preference", inMOC: moc)
+                        }
+                        if let locked = config["locked"] as? Bool {
+                            Settings.setBool(locked, forKey: "locked", inMOC: moc)
+                        }
+                        if let opMode = config["opMode"] as? Int {
+                            Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
+                            
+                            // Map to OwnTracks monitoring mode
+                            // 0: Full -> Move (2)
+                            // 1: Routine -> Manual (0)
+                            // 2: Restricted -> Manual (0)
+                            // 3: Private -> Quiet (-1)
+                            var monitoringMode = 2
+                            switch opMode {
+                            case 1, 2: monitoringMode = 0
+                            case 3: monitoringMode = -1
+                            default: monitoringMode = 2
+                            }
+                            
+                            if let locked = config["locked"] as? Bool, locked == true {
+                                monitoringMode = -1 // Total privacy if locked
+                            }
+                            
+                            Settings.setInt(Int32(monitoringMode), forKey: "monitoring_preference", inMOC: moc)
+                        }
+                        if moc.hasChanges {
+                            try? moc.save()
+                        }
+                    }
+                    NotificationCenter.default.post(name: NSNotification.Name("ConfigUpdated"), object: nil)
+                    NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil) // To force LocationManager refresh
                 }
             }
         default:

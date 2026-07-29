@@ -580,14 +580,25 @@ static OwnTracking *theInstance = nil;
         json[@"clienteId"] = clienteId;
     }
     
-    NSString *nickname = [Settings stringForKey:@"nickname_preference" inMOC:waypoint.managedObjectContext];
+    NSString *nickname = [Settings stringForKey:@"device_name_preference" inMOC:waypoint.managedObjectContext];
+    if (!nickname || nickname.length == 0) {
+        nickname = [Settings stringForKey:@"nickname_preference" inMOC:waypoint.managedObjectContext];
+    }
     if (nickname && nickname.length > 0) {
         json[@"nickname"] = nickname;
     }
     
-    NSString *opMode = [Settings stringForKey:@"opmode_preference" inMOC:waypoint.managedObjectContext];
-    if (opMode && opMode.length > 0) {
-        json[@"opMode"] = opMode;
+    NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:waypoint.managedObjectContext]);
+    json[@"opMode"] = [opModeNum stringValue];
+    
+    NSString *icon = [Settings stringForKey:@"icon" inMOC:waypoint.managedObjectContext];
+    if (icon && icon.length > 0) {
+        json[@"icon"] = icon;
+    }
+    
+    NSString *color = [Settings stringForKey:@"color" inMOC:waypoint.managedObjectContext];
+    if (color && color.length > 0) {
+        json[@"color"] = color;
     }
 
     if (waypoint.trigger) {

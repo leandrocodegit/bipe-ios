@@ -19,6 +19,8 @@ struct DeviceSetupResponseDto: Codable {
     let password: String
     let deviceId: String
     let tid: String?
+    let icon: String?
+    let color: String?
 }
 
 // MARK: - Erros
@@ -209,6 +211,14 @@ enum SetupError: LocalizedError {
 
             if let tid = dto.tid {
                 Settings.setString(tid as NSString, forKey: "trackerid_preference", inMOC: context)
+            }
+
+            if let icon = dto.icon {
+                Settings.setString(icon as NSString, forKey: "icon", inMOC: context)
+            }
+
+            if let color = dto.color {
+                Settings.setString(color as NSString, forKey: "color", inMOC: context)
             }
 
             // Broker MQTT

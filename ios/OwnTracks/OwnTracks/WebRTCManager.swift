@@ -58,8 +58,15 @@ public class WebRTCManager: NSObject {
 
     @objc
     public func startCall(messageId: String? = nil, sessionId: String? = nil, userName: String? = nil, clienteId: String? = nil, incomingToken: String? = nil) {
-        // Obter modo de operacao e token se necessario
-        // Ignorando restrições de permissão por simplicidade
+        let moc = CoreData.sharedInstance().mainMOC
+        let opMode = Settings.int(forKey: "custom_opmode", inMOC: moc)
+        let locked = Settings.bool(forKey: "locked", inMOC: moc)
+        
+        if locked || opMode >= 2 {
+            print("WebRTC startCall rejected: device is locked or opMode is \(opMode)")
+            return
+        }
+
         DispatchQueue.main.async {
             self.actuallyStartCall(messageId: messageId, sessionId: sessionId, userName: userName, clienteId: clienteId)
         }
@@ -158,6 +165,15 @@ public class WebRTCManager: NSObject {
 
     @objc
     public func handleIncomingSignaling(message: MessageRTC, messageId: String) {
+        let moc = CoreData.sharedInstance().mainMOC
+        let opMode = Settings.int(forKey: "custom_opmode", inMOC: moc)
+        let locked = Settings.bool(forKey: "locked", inMOC: moc)
+        
+        if locked || opMode >= 2 {
+            print("WebRTC rejected: device is locked or opMode is \(opMode)")
+            return
+        }
+
         if processedMessageIds.contains(messageId) { return }
         processedMessageIds.insert(messageId)
 

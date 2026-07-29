@@ -869,11 +869,32 @@
     myself.cardImage = UIImagePNGRepresentation(cardImage.image);
     NSString *b64String = [png base64EncodedStringWithOptions:0];
 
-    NSDictionary *json = @{
+    NSMutableDictionary *json = [@{
         @"_type": @"card",
         @"face": b64String,
         @"name": name.text,
-    };
+    } mutableCopy];
+    
+    NSString *nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
+    if (!nickname || nickname.length == 0) {
+        nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
+    }
+    if (nickname && nickname.length > 0) {
+        json[@"nickname"] = nickname;
+    }
+    
+    NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:moc]);
+    json[@"opMode"] = [opModeNum stringValue];
+    
+    NSString *icon = [Settings stringForKey:@"icon" inMOC:moc];
+    if (icon && icon.length > 0) {
+        json[@"icon"] = icon;
+    }
+    
+    NSString *color = [Settings stringForKey:@"color" inMOC:moc];
+    if (color && color.length > 0) {
+        json[@"color"] = color;
+    }
 
     OwnTracksAppDelegate *ad = (OwnTracksAppDelegate *)[UIApplication sharedApplication].delegate;
     [ad.connection sendData:[NSJSONSerialization dataWithJSONObject:json
