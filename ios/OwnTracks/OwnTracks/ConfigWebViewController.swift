@@ -1,0 +1,144 @@
+import UIKit
+import WebKit
+import CoreData
+
+class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
+
+    var webView: WKWebView!
+    var moc: NSManagedObjectContext!
+
+    // TODO: Ajuste esta URL para a rota correta do Angular onde está o configuracao-usuario.component.html
+    let webAppUrl = "https://app.simodapp.com/device/configuracao"
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.title = NSLocalizedString("Configurações Avançadas", comment: "Web Config Title")
+        moc = CoreData.sharedInstance().mainMOC
+
+        let contentController = WKUserContentController()
+        contentController.add(self, name: "saveConfig")
+        contentController.add(self, name: "openPermissions")
+        
+        let config = WKWebViewConfiguration()
+        config.userContentController = contentController
+
+        // Script to emulate window.Android
+        let userScriptSource = """
+            window.Android = {
+                getConfig: function() {
+                    return window.prompt("get_config", "");
+                },
+                saveConfig: function(json) {
+                    window.webkit.messageHandlers.saveConfig.postMessage(json);
+                },
+                openPermissions: function() {
+                    window.webkit.messageHandlers.openPermissions.postMessage("");
+                },
+                getDeviceId: function() {
+                    return "\(Settings.string(forKey: "deviceid_preference", inMOC: self.moc) ?? "")";
+                }
+            };
+        """
+        
+        let userScript = WKUserScript(source: userScriptSource, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        contentController.addUserScript(userScript)
+
+        webView = WKWebView(frame: self.view.bounds, configuration: config)
+        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        webView.uiDelegate = self
+        self.view.addSubview(webView)
+
+        if let url = URL(string: webAppUrl) {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "saveConfig", let jsonString = message.body as? String {
+            if let data = jsonString.data(using: .utf8) {
+                do {
+                    if let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                        moc.performAndWait {
+                            if let apelido = dict["apelido"] as? String {
+                                Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
+                                Settings.setString(apelido as NSString, forKey: "nickname_preference", inMOC: moc)
+                            }
+                            if let tempoRetencao = dict["tempoRetencao"] as? Int32 {
+                                Settings.setInt(tempoRetencao, forKey: "pubretain_preference", inMOC: moc)
+                            }
+                            if let locatorDisplacement = dict["locatorDisplacement"] as? Int32 {
+                                Settings.setInt(locatorDisplacement, forKey: "locatordisplacement_preference", inMOC: moc)
+                            }
+                            if let locatorInterval = dict["locatorInterval"] as? Int32 {
+                                Settings.setInt(locatorInterval, forKey: "locatorinterval_preference", inMOC: moc)
+                            }
+                            if let ping = dict["ping"] as? Int32 {
+                                Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
+                            }
+                            if let pubRetain = dict["pubRetain"] as? Bool {
+                                Settings.setBool(pubRetain, forKey: "pubretain_preference", inMOC: moc)
+                            }
+                            if let locked = dict["locked"] as? Bool {
+                                Settings.setBool(locked, forKey: "locked", inMOC: moc)
+                            }
+                            if let opMode = dict["opMode"] as? Int32 {
+                                Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
+                            }
+                            if let icon = dict["icon"] as? String {
+                                Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
+                            }
+                            if let enableEmergency = dict["enableEmergency"] as? Bool {
+                                Settings.setBool(enableEmergency, forKey: "enableEmergency", inMOC: moc)
+                            }
+                            if let onlyVibrateEmergency = dict["onlyVibrateEmergency"] as? Bool {
+                                Settings.setBool(onlyVibrateEmergency, forKey: "onlyVibrateEmergency", inMOC: moc)
+                            }
+                            
+                            if moc.hasChanges {
+                                try? moc.save()
+                            }
+                        }
+                    }
+                } catch {
+                    print("Error parsing JSON: \(error)")
+                }
+            }
+        } else if message.name == "openPermissions" {
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
+            }
+        }
+    }
+}
+
+extension ConfigWebViewController: WKUIDelegate {
+    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        
+        if prompt == "get_config" {
+            var configDict: [String: Any] = [:]
+            
+            moc.performAndWait {
+                configDict["apelido"] = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? ""
+                configDict["tempoRetencao"] = Settings.int(forKey: "pubretain_preference", inMOC: moc)
+                configDict["locatorDisplacement"] = Settings.int(forKey: "locatordisplacement_preference", inMOC: moc)
+                configDict["locatorInterval"] = Settings.int(forKey: "locatorinterval_preference", inMOC: moc)
+                configDict["ping"] = Settings.int(forKey: "keepalive_preference", inMOC: moc)
+                configDict["pubRetain"] = Settings.bool(forKey: "pubretain_preference", inMOC: moc)
+                configDict["locked"] = Settings.bool(forKey: "locked", inMOC: moc)
+                configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
+                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? "panda"
+                configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
+                configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+            }
+            
+            if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
+               let jsonString = String(data: data, encoding: .utf8) {
+                completionHandler(jsonString)
+                return
+            }
+        }
+        
+        completionHandler(nil)
+    }
+}

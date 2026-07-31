@@ -843,11 +843,30 @@ class SettingsTVC: UITableViewController, UIDocumentInteractionControllerDelegat
                                 myself!.cardName = name!.text!;
                                 myself!.cardImage = png;
                                 let b64String = png!.base64EncodedString();
-                                let json = [
+                                var json: [String: Any] = [
                                     "_type": "card",
                                     "face": b64String,
                                     "name": name!.text!
-                                ];
+                                ]
+                                
+                                let nickname = (Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc)) as String?
+                                if let nickname = nickname, !nickname.isEmpty {
+                                    json["nickname"] = nickname
+                                }
+                                let icon = Settings.string(forKey: "icon", inMOC: moc) as String?
+                                if let icon = icon, !icon.isEmpty {
+                                    json["icon"] = icon
+                                }
+                                let color = Settings.string(forKey: "color", inMOC: moc) as String?
+                                if let color = color, !color.isEmpty {
+                                    json["color"] = color
+                                }
+                                let tid = Settings.string(forKey: "trackerid_preference", inMOC: moc) as String?
+                                if let tid = tid, !tid.isEmpty {
+                                    json["tid"] = tid
+                                }
+                                let opMode = Settings.int(forKey: "custom_opmode", inMOC: moc)
+                                json["opMode"] = String(opMode)
                                 
                                 var jsonData: Data? = nil;
                                 do {

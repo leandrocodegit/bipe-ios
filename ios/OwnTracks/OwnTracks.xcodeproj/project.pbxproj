@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
-		6ABFE1803016E14E000DCACE /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE17F3016E14E000DCACE /* WebRTC */; };
-		6ABFE1843016E36F000DCACE /* MessageRTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABFE1833016E36F000DCACE /* MessageRTC.swift */; };
 		84001C141C78982800413E5B /* Queue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 84001C111C78982800413E5B /* Queue+CoreDataProperties.m */; };
 		8400D9731D83825E00DEA134 /* HTTP.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8400D9721D83825E00DEA134 /* HTTP.plist */; };
 		8405CB602F14EBEF008C2580 /* CreateCardTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */; };
@@ -162,7 +160,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6ABFE1833016E36F000DCACE /* MessageRTC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRTC.swift; sourceTree = "<group>"; };
 		84001C0D1C78729200413E5B /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		84001C0F1C78976100413E5B /* Model 9.0.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.0.2.xcdatamodel"; sourceTree = "<group>"; };
 		84001C101C78982800413E5B /* Queue+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Queue+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -407,7 +404,6 @@
 				8488CFDF25A45CC3000AFEE2 /* Security.framework in Frameworks */,
 				84B0CDAD239E2EFA00CE9305 /* BackgroundTasks.framework in Frameworks */,
 				841D3525209C74E70084FCD0 /* Contacts.framework in Frameworks */,
-				6ABFE1803016E14E000DCACE /* WebRTC in Frameworks */,
 				841D3523209C5DDF0084FCD0 /* UserNotifications.framework in Frameworks */,
 				8422AF681AF825C7008932A2 /* SystemConfiguration.framework in Frameworks */,
 				8470352923D5E6B10041AAFB /* SystemConfiguration.framework in Frameworks */,
@@ -517,7 +513,6 @@
 		8411B833189FDB140019D2D6 /* OwnTracks */ = {
 			isa = PBXGroup;
 			children = (
-				6ABFE1833016E36F000DCACE /* MessageRTC.swift */,
 				8411B897189FEB790019D2D6 /* assets */,
 				8411B867189FE1ED0019D2D6 /* coredata */,
 				8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */,
@@ -724,7 +719,6 @@
 				84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */,
 				84B1BE0012F800001000008 /* AppAuth */,
 				6ABFE15F3016BE78000DCACE /* FirebaseMessaging */,
-				6ABFE17F3016E14E000DCACE /* WebRTC */,
 			);
 			productName = OwnTracks;
 			productReference = 8411B828189FDB140019D2D6 /* OwnTracks.app */;
@@ -863,7 +857,6 @@
 				84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */,
 				84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */,
 				6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				6ABFE17E3016E0C2000DCACE /* XCRemoteSwiftPackageReference "WebRTC" */,
 			);
 			productRefGroup = 8411B829189FDB140019D2D6 /* Products */;
 			projectDirPath = "";
@@ -974,7 +967,6 @@
 				846EFA392F6A963E0088232B /* OwnTracksEditTVC.swift in Sources */,
 				84DD1CFC2F431FBA00BB15C2 /* CertificatesTVC.swift in Sources */,
 				8405CB602F14EBEF008C2580 /* CreateCardTVC.swift in Sources */,
-				6ABFE1843016E36F000DCACE /* MessageRTC.swift in Sources */,
 				8474443A1DA4BC9600975BE4 /* ConnType.m in Sources */,
 				842E6ED620BEF031001928FA /* Queue+CoreDataClass.m in Sources */,
 				84BDD0D12F2A815500358CC2 /* OwnTracksLog.m in Sources */,
@@ -1680,9 +1672,7 @@
 				minimumVersion = 12.16.0;
 			};
 		};
-		6ABFE17E3016E0C2000DCACE /* XCRemoteSwiftPackageReference "WebRTC" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/stasel/WebRTC";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 150.0.0;
@@ -1728,10 +1718,7 @@
 			package = 6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-		6ABFE17F3016E14E000DCACE /* WebRTC */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6ABFE17E3016E0C2000DCACE /* XCRemoteSwiftPackageReference "WebRTC" */;
-			productName = WebRTC;
 		};
 		84A4002A2F8ABBFA00340475 /* MQTTClient */ = {
 			isa = XCSwiftPackageProductDependency;
