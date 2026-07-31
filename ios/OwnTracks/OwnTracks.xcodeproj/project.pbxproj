@@ -1672,12 +1672,7 @@
 				minimumVersion = 12.16.0;
 			};
 		};
-			isa = XCRemoteSwiftPackageReference;
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 150.0.0;
-			};
-		};
+
 		84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/openid/AppAuth-iOS";
@@ -1718,8 +1713,7 @@
 			package = 6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-			isa = XCSwiftPackageProductDependency;
-		};
+
 		84A4002A2F8ABBFA00340475 /* MQTTClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */;
