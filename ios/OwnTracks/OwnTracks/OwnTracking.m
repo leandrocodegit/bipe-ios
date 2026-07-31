@@ -77,11 +77,6 @@ static OwnTracking *theInstance = nil;
                                           inManagedObjectContext:context];
                         [self processFace:friend dictionary:dictionary];
                     }];
-                } else if ([type isEqualToString:@"call"] || [type isEqualToString:@"rtc"]) {
-                    OwnTracksLogDebug("[OwnTracking] received %{public}@ for own device", type);
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"ReceiveRTCMessage"
-                                                                        object:nil
-                                                                      userInfo:@{@"message": dictionary}];
                 } else {
                     OwnTracksLogDebug("[OwnTracking] unhandled record type for own device _type:%@", dictionary[@"_type"]);
                 }
@@ -120,16 +115,6 @@ static OwnTracking *theInstance = nil;
                         OwnTracksLogDebug("[OwnTracking] received lwt for friend %@",
                                   device);
                         // ignore
-                        
-                    } else if ([type isEqualToString:@"call"] || [type isEqualToString:@"rtc"]) {
-                        OwnTracksLogDebug("[OwnTracking] received %{public}@ for friend %@", type, device);
-                        // Usar reflection ou instanciar dinamicamente para evitar problemas caso o Swift não esteja acessível aqui.
-                        // O projeto usa Bridging Header? Assumimos que a classe MessageRTC é acessível se importada no header.
-                        // Como OwnTracking.m pode não ter acesso direto a WebRTCManager sem o arquivo Swift importado,
-                        // Vamos enviar uma notificação para não acoplar o arquivo .m diretamente ao Swift sem um bridging_header limpo.
-                        [[NSNotificationCenter defaultCenter] postNotificationName:@"ReceiveRTCMessage"
-                                                                            object:nil
-                                                                          userInfo:@{@"message": dictionary}];
                         
                     } else {
                         OwnTracksLogDebug("[OwnTracking] unhandled record type for other device _type:%@", type);

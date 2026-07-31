@@ -10,7 +10,6 @@
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
 		6ABFE1803016E14E000DCACE /* WebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE17F3016E14E000DCACE /* WebRTC */; };
-		6ABFE1823016E26B000DCACE /* WebRTCManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABFE1813016E26B000DCACE /* WebRTCManager.swift */; };
 		6ABFE1843016E36F000DCACE /* MessageRTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABFE1833016E36F000DCACE /* MessageRTC.swift */; };
 		84001C141C78982800413E5B /* Queue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 84001C111C78982800413E5B /* Queue+CoreDataProperties.m */; };
 		8400D9731D83825E00DEA134 /* HTTP.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8400D9721D83825E00DEA134 /* HTTP.plist */; };
@@ -163,7 +162,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6ABFE1813016E26B000DCACE /* WebRTCManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRTCManager.swift; sourceTree = "<group>"; };
 		6ABFE1833016E36F000DCACE /* MessageRTC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRTC.swift; sourceTree = "<group>"; };
 		84001C0D1C78729200413E5B /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		84001C0F1C78976100413E5B /* Model 9.0.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.0.2.xcdatamodel"; sourceTree = "<group>"; };
@@ -520,7 +518,6 @@
 			isa = PBXGroup;
 			children = (
 				6ABFE1833016E36F000DCACE /* MessageRTC.swift */,
-				6ABFE1813016E26B000DCACE /* WebRTCManager.swift */,
 				8411B897189FEB790019D2D6 /* assets */,
 				8411B867189FE1ED0019D2D6 /* coredata */,
 				8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */,
@@ -998,7 +995,6 @@
 				846EFA342F6813550088232B /* FriendsTVC.swift in Sources */,
 				84AFD40B2434486200F1E922 /* OwnTracking.m in Sources */,
 				8411B891189FE9CE0019D2D6 /* Settings.m in Sources */,
-				6ABFE1823016E26B000DCACE /* WebRTCManager.swift in Sources */,
 				845299E71DFA004000A4DC21 /* Friend+CoreDataClass.m in Sources */,
 				8411B88E189FE9940019D2D6 /* Connection.m in Sources */,
 				845451B13002865F00AF9FCE /* OwnTracksFormatter.swift in Sources */,
