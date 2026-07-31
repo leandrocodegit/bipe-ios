@@ -195,6 +195,7 @@
     OwnTracksLogDebug("[OwnTracksAppDelegate] didFinishLaunchingWithOptions %@", launchOptions);
     
     [FIRApp configure];
+    [FIRMessaging messaging].delegate = self;
     [[UIApplication sharedApplication] registerForRemoteNotifications];
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
@@ -345,6 +346,18 @@
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     OwnTracksLogDefault("[OwnTracksAppDelegate] didRegisterForRemoteNotificationsWithDeviceToken");
     [FIRMessaging messaging].APNSToken = deviceToken;
+}
+
+- (void)messaging:(FIRMessaging *)messaging didReceiveRegistrationToken:(NSString *)fcmToken {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] FCM Registration Token: %@", fcmToken);
+    // NSDictionary *dataDict = [NSDictionary dictionaryWithObject:fcmToken forKey:@"token"];
+    // [[NSNotificationCenter defaultCenter] postNotificationName:@"FCMToken" object:nil userInfo:dataDict];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] didReceiveRemoteNotification: %@", userInfo);
+    // Aqui processamos Data Messages (Push Silencioso do FCM) como comandos do Bipe
+    completionHandler(UIBackgroundFetchResultNewData);
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

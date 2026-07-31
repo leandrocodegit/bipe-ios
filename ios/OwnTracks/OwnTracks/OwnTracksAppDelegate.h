@@ -21,7 +21,9 @@
 
 #import "OwnTracksLog.h"
 
-@interface OwnTracksAppDelegate : UIResponder <UIApplicationDelegate, ConnectionDelegate, LocationManagerDelegate, UNUserNotificationCenterDelegate>
+@import FirebaseMessaging;
+
+@interface OwnTracksAppDelegate : UIResponder <UIApplicationDelegate, ConnectionDelegate, LocationManagerDelegate, UNUserNotificationCenterDelegate, FIRMessagingDelegate>
 
 @property (strong, nonatomic) UIWindow * _Nullable window;
 
