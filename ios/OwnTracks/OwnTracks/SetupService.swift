@@ -91,7 +91,12 @@ enum SetupError: LocalizedError {
                         self.fetchFCMToken(retries: retries - 1, completion: completion)
                     }
                 } else {
+                    #if targetEnvironment(simulator)
+                    NSLog("[SetupService] Fallback no simulador. Retornando token FCM mockado após falha.")
+                    completion("mock-token-simulator-12345")
+                    #else
                     completion("")
+                    #endif
                 }
             } else {
                 NSLog("[SetupService] Token FCM obtido: %@", token ?? "")
