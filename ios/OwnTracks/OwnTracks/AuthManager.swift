@@ -15,8 +15,8 @@ import AppAuth
 @objc class AuthManager: NSObject {
 
     // MARK: - Constantes
-    private static let issuerURI   = "https://auth.simodapp.com:8443/realms/sincroled"
-    private static let clientID    = "sincroled"
+    private static let issuerURI   = "https://auth.simodapp.com:8443/realms/bipe.simodapp.com"
+    private static let clientID    = "bipe.simodapp.com"
     private static let redirectURI = "owntracks://auth"
     private static let scope       = "openid profile email"
 
