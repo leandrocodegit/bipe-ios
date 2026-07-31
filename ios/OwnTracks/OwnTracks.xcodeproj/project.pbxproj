@@ -1,4 +1,4 @@
-// !$*UTF8*$!
+﻿// !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {
@@ -1309,7 +1309,7 @@
 					"$(PROJECT_DIR)/OwnTracks",
 				);
 				MARKETING_VERSION = 26.3.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.mqttitude.MQTTitude;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.bipe.Rastreador;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1367,7 +1367,7 @@
 				);
 				MARKETING_VERSION = 26.3.0;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = org.mqttitude.MQTTitude;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.bipe.Rastreador;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1411,7 +1411,7 @@
 				MARKETING_VERSION = 26.3.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.mqttitude.MQTTitude.OwnTracksIntents;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.bipe.Rastreador.OwnTracksIntents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -1451,7 +1451,7 @@
 				MARKETING_VERSION = 26.3.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.mqttitude.MQTTitude.OwnTracksIntents;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.bipe.Rastreador.OwnTracksIntents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;

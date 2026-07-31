@@ -1,9 +1,9 @@
-//
+﻿//
 //  LocationManager.m
 //  OwnTracks
 //
 //  Created by Christoph Krey on 21.10.14.
-//  Copyright © 2014-2026  OwnTracks. All rights reserved.
+//  Copyright Â© 2014-2026  OwnTracks. All rights reserved.
 //
 
 #import "LocationManager.h"
@@ -132,7 +132,7 @@ static LocationManager *theInstance = nil;
         [self stop];
     }];
     
-    self.sharedUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.org.owntracks.Owntracks"];
+    self.sharedUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
     [self.sharedUserDefaults addObserver:self forKeyPath:@"monitoringWithAuthKey"
                                  options:NSKeyValueObservingOptionNew
                                  context:nil];
@@ -447,7 +447,7 @@ static LocationManager *theInstance = nil;
             [self.manager stopMonitoringVisits];
             break;
     }
-    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.org.owntracks.Owntracks"];
+    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
     [shared setInteger:self.monitoring forKey:@"monitoring"];
 }
 
@@ -550,7 +550,7 @@ static LocationManager *theInstance = nil;
     NSISO8601DateFormatter *formatter = [[NSISO8601DateFormatter alloc] init];
     formatter.formatOptions |= NSISO8601DateFormatWithFractionalSeconds;
 
-    return [NSString stringWithFormat:@"%g,%g(±%.0f,%.2f,%.2f)@%@",
+    return [NSString stringWithFormat:@"%g,%g(Â±%.0f,%.2f,%.2f)@%@",
             location.coordinate.longitude,
             location.coordinate.latitude,
             location.horizontalAccuracy,

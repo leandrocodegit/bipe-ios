@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -148,14 +148,14 @@ No information of your address book will be uploaded to any server.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used to share and record it on a server of your choice</string>
 	<key>NSMotionUsageDescription</key>
-	<string>OwnTracks levererar ditt stegantal, klättrade golv, promenerat avstånd och aktivitet på begäran</string>
+	<string>OwnTracks levererar ditt stegantal, klÃ¤ttrade golv, promenerat avstÃ¥nd och aktivitet pÃ¥ begÃ¤ran</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>OwnTracksChangeMonitoringIntent</string>
 		<string>OwnTracksPointOfInterestIntent</string>
 		<string>OwnTracksSendNowIntent</string>
 		<string>OwnTracksTagIntent</string>
-		<string>org.mqttitude.MQTTitude.sendNow</string>
+		<string>br.com.bipe.Rastreador.sendNow</string>
 	</array>
 	<key>UIAppFonts</key>
 	<array>

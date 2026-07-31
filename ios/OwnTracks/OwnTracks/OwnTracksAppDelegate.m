@@ -1,10 +1,10 @@
-
+﻿
 //
 //  OwnTracksAppDelegate.m
 //  OwnTracks
 //
 //  Created by Christoph Krey on 03.02.14.
-//  Copyright © 2014-2026  OwnTracks. All rights reserved.
+//  Copyright Â© 2014-2026  OwnTracks. All rights reserved.
 //
 
 #import "OwnTracksAppDelegate.h"
@@ -68,7 +68,7 @@
     UIApplication *application = [UIApplication sharedApplication];
     UIApplicationShortcutItem *move =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"org.mqttitude.MQTTitude.movemode"
+     initWithType:@"br.com.bipe.Rastreador.movemode"
      localizedTitle:NSLocalizedString(@"Switch to Move Monitoring Mode",
                                       @"Shortcut Switch to Move Monitoring Mode")
      localizedSubtitle:nil
@@ -76,7 +76,7 @@
      userInfo:nil];
     UIApplicationShortcutItem *significant =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"org.mqttitude.MQTTitude.significantmode"
+     initWithType:@"br.com.bipe.Rastreador.significantmode"
      localizedTitle:NSLocalizedString(@"Switch to Significant Changes Monitoring Mode",
                                       @"Shortcut Switch to Significant Changes Monitoring Mode")
      localizedSubtitle:nil
@@ -84,7 +84,7 @@
      userInfo:nil];
     UIApplicationShortcutItem *manual =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"org.mqttitude.MQTTitude.manualmode"
+     initWithType:@"br.com.bipe.Rastreador.manualmode"
      localizedTitle:NSLocalizedString(@"Switch to Manual Monitoring Mode",
                                       @"Shortcut Switch to Manual Monitoring Mode")
      localizedSubtitle:nil
@@ -92,7 +92,7 @@
      userInfo:nil];
     UIApplicationShortcutItem *quiet =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"org.mqttitude.MQTTitude.quietmode"
+     initWithType:@"br.com.bipe.Rastreador.quietmode"
      localizedTitle:NSLocalizedString(@"Switch to Quiet Monitoring Mode",
                                       @"Shortcut Switch to Quiet Monitoring Mode")
      localizedSubtitle:nil
@@ -200,11 +200,11 @@
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
-    // Verificar se o setup BIPE já foi concluído
+    // Verificar se o setup BIPE jÃ¡ foi concluÃ­do
     BOOL setupCompleted = [SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized];
     
     if (setupCompleted) {
-        // Setup já feito: inicia normalmente
+        // Setup jÃ¡ feito: inicia normalmente
         [self startOwnTracksMonitoring];
     } else {
         // Primeiro acesso ou logout: apresentar tela de login
@@ -246,11 +246,11 @@
         loginVC.managedObjectContext = CoreData.sharedInstance.mainMOC;
         loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
         
-        // Usa o método @objc wrapper — propriedades Swift de closure opcional não são acessíveis via ObjC.
+        // Usa o mÃ©todo @objc wrapper â€” propriedades Swift de closure opcional nÃ£o sÃ£o acessÃ­veis via ObjC.
         // O LoginViewController dispensa a si mesmo antes de chamar este bloco.
         __weak OwnTracksAppDelegate *weakSelf = self;
         [loginVC setCompletionHandler:^{
-            OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluído — iniciando monitoramento");
+            OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluÃ­do â€” iniciando monitoramento");
             [weakSelf startOwnTracksMonitoring];
         }];
         
@@ -687,7 +687,7 @@
 #ifdef VERBOSE
     NSTimeInterval backgroundTimeRemaining = [UIApplication sharedApplication].backgroundTimeRemaining;
     OwnTracksLogDefault("[OwnTracksAppDelegate] background backgroundTimeRemaining: %@",
-                 backgroundTimeRemaining > 24 * 3600 ? @"∞": @(floor(backgroundTimeRemaining)).stringValue);
+                 backgroundTimeRemaining > 24 * 3600 ? @"âˆž": @(floor(backgroundTimeRemaining)).stringValue);
 #endif
     
     [self startBackgroundTimer];
@@ -763,7 +763,7 @@
 - (void)application:(UIApplication *)application
 performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
     OwnTracksLogDefault("[OwnTracksAppDelegate] performActionForShortcutItem %{public}@", shortcutItem.type);
-    if ([shortcutItem.type isEqualToString:@"org.mqttitude.MQTTitude.movemode"]) {
+    if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.movemode"]) {
         LocationMonitoring monitoring = LocationMonitoringMove;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -773,7 +773,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                   forKey:@"monitoring_preference" inMOC:moc];
         [CoreData.sharedInstance sync:moc];
         completionHandler(TRUE);
-    } else if ([shortcutItem.type isEqualToString:@"org.mqttitude.MQTTitude.significantmode"]) {
+    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.significantmode"]) {
         LocationMonitoring monitoring = LocationMonitoringSignificant;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -783,7 +783,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                   forKey:@"monitoring_preference" inMOC:moc];
         [CoreData.sharedInstance sync:moc];
         completionHandler(TRUE);
-    } else if ([shortcutItem.type isEqualToString:@"org.mqttitude.MQTTitude.manualmode"]) {
+    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.manualmode"]) {
         LocationMonitoring monitoring = LocationMonitoringManual;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -793,7 +793,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                   forKey:@"monitoring_preference" inMOC:moc];
         [CoreData.sharedInstance sync:moc];
         completionHandler(TRUE);
-    } else if ([shortcutItem.type isEqualToString:@"org.mqttitude.MQTTitude.quietmode"]) {
+    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.quietmode"]) {
         LocationMonitoring monitoring = LocationMonitoringQuiet;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -1079,7 +1079,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     NSTimeInterval backgroundTimeRemaining = [UIApplication sharedApplication].backgroundTimeRemaining;
     OwnTracksLogDebug("[OwnTracksAppDelegate] checkState: %@, backgroundTimeRemaining: %@",
                  state,
-                 backgroundTimeRemaining > 24 * 3600 ? @"∞": @(floor(backgroundTimeRemaining)).stringValue);
+                 backgroundTimeRemaining > 24 * 3600 ? @"âˆž": @(floor(backgroundTimeRemaining)).stringValue);
 #endif
     
     if (state.intValue == state_starting) {
