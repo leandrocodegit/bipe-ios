@@ -57,7 +57,8 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         self.view.addSubview(webView)
         
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            // Força 50 pixels de espaço no topo absoluto da tela
+            webView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 50),
             webView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             webView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
