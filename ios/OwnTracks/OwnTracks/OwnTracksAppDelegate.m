@@ -1,4 +1,4 @@
-﻿
+
 //
 //  OwnTracksAppDelegate.m
 //  OwnTracks
@@ -1770,7 +1770,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
         if (json) {
             NSData *data = [self jsonToData:json];
             [self.connection sendData:data
-                                topic:[Settings theGeneralTopicInMOC:moc]
+                                topic:[[Settings theGeneralTopicInMOC:moc] stringByAppendingString:@"/info"]
                            topicAlias:@(1)
                                   qos:[Settings theQosInMOC:moc]
                                retain:[Settings boolForKey:@"retain_preference"
