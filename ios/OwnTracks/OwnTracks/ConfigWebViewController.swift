@@ -51,14 +51,25 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         let userScript = WKUserScript(source: userScriptSource, injectionTime: .atDocumentStart, forMainFrameOnly: false)
         contentController.addUserScript(userScript)
 
+        let navBar = UINavigationBar()
+        navBar.translatesAutoresizingMaskIntoConstraints = false
+        let navItem = UINavigationItem(title: "Configurações Avançadas")
+        navBar.setItems([navItem], animated: false)
+        self.view.addSubview(navBar)
+        
         webView = WKWebView(frame: .zero, configuration: config)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.uiDelegate = self
         self.view.addSubview(webView)
         
         NSLayoutConstraint.activate([
-            // Força 50 pixels de espaço no topo absoluto da tela
-            webView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 50),
+            // Barra de navegação presa ao topo e à área segura
+            navBar.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            navBar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            navBar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            
+            // WebView logo abaixo da barra de navegação
+            webView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
             webView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             webView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
