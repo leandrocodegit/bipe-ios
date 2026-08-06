@@ -25,8 +25,14 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         // Script to emulate window.Android
         let userScriptSource = """
             window.Android = {
+                getUserConfig: function() {
+                    return window.prompt("get_user_config", "");
+                },
                 getConfig: function() {
                     return window.prompt("get_config", "");
+                },
+                getLocation: function() {
+                    return window.prompt("get_location", "");
                 },
                 saveConfig: function(json) {
                     window.webkit.messageHandlers.saveConfig.postMessage(json);
@@ -115,7 +121,36 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
 extension ConfigWebViewController: WKUIDelegate {
     func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
         
-        if prompt == "get_config" {
+        var locked = false
+        moc.performAndWait {
+            locked = Settings.bool(forKey: "locked", inMOC: moc)
+        }
+        
+        if prompt == "get_user_config" {
+            if locked {
+                completionHandler("""{"locked": true}""")
+                return
+            }
+            var configDict: [String: Any] = [:]
+            moc.performAndWait {
+                configDict["deviceId"] = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
+                configDict["username"] = Settings.string(forKey: "username_preference", inMOC: moc) ?? ""
+                configDict["color"] = Settings.string(forKey: "markerColor", inMOC: moc) ?? ""
+                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? ""
+                configDict["locked"] = locked
+            }
+            configDict["token"] = AuthManager.shared.getAccessToken() ?? ""
+            
+            if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
+               let jsonString = String(data: data, encoding: .utf8) {
+                completionHandler(jsonString)
+                return
+            }
+        } else if prompt == "get_config" {
+            if locked {
+                completionHandler("""{"locked": true}""")
+                return
+            }
             var configDict: [String: Any] = [:]
             
             moc.performAndWait {
@@ -125,7 +160,7 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["locatorInterval"] = Settings.int(forKey: "locatorinterval_preference", inMOC: moc)
                 configDict["ping"] = Settings.int(forKey: "keepalive_preference", inMOC: moc)
                 configDict["pubRetain"] = Settings.bool(forKey: "pubretain_preference", inMOC: moc)
-                configDict["locked"] = Settings.bool(forKey: "locked", inMOC: moc)
+                configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? "panda"
                 configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
@@ -137,6 +172,28 @@ extension ConfigWebViewController: WKUIDelegate {
                 completionHandler(jsonString)
                 return
             }
+        } else if prompt == "get_location" {
+            if locked {
+                completionHandler("""{"locked": true}""")
+                return
+            }
+            
+            let location = LocationManager.sharedInstance().location
+            // In iOS, location is always nonnull, but check coordinate validity or timestamp if needed
+            let locationDict: [String: Any] = [
+                "lat": location.coordinate.latitude,
+                "lon": location.coordinate.longitude,
+                "tst": Int(location.timestamp.timeIntervalSince1970),
+                "acc": location.horizontalAccuracy
+            ]
+            if let data = try? JSONSerialization.data(withJSONObject: locationDict, options: []),
+               let jsonString = String(data: data, encoding: .utf8) {
+                completionHandler(jsonString)
+                return
+            }
+            
+            completionHandler("{}")
+            return
         }
         
         completionHandler(nil)

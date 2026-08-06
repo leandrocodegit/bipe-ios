@@ -207,7 +207,7 @@ enum SetupError: LocalizedError {
             Settings.setString(dto.password as NSString, forKey: "pass_preference", inMOC: context)
             Settings.setString(dto.clientId as NSString, forKey: "clientid_preference", inMOC: context)
             Settings.setString(dto.deviceId as NSString, forKey: "deviceid_preference", inMOC: context)
-
+ 
             if let tid = dto.tid {
                 Settings.setString(tid as NSString, forKey: "trackerid_preference", inMOC: context)
             }
