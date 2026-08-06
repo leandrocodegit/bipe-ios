@@ -49,10 +49,17 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         let userScript = WKUserScript(source: userScriptSource, injectionTime: .atDocumentStart, forMainFrameOnly: false)
         contentController.addUserScript(userScript)
 
-        webView = WKWebView(frame: self.view.bounds, configuration: config)
-        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        webView = WKWebView(frame: .zero, configuration: config)
+        webView.translatesAutoresizingMaskIntoConstraints = false
         webView.uiDelegate = self
         self.view.addSubview(webView)
+        
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+        ])
 
         if let url = URL(string: webAppUrl) {
             let request = URLRequest(url: url)
