@@ -12,6 +12,8 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.edgesForExtendedLayout = []
+        self.view.backgroundColor = .systemBackground
         self.title = NSLocalizedString("Configurações Avançadas", comment: "Web Config Title")
         moc = CoreData.sharedInstance().mainMOC
 
