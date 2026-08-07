@@ -998,6 +998,11 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         webPreferences.javaScriptEnabled = true
         config.preferences = webPreferences
 
+        let topBar = UIView()
+        topBar.backgroundColor = .systemBackground
+        topBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(topBar)
+
         webView = WKWebView(frame: .zero, configuration: config)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
@@ -1006,11 +1011,18 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
 
         view.addSubview(webView)
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            topBar.topAnchor.constraint(equalTo: view.topAnchor),
+            topBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            // Se o safeArea topAnchor falhar por algum motivo, usamos 50 como fallback (usando max para garantir o maior)
+            topBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            
+            webView.topAnchor.constraint(equalTo: topBar.bottomAnchor),
             webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
+        view.bringSubviewToFront(topBar)
         view.bringSubviewToFront(webView)
 
         if let url = URL(string: "https://bipe.simodapp.com") {
