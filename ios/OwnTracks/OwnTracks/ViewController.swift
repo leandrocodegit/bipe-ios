@@ -1065,9 +1065,23 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 DispatchQueue.main.async {
                     let moc = CoreData.sharedInstance().mainMOC
                     moc.performAndWait {
+                        let isLocked = Settings.bool(forKey: "locked", inMOC: moc)
+                        let newLocked = config["locked"] as? Bool
+                        
+                        // If it's currently locked, only allow unlocking.
+                        if isLocked && newLocked == false {
+                            Settings.setBool(false, forKey: "locked", inMOC: moc)
+                            print("Device UNLOCKED via saveConfig")
+                        } else if isLocked {
+                            print("Device is LOCKED. Action denied.")
+                            return
+                        }
+
                         if let apelido = config["apelido"] as? String {
-                            // Salvando apenas visualmente ou associado se precisar
                             Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
+                        }
+                        if let tempoRetencao = config["tempoRetencao"] as? Int32 {
+                            Settings.setInt(tempoRetencao, forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
                         }
                         if let icon = config["icon"] as? String {
                             Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
@@ -1084,6 +1098,12 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         if let pubRetain = config["pubRetain"] as? Bool {
                             Settings.setBool(pubRetain, forKey: "retain_preference", inMOC: moc)
                         }
+                        if let onlyVibrate = config["onlyVibrateEmergency"] as? Bool {
+                            Settings.setBool(onlyVibrate, forKey: "onlyVibrateEmergency", inMOC: moc)
+                        }
+                        if let enableEmergency = config["enableEmergency"] as? Bool {
+                            Settings.setBool(enableEmergency, forKey: "enableEmergency", inMOC: moc)
+                        }
                         if let locked = config["locked"] as? Bool {
                             Settings.setBool(locked, forKey: "locked", inMOC: moc)
                         }
@@ -1091,10 +1111,6 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                             Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
                             
                             // Map to OwnTracks monitoring mode
-                            // 0: Full -> Move (2)
-                            // 1: Routine -> Manual (0)
-                            // 2: Restricted -> Manual (0)
-                            // 3: Private -> Quiet (-1)
                             var monitoringMode = 2
                             switch opMode {
                             case 1, 2: monitoringMode = 0
@@ -1107,6 +1123,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                             }
                             
                             Settings.setInt(Int32(monitoringMode), forKey: "monitoring_preference", inMOC: moc)
+                            if let monitorEnum = LocationMonitoring(rawValue: monitoringMode) {
+                                LocationManager.sharedInstance().monitoring = monitorEnum
+                            }
                         }
                         if moc.hasChanges {
                             try? moc.save()
@@ -1114,6 +1133,12 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     }
                     NotificationCenter.default.post(name: NSNotification.Name("ConfigUpdated"), object: nil)
                     NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil) // To force LocationManager refresh
+                    
+                    let alert = UIAlertController(title: nil, message: "Configurações salvas", preferredStyle: .alert)
+                    self.present(alert, animated: true)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        alert.dismiss(animated: true)
+                    }
                 }
             }
         default:
