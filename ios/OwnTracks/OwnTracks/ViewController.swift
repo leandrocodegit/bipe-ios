@@ -36,6 +36,10 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     var frcRegions: NSFetchedResultsController<Region>? = nil;
     var frcWaypoints: NSFetchedResultsController<Waypoint>? = nil;
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad();
         
@@ -999,7 +1003,8 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         config.preferences = webPreferences
 
         let topBar = UIView()
-        topBar.backgroundColor = .systemBackground
+        // Cor igual ao tema do webview: #0b1518
+        topBar.backgroundColor = UIColor(red: 11.0/255.0, green: 21.0/255.0, blue: 24.0/255.0, alpha: 1.0)
         topBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(topBar)
 
