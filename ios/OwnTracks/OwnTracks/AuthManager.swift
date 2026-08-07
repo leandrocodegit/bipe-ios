@@ -121,7 +121,7 @@ import AppAuth
     }
 
     /// Extrai o `sub` do ID token (userId Keycloak)
-    func getUserId() -> String? {
+    @objc func getUserId() -> String? {
         guard let idToken = authState?.lastTokenResponse?.idToken else { return nil }
         let parts = idToken.components(separatedBy: ".")
         guard parts.count == 3,

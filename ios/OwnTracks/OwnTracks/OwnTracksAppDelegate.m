@@ -1518,11 +1518,32 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     NSString *icon = [Settings stringForKey:@"icon" inMOC:moc];
     if (icon && icon.length > 0) {
         json[@"icon"] = icon;
+        json[@"face"] = icon; // App usa a mesma string do icon ("polvo", etc)
     }
     
     NSString *color = [Settings stringForKey:@"color" inMOC:moc];
     if (color && color.length > 0) {
         json[@"color"] = color;
+    }
+    
+    NSString *deviceId = [Settings stringForKey:@"deviceid_preference" inMOC:moc];
+    if (deviceId && deviceId.length > 0) {
+        json[@"name"] = deviceId; // "name" agora mapeia para o deviceId no Card
+    }
+    
+    NSString *userId = [[AuthManager shared] getUserId];
+    if (userId && userId.length > 0) {
+        json[@"userId"] = userId;
+    }
+    
+    NSString *userName = [Settings stringForKey:@"user_preference" inMOC:moc];
+    if (userName && userName.length > 0) {
+        json[@"userName"] = userName;
+    }
+    
+    NSString *clienteId = [Settings stringForKey:@"clientid_preference" inMOC:moc];
+    if (clienteId && clienteId.length > 0) {
+        json[@"clienteId"] = clienteId;
     }
     
     [self.connection sendData:[NSJSONSerialization dataWithJSONObject:json
