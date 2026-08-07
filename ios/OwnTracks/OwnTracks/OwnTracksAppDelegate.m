@@ -366,6 +366,12 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     OwnTracksLogDefault("[OwnTracksAppDelegate] applicationDidEnterBackground");
+    
+    // Altera para modo Significant (segundo plano)
+    NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+    [LocationManager sharedInstance].monitoring = LocationMonitoringSignificant;
+    [Settings setInt:LocationMonitoringSignificant forKey:@"monitoring_preference" inMOC:moc];
+    [CoreData.sharedInstance sync:moc];
     [self background];
     if ([LocationManager sharedInstance].monitoring != LocationMonitoringMove) {
         [self.connection disconnect];
@@ -644,6 +650,12 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     OwnTracksLogDefault("[OwnTracksAppDelegate] applicationDidBecomeActive");
+    
+    // Altera para modo Move (primeiro plano)
+    NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+    [LocationManager sharedInstance].monitoring = LocationMonitoringMove;
+    [Settings setInt:LocationMonitoringMove forKey:@"monitoring_preference" inMOC:moc];
+    [CoreData.sharedInstance sync:moc];
     
     [self.connection connectToLast];
     
