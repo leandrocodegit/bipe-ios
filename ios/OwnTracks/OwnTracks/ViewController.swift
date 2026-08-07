@@ -1134,6 +1134,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     NotificationCenter.default.post(name: NSNotification.Name("ConfigUpdated"), object: nil)
                     NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil) // To force LocationManager refresh
                     
+                    if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                        delegate.sendCard()
+                    }
+                    
                     let alert = UIAlertController(title: nil, message: "Configurações salvas", preferredStyle: .alert)
                     self.present(alert, animated: true)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {

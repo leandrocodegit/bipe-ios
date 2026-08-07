@@ -47,6 +47,7 @@
 - (void)status;
 - (void)waypoints;
 - (void)sendRegion:(nonnull Region *)region;
+- (void)sendCard;
 - (void)sendEmpty:(nonnull NSString *)topic;
 - (void)reconnect;
 - (void)connectionOff;

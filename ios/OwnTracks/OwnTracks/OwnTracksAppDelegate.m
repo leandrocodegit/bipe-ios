@@ -1486,6 +1486,54 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                        retain:NO];
 }
 
+- (void)sendCard {
+    NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+    NSString *topic = [Settings theGeneralTopicInMOC:moc];
+    Friend *myself = [Friend existsFriendWithTopic:topic inManagedObjectContext:moc];
+    
+    NSMutableDictionary *json = [@{
+        @"_type": @"card"
+    } mutableCopy];
+    
+    if (myself) {
+        if (myself.cardName && myself.cardName.length > 0) {
+            json[@"name"] = myself.cardName;
+        }
+        if (myself.cardImage) {
+            json[@"face"] = [myself.cardImage base64EncodedStringWithOptions:0];
+        }
+    }
+    
+    NSString *nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
+    if (!nickname || nickname.length == 0) {
+        nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
+    }
+    if (nickname && nickname.length > 0) {
+        json[@"nickname"] = nickname;
+    }
+    
+    NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:moc]);
+    json[@"opMode"] = [opModeNum stringValue];
+    
+    NSString *icon = [Settings stringForKey:@"icon" inMOC:moc];
+    if (icon && icon.length > 0) {
+        json[@"icon"] = icon;
+    }
+    
+    NSString *color = [Settings stringForKey:@"color" inMOC:moc];
+    if (color && color.length > 0) {
+        json[@"color"] = color;
+    }
+    
+    [self.connection sendData:[NSJSONSerialization dataWithJSONObject:json
+                                                            options:NSJSONWritingSortedKeys
+                                                              error:nil]
+                        topic:[topic stringByAppendingString:@"/info"]
+                   topicAlias:@(0)
+                          qos:[Settings intForKey:@"qos_preference" inMOC:moc]
+                       retain:YES];
+}
+
 - (void)stepsFrom:(NSNumber *)from to:(NSNumber *)to {
     NSDate *toDate;
     NSDate *fromDate;
