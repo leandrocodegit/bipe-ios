@@ -68,7 +68,7 @@
     UIApplication *application = [UIApplication sharedApplication];
     UIApplicationShortcutItem *move =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.Rastreador.movemode"
+     initWithType:@"br.com.bipe.me.movemode"
      localizedTitle:NSLocalizedString(@"Switch to Move Monitoring Mode",
                                       @"Shortcut Switch to Move Monitoring Mode")
      localizedSubtitle:nil
@@ -76,7 +76,7 @@
      userInfo:nil];
     UIApplicationShortcutItem *significant =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.Rastreador.significantmode"
+     initWithType:@"br.com.bipe.me.significantmode"
      localizedTitle:NSLocalizedString(@"Switch to Significant Changes Monitoring Mode",
                                       @"Shortcut Switch to Significant Changes Monitoring Mode")
      localizedSubtitle:nil
@@ -84,7 +84,7 @@
      userInfo:nil];
     UIApplicationShortcutItem *manual =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.Rastreador.manualmode"
+     initWithType:@"br.com.bipe.me.manualmode"
      localizedTitle:NSLocalizedString(@"Switch to Manual Monitoring Mode",
                                       @"Shortcut Switch to Manual Monitoring Mode")
      localizedSubtitle:nil
@@ -92,7 +92,7 @@
      userInfo:nil];
     UIApplicationShortcutItem *quiet =
     [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.Rastreador.quietmode"
+     initWithType:@"br.com.bipe.me.quietmode"
      localizedTitle:NSLocalizedString(@"Switch to Quiet Monitoring Mode",
                                       @"Shortcut Switch to Quiet Monitoring Mode")
      localizedSubtitle:nil
@@ -775,7 +775,7 @@
 - (void)application:(UIApplication *)application
 performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
     OwnTracksLogDefault("[OwnTracksAppDelegate] performActionForShortcutItem %{public}@", shortcutItem.type);
-    if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.movemode"]) {
+    if ([shortcutItem.type isEqualToString:@"br.com.bipe.me.movemode"]) {
         LocationMonitoring monitoring = LocationMonitoringMove;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -785,7 +785,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                   forKey:@"monitoring_preference" inMOC:moc];
         [CoreData.sharedInstance sync:moc];
         completionHandler(TRUE);
-    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.significantmode"]) {
+    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.me.significantmode"]) {
         LocationMonitoring monitoring = LocationMonitoringSignificant;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -795,7 +795,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                   forKey:@"monitoring_preference" inMOC:moc];
         [CoreData.sharedInstance sync:moc];
         completionHandler(TRUE);
-    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.manualmode"]) {
+    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.me.manualmode"]) {
         LocationMonitoring monitoring = LocationMonitoringManual;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];
@@ -805,7 +805,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                   forKey:@"monitoring_preference" inMOC:moc];
         [CoreData.sharedInstance sync:moc];
         completionHandler(TRUE);
-    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.Rastreador.quietmode"]) {
+    } else if ([shortcutItem.type isEqualToString:@"br.com.bipe.me.quietmode"]) {
         LocationMonitoring monitoring = LocationMonitoringQuiet;
         [LocationManager sharedInstance].monitoring = monitoring;
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];

@@ -132,7 +132,7 @@ static LocationManager *theInstance = nil;
         [self stop];
     }];
     
-    self.sharedUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
+    self.sharedUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
     [self.sharedUserDefaults addObserver:self forKeyPath:@"monitoringWithAuthKey"
                                  options:NSKeyValueObservingOptionNew
                                  context:nil];
@@ -447,7 +447,7 @@ static LocationManager *theInstance = nil;
             [self.manager stopMonitoringVisits];
             break;
     }
-    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
+    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
     [shared setInteger:self.monitoring forKey:@"monitoring"];
 }
 

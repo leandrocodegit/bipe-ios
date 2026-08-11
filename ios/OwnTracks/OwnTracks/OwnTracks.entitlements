@@ -4,11 +4,11 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.br.com.bipe.Rastreador</string>
+		<string>group.br.com.bipe.me</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)br.com.bipe.Rastreador</string>
+		<string>$(AppIdentifierPrefix)br.com.bipe.me</string>
 	</array>
 </dict>
 </plist>

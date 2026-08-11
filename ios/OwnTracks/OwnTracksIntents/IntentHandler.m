@@ -30,7 +30,7 @@
     OwnTracksSendNowIntentResponse *response = [[OwnTracksSendNowIntentResponse alloc] initWithCode:OwnTracksSendNowIntentResponseCodeFailure userActivity:nil];
 
     if (intent.IntentAuthKey != nil) {
-        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
+        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
         [shared setObject:@{@"sendNow": [NSDate date] , @"intentAuthKey": intent.IntentAuthKey} forKey:@"sendNowWithAuthKey"];
         [shared synchronize];
         response = [[OwnTracksSendNowIntentResponse alloc] initWithCode:OwnTracksSendNowIntentResponseCodeSuccess userActivity:nil];
@@ -42,7 +42,7 @@
                     completion:(nonnull void (^)(OwnTracksChangeMonitoringIntentResponse * _Nonnull))completion {
     OwnTracksChangeMonitoringIntentResponse *response = [[OwnTracksChangeMonitoringIntentResponse alloc] initWithCode:OwnTracksChangeMonitoringIntentResponseCodeFailure userActivity:nil];
     if (intent.IntentAuthKey != nil) {
-        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
+        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
         NSInteger monitoring = [shared integerForKey:@"monitoring"];
         [shared setObject:@{@"monitoring": @(monitoring), @"intentAuthKey": intent.IntentAuthKey} forKey:@"monitoringWithAuthKey"];
         switch (intent.monitoring) {
@@ -85,7 +85,7 @@
        completion:(void (^)(OwnTracksTagIntentResponse * _Nonnull))completion {
     OwnTracksTagIntentResponse *response = [[OwnTracksTagIntentResponse alloc] initWithCode:OwnTracksTagIntentResponseCodeFailure userActivity:nil];
     if (intent.IntentAuthKey != nil) {
-        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
+        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
         [shared setObject:@{@"tag": intent.tag, @"intentAuthKey": intent.IntentAuthKey} forKey:@"tagWithAuthKey"];
         [shared synchronize];
         response = [[OwnTracksTagIntentResponse alloc] initWithCode:OwnTracksTagIntentResponseCodeSuccess userActivity:nil];
@@ -101,7 +101,7 @@
 - (void)handlePointOfInterest:(OwnTracksPointOfInterestIntent *)intent completion:(void (^)(OwnTracksPointOfInterestIntentResponse * _Nonnull))completion {
     OwnTracksPointOfInterestIntentResponse *response = [[OwnTracksPointOfInterestIntentResponse alloc] initWithCode:OwnTracksPointOfInterestIntentResponseCodeFailure userActivity:nil];
     if (intent.IntentAuthKey != nil) {
-        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.Rastreador"];
+        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
         [shared setObject:@{@"poi": intent.name, @"intentAuthKey": intent.IntentAuthKey} forKey:@"poiWithAuthKey"];
         [shared synchronize];
         response = [[OwnTracksPointOfInterestIntentResponse alloc] initWithCode:OwnTracksPointOfInterestIntentResponseCodeSuccess userActivity:nil];
