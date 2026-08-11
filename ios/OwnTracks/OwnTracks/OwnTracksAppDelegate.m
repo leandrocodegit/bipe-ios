@@ -195,7 +195,14 @@
     OwnTracksLogDebug("[OwnTracksAppDelegate] didFinishLaunchingWithOptions %@", launchOptions);
     
     [FIRApp configure];
+    [UNUserNotificationCenter currentNotificationCenter].delegate = self;
     [FIRMessaging messaging].delegate = self;
+    
+    UNAuthorizationOptions authOptions = UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge;
+    [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:authOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Notification authorization granted: %d, error: %@", granted, error);
+    }];
+    
     [[UIApplication sharedApplication] registerForRemoteNotifications];
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
@@ -344,14 +351,22 @@
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    OwnTracksLogDefault("[OwnTracksAppDelegate] didRegisterForRemoteNotificationsWithDeviceToken");
+    OwnTracksLogDefault("[OwnTracksAppDelegate] didRegisterForRemoteNotificationsWithDeviceToken: %@", deviceToken);
     [FIRMessaging messaging].APNSToken = deviceToken;
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    OwnTracksLogError("[OwnTracksAppDelegate] didFailToRegisterForRemoteNotificationsWithError: %@", error);
 }
 
 - (void)messaging:(FIRMessaging *)messaging didReceiveRegistrationToken:(NSString *)fcmToken {
     OwnTracksLogDefault("[OwnTracksAppDelegate] FCM Registration Token: %@", fcmToken);
-    // NSDictionary *dataDict = [NSDictionary dictionaryWithObject:fcmToken forKey:@"token"];
-    // [[NSNotificationCenter defaultCenter] postNotificationName:@"FCMToken" object:nil userInfo:dataDict];
+    if (fcmToken) {
+        [[NSUserDefaults standardUserDefaults] setObject:fcmToken forKey:@"fcm_token"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        NSDictionary *dataDict = @{@"token" : fcmToken};
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"FCMToken" object:nil userInfo:dataDict];
+    }
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {

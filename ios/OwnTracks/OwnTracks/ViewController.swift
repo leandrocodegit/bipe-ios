@@ -965,6 +965,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let scriptSource = """
         window.Android = {
             getDeviceId: function() { return "\(deviceId)"; },
+            getFcmToken: function() { return window.prompt("get_fcm_token", ""); },
             getLanguage: function() { return "\(langCode)"; },
             getFace: function() { return window.prompt("get_face", "") || "\(face)"; },
             getColor: function() { return "\(color)"; },
@@ -1151,6 +1152,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 faceStr = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
             }
             completionHandler(faceStr)
+            return
+        } else if prompt == "get_fcm_token" {
+            let fcmToken = UserDefaults.standard.string(forKey: "fcm_token") ?? ""
+            completionHandler(fcmToken)
             return
         }
 
