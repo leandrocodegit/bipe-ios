@@ -25,7 +25,7 @@ class LoginViewController: UIViewController {
         let l = UILabel()
         l.text = "BIPE"
         l.font = UIFont.systemFont(ofSize: 42, weight: .bold)
-        l.textColor = .label
+        l.textColor = .white
         l.textAlignment = .center
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
@@ -35,7 +35,7 @@ class LoginViewController: UIViewController {
         let l = UILabel()
         l.text = "Rastreamento inteligente"
         l.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        l.textColor = .secondaryLabel
+        l.textColor = UIColor(white: 0.8, alpha: 1.0)
         l.textAlignment = .center
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
@@ -58,6 +58,7 @@ class LoginViewController: UIViewController {
 
     private lazy var activityIndicator: UIActivityIndicatorView = {
         let a = UIActivityIndicatorView(style: .large)
+        a.color = .white
         a.hidesWhenStopped = true
         a.translatesAutoresizingMaskIntoConstraints = false
         return a
@@ -67,7 +68,7 @@ class LoginViewController: UIViewController {
         let l = UILabel()
         l.text = ""
         l.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        l.textColor = .secondaryLabel
+        l.textColor = UIColor(white: 0.8, alpha: 1.0)
         l.textAlignment = .center
         l.numberOfLines = 0
         l.translatesAutoresizingMaskIntoConstraints = false
@@ -105,7 +106,7 @@ class LoginViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor(named: "primaryBackgroundColor") ?? UIColor(red: 11.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0)
         buildLayout()
 
         // Se já estiver autorizado e setup concluído, dispensa imediatamente

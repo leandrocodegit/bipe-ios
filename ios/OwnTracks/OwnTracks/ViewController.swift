@@ -1003,12 +1003,17 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         config.preferences = webPreferences
 
         let topBar = UIView()
-        // Cor igual ao tema do webview: #0b1518
-        topBar.backgroundColor = UIColor(red: 11.0/255.0, green: 21.0/255.0, blue: 24.0/255.0, alpha: 1.0)
+        // Cor igual ao tema do webview: #0B1214
+        let bgColor = UIColor(red: 11.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0)
+        topBar.backgroundColor = bgColor
         topBar.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = bgColor
         view.addSubview(topBar)
 
         webView = WKWebView(frame: .zero, configuration: config)
+        webView.backgroundColor = bgColor
+        webView.scrollView.backgroundColor = bgColor
+        webView.isOpaque = false
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         webView.uiDelegate = self

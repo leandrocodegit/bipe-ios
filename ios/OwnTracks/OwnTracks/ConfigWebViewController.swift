@@ -13,7 +13,8 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.edgesForExtendedLayout = []
-        self.view.backgroundColor = .systemBackground
+        let appBgColor = UIColor(named: "primaryBackgroundColor") ?? UIColor(red: 11.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0)
+        self.view.backgroundColor = appBgColor
         self.title = NSLocalizedString("Configurações Avançadas", comment: "Web Config Title")
         moc = CoreData.sharedInstance().mainMOC
 
@@ -58,6 +59,9 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         self.view.addSubview(navBar)
         
         webView = WKWebView(frame: .zero, configuration: config)
+        webView.backgroundColor = appBgColor
+        webView.scrollView.backgroundColor = appBgColor
+        webView.isOpaque = false
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.uiDelegate = self
         self.view.addSubview(webView)
