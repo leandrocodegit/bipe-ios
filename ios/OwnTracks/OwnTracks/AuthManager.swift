@@ -76,9 +76,10 @@ import SafariServices
             )
 
             DispatchQueue.main.async {
-                self.currentAuthorizationFlow = OIDAuthState.authState(
-                    byPresenting: request,
-                    presenting: viewController
+                let externalUserAgent = OIDExternalUserAgentIOS(presenting: viewController, prefersEphemeralSession: false)
+                self.currentAuthorizationFlow = OIDAuthorizationService.present(
+                    request,
+                    externalUserAgent: externalUserAgent
                 ) { authState, error in
                     if let authState = authState {
                         self.authState = authState
