@@ -153,7 +153,7 @@ extension ConfigWebViewController: WKUIDelegate {
         
         if prompt == "get_user_config" {
             if locked {
-                completionHandler("""{"locked": true}""")
+                completionHandler("{\"locked\": true}")
                 return
             }
             var configDict: [String: Any] = [:]
@@ -173,7 +173,7 @@ extension ConfigWebViewController: WKUIDelegate {
             }
         } else if prompt == "get_config" {
             if locked {
-                completionHandler("""{"locked": true}""")
+                completionHandler("{\"locked\": true}")
                 return
             }
             var configDict: [String: Any] = [:]
@@ -202,7 +202,7 @@ extension ConfigWebViewController: WKUIDelegate {
             }
         } else if prompt == "get_location" {
             if locked {
-                completionHandler("""{"locked": true}""")
+                completionHandler("{\"locked\": true}")
                 return
             }
             

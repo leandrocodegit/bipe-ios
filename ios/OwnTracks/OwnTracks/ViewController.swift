@@ -1068,7 +1068,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
         if prompt == "get_user_config" {
             if locked {
-                completionHandler("""{"locked": true}""")
+                completionHandler("{\"locked\": true}")
                 return
             }
             var configDict: [String: Any] = [:]
@@ -1090,7 +1090,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         } else if prompt == "get_config" {
             if locked {
-                completionHandler("""{"locked": true}""")
+                completionHandler("{\"locked\": true}")
                 return
             }
             var configDict: [String: Any] = [:]
@@ -1118,7 +1118,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         } else if prompt == "get_location" {
             if locked {
-                completionHandler("""{"locked": true}""")
+                completionHandler("{\"locked\": true}")
                 return
             }
             if let loc = LocationManager.sharedInstance().lastLocation {
