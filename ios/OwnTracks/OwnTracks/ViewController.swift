@@ -967,13 +967,19 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             getFace: function() { return "\(face)"; },
             getColor: function() { return "\(color)"; },
             getUserConfig: function() {
-                return JSON.stringify({
-                    "deviceId": "\(deviceId)",
-                    "username": "\(username)",
-                    "color": "\(color)",
-                    "icon": "\(face)",
-                    "token": "\(token)"
-                });
+                return window.prompt("get_user_config", "");
+            },
+            getConfig: function() {
+                return window.prompt("get_config", "");
+            },
+            getLocation: function() {
+                return window.prompt("get_location", "");
+            },
+            getAlarm: function() {
+                return window.prompt("get_alarm", "");
+            },
+            getSession: function() {
+                return window.prompt("get_user_config", "");
             },
             openSettings: function() { if (window.webkit && window.webkit.messageHandlers.openSettings) window.webkit.messageHandlers.openSettings.postMessage({}); },
             openPermissions: function() { if (window.webkit && window.webkit.messageHandlers.openPermissions) window.webkit.messageHandlers.openPermissions.postMessage({}); },
@@ -1051,6 +1057,91 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         }
         completionHandler(.performDefaultHandling, nil)
+    }
+
+    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        let moc = CoreData.sharedInstance().mainMOC
+        var locked = false
+        moc.performAndWait {
+            locked = Settings.bool(forKey: "locked", inMOC: moc)
+        }
+
+        if prompt == "get_user_config" {
+            if locked {
+                completionHandler("""{"locked": true}""")
+                return
+            }
+            var configDict: [String: Any] = [:]
+            moc.performAndWait {
+                configDict["deviceId"] = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
+                configDict["username"] = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
+                configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
+                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                configDict["locked"] = locked
+            }
+            let token = AuthManager.shared.getAccessToken() ?? ""
+            configDict["token"] = token
+            configDict["accessToken"] = token
+
+            if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
+               let jsonString = String(data: data, encoding: .utf8) {
+                completionHandler(jsonString)
+                return
+            }
+        } else if prompt == "get_config" {
+            if locked {
+                completionHandler("""{"locked": true}""")
+                return
+            }
+            var configDict: [String: Any] = [:]
+            moc.performAndWait {
+                configDict["apelido"] = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? ""
+                configDict["tempoRetencao"] = Settings.int(forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+                configDict["locatorDisplacement"] = Settings.int(forKey: "displacement_preference", inMOC: moc)
+                configDict["locatorInterval"] = Settings.int(forKey: "interval_preference", inMOC: moc)
+                configDict["ping"] = Settings.int(forKey: "keepalive_preference", inMOC: moc)
+                configDict["pubRetain"] = Settings.bool(forKey: "retain_preference", inMOC: moc)
+                configDict["locked"] = locked
+                configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
+                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
+                configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+            }
+            let token = AuthManager.shared.getAccessToken() ?? ""
+            configDict["token"] = token
+            configDict["accessToken"] = token
+
+            if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
+               let jsonString = String(data: data, encoding: .utf8) {
+                completionHandler(jsonString)
+                return
+            }
+        } else if prompt == "get_location" {
+            if locked {
+                completionHandler("""{"locked": true}""")
+                return
+            }
+            if let loc = LocationManager.sharedInstance().lastLocation {
+                let locDict: [String: Any] = [
+                    "lat": loc.coordinate.latitude,
+                    "lon": loc.coordinate.longitude,
+                    "tst": Int64(loc.timestamp.timeIntervalSince1970),
+                    "acc": loc.horizontalAccuracy
+                ]
+                if let data = try? JSONSerialization.data(withJSONObject: locDict, options: []),
+                   let jsonString = String(data: data, encoding: .utf8) {
+                    completionHandler(jsonString)
+                    return
+                }
+            }
+            completionHandler("{}")
+            return
+        } else if prompt == "get_alarm" {
+            completionHandler("{}")
+            return
+        }
+
+        completionHandler(nil)
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {

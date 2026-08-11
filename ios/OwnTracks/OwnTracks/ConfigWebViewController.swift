@@ -180,17 +180,20 @@ extension ConfigWebViewController: WKUIDelegate {
             
             moc.performAndWait {
                 configDict["apelido"] = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? ""
-                configDict["tempoRetencao"] = Settings.int(forKey: "pubretain_preference", inMOC: moc)
-                configDict["locatorDisplacement"] = Settings.int(forKey: "locatordisplacement_preference", inMOC: moc)
-                configDict["locatorInterval"] = Settings.int(forKey: "locatorinterval_preference", inMOC: moc)
+                configDict["tempoRetencao"] = Settings.int(forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+                configDict["locatorDisplacement"] = Settings.int(forKey: "displacement_preference", inMOC: moc)
+                configDict["locatorInterval"] = Settings.int(forKey: "interval_preference", inMOC: moc)
                 configDict["ping"] = Settings.int(forKey: "keepalive_preference", inMOC: moc)
-                configDict["pubRetain"] = Settings.bool(forKey: "pubretain_preference", inMOC: moc)
+                configDict["pubRetain"] = Settings.bool(forKey: "retain_preference", inMOC: moc)
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
-                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? "panda"
+                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
             }
+            let token = AuthManager.shared.getAccessToken() ?? ""
+            configDict["token"] = token
+            configDict["accessToken"] = token
             
             if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
                let jsonString = String(data: data, encoding: .utf8) {
