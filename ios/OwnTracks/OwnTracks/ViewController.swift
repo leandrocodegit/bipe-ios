@@ -1164,6 +1164,14 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     delegate.presentLoginViewController()
                 }
             }
+        case "openPermissions", "openWaypoints":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let permissionsVC = PermissionsViewController()
+                let navController = UINavigationController(rootViewController: permissionsVC)
+                navController.modalPresentationStyle = .fullScreen
+                self.present(navController, animated: true, completion: nil)
+            }
         case "saveConfig":
             if let jsonString = message.body as? String,
                let data = jsonString.data(using: .utf8),

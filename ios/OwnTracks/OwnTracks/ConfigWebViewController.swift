@@ -43,6 +43,9 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 openPermissions: function() {
                     window.webkit.messageHandlers.openPermissions.postMessage("");
                 },
+                openWaypoints: function() {
+                    window.webkit.messageHandlers.openWaypoints.postMessage("");
+                },
                 getDeviceId: function() {
                     return "\(Settings.string(forKey: "deviceid_preference", inMOC: self.moc) ?? "")";
                 }
@@ -135,9 +138,13 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                     print("Error parsing JSON: \(error)")
                 }
             }
-        } else if message.name == "openPermissions" {
-            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(settingsUrl)
+        } else if message.name == "openPermissions" || message.name == "openWaypoints" {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let permissionsVC = PermissionsViewController()
+                let navController = UINavigationController(rootViewController: permissionsVC)
+                navController.modalPresentationStyle = .fullScreen
+                self.present(navController, animated: true, completion: nil)
             }
         }
     }
