@@ -384,8 +384,8 @@
     [self background];
     [self.connection disconnect];
     
-    NSString *notificationMessage = NSLocalizedString(@"Please keep OwnTracks running to ensure the desired functionality",
-                                                      @"Please keep OwnTracks running to ensure the desired functionality");
+    NSString *notificationMessage = NSLocalizedString(@"Please keep Bipe.me running to ensure the desired functionality",
+                                                      @"Please keep Bipe.me running to ensure the desired functionality");
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
     content.body = notificationMessage;
     content.sound = [UNNotificationSound defaultSound];

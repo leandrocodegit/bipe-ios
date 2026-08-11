@@ -960,10 +960,12 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let color = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
         let face = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
         let token = AuthManager.shared.getAccessToken() ?? ""
+        let langCode = Locale.current.languageCode ?? "pt"
 
         let scriptSource = """
         window.Android = {
             getDeviceId: function() { return "\(deviceId)"; },
+            getLanguage: function() { return "\(langCode)"; },
             getFace: function() { return window.prompt("get_face", "") || "\(face)"; },
             getColor: function() { return "\(color)"; },
             getUserConfig: function() {

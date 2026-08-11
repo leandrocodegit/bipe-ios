@@ -1,3 +1,4 @@
+
 /* name of an unknown or hidden region */
 "a region" = "a region";
 
@@ -151,16 +152,15 @@
 /* dummy for missing content */
 "no content available" = "no content available";
 
-/* Warning displayed if not location available */
+/* No location available indication */
 "No location available" = "No location available";
 
 /* No location recorded indication */
 "No location recorded" = "No location recorded";
 
-/* No pressure available */
+/* Display after trying to process a file *//* No pressure available */
 "No pressure available" = "No pressure available";
 
-/* Display after trying to process a file */
 "no url specified" = "no url specified";
 
 /* Alert message header for notification messages */
@@ -337,10 +337,10 @@
 /* Set Tag title */
 "Set Tag" = "Set Tag";
 
-/* Send button title */
+/* Send button title*/
 "Send" = "Send";
 
-/* Remove button title */
+/* Remove button title*/
 "Remove" = "Remove";
 
 /* Shortcut Switch to Move Monitoring Monitoring Mode */
@@ -368,5 +368,5 @@
 "full" = "full";
 
 /* "Please keep OwnTracks running to ensure the desired functionality" */
-"Please keep Bipe.me running to ensure the desired functionality" = "Por favor, mantenha o Bipe.me em execução para garantir o funcionamento desejado.";
-"Please keep OwnTracks running to ensure the desired functionality" = "Por favor, mantenha o Bipe.me em execução para garantir o funcionamento desejado.";
+"Please keep Bipe.me running to ensure the desired functionality" = "Por favor, mantenga Bipe.me en ejecución para garantizar el funcionamiento deseado.";
+"Please keep OwnTracks running to ensure the desired functionality" = "Por favor, mantenga Bipe.me en ejecución para garantizar el funcionamiento deseado.";
