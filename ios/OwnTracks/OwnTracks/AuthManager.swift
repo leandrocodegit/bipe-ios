@@ -80,13 +80,22 @@ import SafariServices
                     completion(false, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Falha ao inicializar OIDExternalUserAgentIOS"]))
                     return
                 }
-                self.currentAuthorizationFlow = OIDAuthState.authState(
-                    byPresenting: request,
+                self.currentAuthorizationFlow = OIDAuthorizationService.present(
+                    request,
                     externalUserAgent: externalUserAgent
-                ) { authState, error in
-                    if let authState = authState {
+                ) { response, error in
+                    if let response = response {
+                        let authState = OIDAuthState(authorizationResponse: response)
                         self.authState = authState
-                        completion(true, nil)
+                        if let tokenRequest = response.tokenExchangeRequest() {
+                            OIDAuthorizationService.perform(tokenRequest) { tokenResponse, tokenError in
+                                authState.update(with: tokenResponse, error: tokenError)
+                                self.authState = authState
+                                completion(tokenError == nil, tokenError)
+                            }
+                        } else {
+                            completion(true, nil)
+                        }
                     } else {
                         completion(false, error)
                     }
