@@ -80,8 +80,8 @@ import SafariServices
                     completion(false, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Falha ao inicializar OIDExternalUserAgentIOS"]))
                     return
                 }
-                self.currentAuthorizationFlow = OIDAuthorizationService.present(
-                    request,
+                self.currentAuthorizationFlow = OIDAuthState.authState(
+                    byPresenting: request,
                     externalUserAgent: externalUserAgent
                 ) { authState, error in
                     if let authState = authState {
