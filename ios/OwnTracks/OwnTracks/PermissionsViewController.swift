@@ -364,6 +364,7 @@ private final class PermissionCardView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
@@ -396,6 +397,15 @@ private final class PermissionCardView: UIView {
         return button
     }()
 
+    private let bottomStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 8
+        return stack
+    }()
+
     init(systemIcon: String, title: String, descriptionText: String, isOptional: Bool) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -423,9 +433,11 @@ private final class PermissionCardView: UIView {
     private func setupLayout() {
         addSubview(iconImageView)
         addSubview(titleLabel)
-        addSubview(badgeLabel)
         addSubview(descriptionLabel)
-        addSubview(actionButton)
+        addSubview(bottomStackView)
+
+        bottomStackView.addArrangedSubview(badgeLabel)
+        bottomStackView.addArrangedSubview(actionButton)
 
         actionButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
@@ -437,19 +449,18 @@ private final class PermissionCardView: UIView {
 
             titleLabel.centerYAnchor.constraint(equalTo: iconImageView.centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 10),
-
-            badgeLabel.centerYAnchor.constraint(equalTo: iconImageView.centerYAnchor),
-            badgeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            badgeLabel.heightAnchor.constraint(equalToConstant: 22),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
 
             descriptionLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 10),
             descriptionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             descriptionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
 
-            actionButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 8),
-            actionButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            actionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            actionButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -14)
+            bottomStackView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 12),
+            bottomStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            bottomStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            bottomStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16),
+
+            badgeLabel.heightAnchor.constraint(equalToConstant: 24)
         ])
     }
 
