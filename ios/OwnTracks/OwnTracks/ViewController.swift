@@ -958,13 +958,13 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
         let username = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
         let color = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
-        let face = Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+        let face = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
         let token = AuthManager.shared.getAccessToken() ?? ""
 
         let scriptSource = """
         window.Android = {
             getDeviceId: function() { return "\(deviceId)"; },
-            getFace: function() { return "\(face)"; },
+            getFace: function() { return window.prompt("get_face", "") || "\(face)"; },
             getColor: function() { return "\(color)"; },
             getUserConfig: function() {
                 return window.prompt("get_user_config", "");
@@ -1138,6 +1138,17 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         } else if prompt == "get_alarm" {
             completionHandler("{}")
             return
+        } else if prompt == "get_face" {
+            if locked {
+                completionHandler("")
+                return
+            }
+            var faceStr = ""
+            moc.performAndWait {
+                faceStr = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            }
+            completionHandler(faceStr)
+            return
         }
 
         completionHandler(nil)
@@ -1180,6 +1191,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         }
                         if let icon = config["icon"] as? String {
                             Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
+                            Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
                         }
                         if let displacement = config["locatorDisplacement"] as? Int32 {
                             Settings.setInt(displacement, forKey: "displacement_preference", inMOC: moc)

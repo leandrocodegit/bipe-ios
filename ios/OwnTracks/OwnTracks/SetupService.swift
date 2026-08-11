@@ -214,6 +214,7 @@ enum SetupError: LocalizedError {
 
             if let icon = dto.icon {
                 Settings.setString(icon as NSString, forKey: "icon", inMOC: context)
+                Settings.setString(icon as NSString, forKey: "face_preference", inMOC: context)
             }
 
             if let color = dto.color {
