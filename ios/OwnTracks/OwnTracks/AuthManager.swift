@@ -11,6 +11,7 @@
 
 import Foundation
 import AppAuth
+import SafariServices
 
 @objc class AuthManager: NSObject {
 
@@ -19,6 +20,7 @@ import AppAuth
     private static let clientID    = "bipe.simodapp.com"
     private static let redirectURI = "bipe.me://auth"
     private static let scope       = "openid profile email"
+    private static let accountURL  = "https://auth.simodapp.com:8443/realms/bipe.simodapp.com/account/#/security/signing-in"
 
     // MARK: - Persistência
     private static let authStateKey = "OIDAuthState"
@@ -87,6 +89,15 @@ import AppAuth
                 }
             }
         }
+    }
+
+    /// Abre a página de gerenciamento de conta do Keycloak em um SFSafariViewController,
+    /// permitindo o cadastro e gerenciamento completo de Passkeys (WebAuthn) com Face ID / Touch ID / iCloud Keychain.
+    @objc func openAccountManagement(presenting viewController: UIViewController) {
+        guard let url = URL(string: AuthManager.accountURL) else { return }
+        let safariVC = SFSafariViewController(url: url)
+        safariVC.dismissButtonStyle = .close
+        viewController.present(safariVC, animated: true, completion: nil)
     }
 
     /// Processa o redirect URI vindo do iOS (chamado no AppDelegate / SceneDelegate)

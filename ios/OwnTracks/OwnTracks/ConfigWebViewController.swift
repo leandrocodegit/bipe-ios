@@ -46,6 +46,9 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 openWaypoints: function() {
                     window.webkit.messageHandlers.openWaypoints.postMessage("");
                 },
+                openAccountManagement: function() {
+                    window.webkit.messageHandlers.openAccountManagement.postMessage("");
+                },
                 getDeviceId: function() {
                     return "\(Settings.string(forKey: "deviceid_preference", inMOC: self.moc) ?? "")";
                 }
@@ -145,6 +148,11 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 let navController = UINavigationController(rootViewController: permissionsVC)
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
+            }
+        } else if message.name == "openAccountManagement" {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                AuthManager.shared.openAccountManagement(presenting: self)
             }
         }
     }

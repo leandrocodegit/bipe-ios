@@ -984,6 +984,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             openSettings: function() { if (window.webkit && window.webkit.messageHandlers.openSettings) window.webkit.messageHandlers.openSettings.postMessage({}); },
             openPermissions: function() { if (window.webkit && window.webkit.messageHandlers.openPermissions) window.webkit.messageHandlers.openPermissions.postMessage({}); },
             openWaypoints: function() { if (window.webkit && window.webkit.messageHandlers.openWaypoints) window.webkit.messageHandlers.openWaypoints.postMessage({}); },
+            openAccountManagement: function() { if (window.webkit && window.webkit.messageHandlers.openAccountManagement) window.webkit.messageHandlers.openAccountManagement.postMessage({}); },
             logout: function() { if (window.webkit && window.webkit.messageHandlers.logout) window.webkit.messageHandlers.logout.postMessage({}); },
             startVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.startVoiceCall) window.webkit.messageHandlers.startVoiceCall.postMessage({}); },
             stopVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.stopVoiceCall) window.webkit.messageHandlers.stopVoiceCall.postMessage({}); },
@@ -995,7 +996,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1171,6 +1172,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 let navController = UINavigationController(rootViewController: permissionsVC)
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
+            }
+        case "openAccountManagement":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                AuthManager.shared.openAccountManagement(presenting: self)
             }
         case "saveConfig":
             if let jsonString = message.body as? String,
