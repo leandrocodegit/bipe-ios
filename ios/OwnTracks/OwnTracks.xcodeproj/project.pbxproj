@@ -160,6 +160,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6A323F9F302B788D0033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Storyboard.strings"; sourceTree = "<group>"; };
+		6A323FA0302B78910033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Intents.strings"; sourceTree = "<group>"; };
+		6A323FA1302B78920033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		6A323FA2302B78930033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "pt-BR"; path = "pt-BR.lproj/OwnTracks-Info.plist"; sourceTree = "<group>"; };
+		6A323FA3302B78960033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		6A323FA4302B78970033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		84001C0D1C78729200413E5B /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		84001C0F1C78976100413E5B /* Model 9.0.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.0.2.xcdatamodel"; sourceTree = "<group>"; };
 		84001C101C78982800413E5B /* Queue+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Queue+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -849,6 +855,7 @@
 				ro,
 				ru,
 				"zh-Hans",
+				"pt-BR",
 			);
 			mainGroup = 8411B81F189FDB140019D2D6;
 			packageReferences = (
@@ -1067,6 +1074,7 @@
 				84BA0A112DE6F24B00AFACA9 /* ro */,
 				84BA0A172DE6F25400AFACA9 /* ru */,
 				B1AC89FB2E2FDF3700E0E194 /* zh-Hans */,
+				6A323FA1302B78920033B1B4 /* pt-BR */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1087,6 +1095,7 @@
 				84BA0A152DE6F25400AFACA9 /* ru */,
 				B1AC89F92E2FDF3400E0E194 /* zh-Hans */,
 				84C1229F2EC49DC5009F86C4 /* en */,
+				6A323F9F302B788D0033B1B4 /* pt-BR */,
 			);
 			name = Storyboard.storyboard;
 			sourceTree = "<group>";
@@ -1106,6 +1115,7 @@
 				84BA0A142DE6F24B00AFACA9 /* ro */,
 				84BA0A1A2DE6F25400AFACA9 /* ru */,
 				B1AC89FE2E2FDF3900E0E194 /* zh-Hans */,
+				6A323FA4302B78970033B1B4 /* pt-BR */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -1126,6 +1136,7 @@
 				84BA0A162DE6F25400AFACA9 /* ru */,
 				B1AC89FA2E2FDF3500E0E194 /* zh-Hans */,
 				84635BCA2E30F93400B72E62 /* en */,
+				6A323FA0302B78910033B1B4 /* pt-BR */,
 			);
 			name = Intents.intentdefinition;
 			sourceTree = "<group>";
@@ -1134,6 +1145,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				84F961E725F004A2007A391A /* Base */,
+				6A323FA2302B78930033B1B4 /* pt-BR */,
 			);
 			name = "OwnTracks-Info.plist";
 			sourceTree = "<group>";
@@ -1153,6 +1165,7 @@
 				84BA0A132DE6F24B00AFACA9 /* ro */,
 				84BA0A192DE6F25400AFACA9 /* ru */,
 				B1AC89FD2E2FDF3900E0E194 /* zh-Hans */,
+				6A323FA3302B78960033B1B4 /* pt-BR */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -1280,7 +1293,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 26.3.0;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
-				DEVELOPMENT_TEAM = C652JFWU23;
+				DEVELOPMENT_TEAM = M8783MM36P;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_BITCODE = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -1296,7 +1309,7 @@
 				GCC_PREFIX_HEADER = "OwnTracks/OwnTracks-Prefix.pch";
 				INFOPLIST_FILE = "OwnTracks/Base.lproj/OwnTracks-Info.plist";
 				"INFOPLIST_FILE[sdk=*]" = "OwnTracks/Base.lproj/OwnTracks-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Bipe.me";
+				INFOPLIST_KEY_CFBundleDisplayName = Bipe.me;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1335,7 +1348,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 26.3.0;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
-				DEVELOPMENT_TEAM = C652JFWU23;
+				DEVELOPMENT_TEAM = M8783MM36P;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_BITCODE = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -1351,7 +1364,7 @@
 				GCC_PREFIX_HEADER = "OwnTracks/OwnTracks-Prefix.pch";
 				INFOPLIST_FILE = "OwnTracks/Base.lproj/OwnTracks-Info.plist";
 				"INFOPLIST_FILE[sdk=*]" = "OwnTracks/Base.lproj/OwnTracks-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Bipe.me";
+				INFOPLIST_KEY_CFBundleDisplayName = Bipe.me;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1431,7 +1444,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 26.3.0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = C652JFWU23;
+				DEVELOPMENT_TEAM = M8783MM36P;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1666,7 +1679,6 @@
 				minimumVersion = 12.16.0;
 			};
 		};
-
 		84B1BE0012F800001000009 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/openid/AppAuth-iOS";
@@ -1707,7 +1719,6 @@
 			package = 6ABFBB2C3016436400E5BFEF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-
 		84A4002A2F8ABBFA00340475 /* MQTTClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 84C2E5E22F8ABA0400D5FFD5 /* XCRemoteSwiftPackageReference "MQTTClient" */;
