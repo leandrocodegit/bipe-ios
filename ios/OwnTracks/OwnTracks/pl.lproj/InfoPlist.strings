@@ -2,7 +2,7 @@
 "CFBundleDisplayName" = "Bipe.me";
 
 /* Bundle name */
-"CFBundleName" = "OwnTracks";
+"CFBundleName" = "Bipe.me";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "OwnTracks używa Twojej kamery na żądanie, aby utworzyć Kartę";
