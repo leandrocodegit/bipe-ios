@@ -16,12 +16,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bipe.me" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
-                                <rect key="frame" x="114.5" y="269" width="185" height="43"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
-                                <color key="textColor" name="primaryTintColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="OwnTracks-320.png" translatesAutoresizingMaskIntoConstraints="NO" id="AOG-Zt-TLr">
                                 <rect key="frame" x="79" y="320" width="256" height="256"/>
                                 <constraints>
@@ -34,8 +28,6 @@
                         <color key="backgroundColor" name="primaryBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="AOG-Zt-TLr" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="2Hd-Ta-TXG"/>
-                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="centerX" secondItem="GJd-Yh-RWb" secondAttribute="centerX" id="Q3B-4B-g5h"/>
-                            <constraint firstItem="AOG-Zt-TLr" firstAttribute="top" secondItem="GJd-Yh-RWb" secondAttribute="bottom" constant="8" symbolic="YES" id="bzE-mx-W88"/>
                             <constraint firstItem="AOG-Zt-TLr" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ztn-uD-2bJ"/>
                         </constraints>
                     </view>
