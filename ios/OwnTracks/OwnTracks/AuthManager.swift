@@ -17,7 +17,7 @@ import AppAuth
     // MARK: - Constantes
     private static let issuerURI   = "https://auth.simodapp.com:8443/realms/bipe.simodapp.com"
     private static let clientID    = "bipe.simodapp.com"
-    private static let redirectURI = "owntracks://auth"
+    private static let redirectURI = "bipe.me://auth"
     private static let scope       = "openid profile email"
 
     // MARK: - Persistência
