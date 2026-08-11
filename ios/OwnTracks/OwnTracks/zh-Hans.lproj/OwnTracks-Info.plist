@@ -134,7 +134,9 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>OwnTracks uses your camera on request to create a Card</string>
+	<string>OwnTracks 根据要求使用您的相机创建卡片</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>O Bipe.me utiliza o Face ID para autenticar seu acesso com segurança.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>If you allow OwnTracks to access your contacts, you can link your devices to contacts.
 OwnTracks will then display the contact name and image instead of the device Id.

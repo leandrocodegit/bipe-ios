@@ -117,6 +117,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>O Bipe.me utiliza sua câmera quando solicitado para criar um cartão.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>O Bipe.me utiliza o Face ID para autenticar seu acesso com segurança.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>If you allow OwnTracks to access your contacts, you can link your devices to contacts.
 OwnTracks will then display the contact name and image instead of the device Id.
