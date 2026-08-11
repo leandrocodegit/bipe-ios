@@ -169,18 +169,18 @@ class LoginViewController: UIViewController {
     // MARK: - Ações
 
     @objc private func loginTapped() {
-        setLoading(true, status: "Abrindo autenticação…")
+        setLoading(true, status: NSLocalizedString("Abrindo autenticação…", comment: ""))
         clearError()
 
         authManager.startLogin(presenting: self) { [weak self] success, error in
             guard let self = self else { return }
 
             if success {
-                self.setStatus("Configurando dispositivo…")
+                self.setStatus(NSLocalizedString("Configurando dispositivo…", comment: ""))
                 self.performSetup()
             } else {
-                let msg = error?.localizedDescription ?? "Erro desconhecido"
-                self.showError("Falha no login: \(msg)")
+                let msg = error?.localizedDescription ?? NSLocalizedString("Erro desconhecido", comment: "")
+                self.showError("\(NSLocalizedString("Falha no login", comment: "")): \(msg)")
                 self.setLoading(false, status: "")
             }
         }

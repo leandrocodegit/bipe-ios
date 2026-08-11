@@ -38,7 +38,7 @@ final class PermissionsViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Permissões do Dispositivo"
+        label.text = NSLocalizedString("Status das Permissões", comment: "")
         label.font = .systemFont(ofSize: 22, weight: .bold)
         label.textColor = .white
         label.textAlignment = .center
@@ -48,7 +48,7 @@ final class PermissionsViewController: UIViewController {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Confira e gerencie as permissões necessárias para o funcionamento completo do Bipe.me no seu iPhone."
+        label.text = NSLocalizedString("Confira e gerencie as permissões necessárias para o funcionamento completo do Bipe.me no seu iPhone.", comment: "")
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = UIColor(red: 142/255, green: 157/255, blue: 161/255, alpha: 1.0)
         label.textAlignment = .center
@@ -68,7 +68,7 @@ final class PermissionsViewController: UIViewController {
     private let settingsButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Abrir Configurações do iOS", for: .normal)
+        button.setTitle(NSLocalizedString("Abrir Configurações do iOS", comment: ""), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
         button.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0) // Teal
@@ -102,11 +102,11 @@ final class PermissionsViewController: UIViewController {
     // MARK: - Setup Navigation
 
     private func setupNavigation() {
-        title = "Permissões"
+        title = NSLocalizedString("Permissões", comment: "")
         navigationController?.navigationBar.barTintColor = UIColor(red: 11/255, green: 18/255, blue: 20/255, alpha: 1.0)
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
 
-        let closeBtn = UIBarButtonItem(title: "Fechar", style: .done, target: self, action: #selector(closeTapped))
+        let closeBtn = UIBarButtonItem(title: NSLocalizedString("Fechar", comment: ""), style: .done, target: self, action: #selector(closeTapped))
         closeBtn.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
         navigationItem.rightBarButtonItem = closeBtn
     }
@@ -174,8 +174,8 @@ final class PermissionsViewController: UIViewController {
     private func setupCards() {
         gpsCardView = PermissionCardView(
             systemIcon: "location.fill",
-            title: "1. GPS e Localização",
-            descriptionText: "Necessário para obter a posição exata do seu dispositivo em tempo real e habilitar os recursos de rastreamento do Bipe.me.",
+            title: NSLocalizedString("1. GPS e Localização", comment: ""),
+            descriptionText: NSLocalizedString("Necessário para obter a posição exata do seu dispositivo em tempo real e habilitar os recursos de rastreamento do Bipe.me.", comment: ""),
             isOptional: false
         )
         gpsCardView.onActionTapped = { [weak self] in
@@ -184,8 +184,8 @@ final class PermissionsViewController: UIViewController {
 
         backgroundLocCardView = PermissionCardView(
             systemIcon: "arrow.triangle.2.circlepath.circle.fill",
-            title: "2. Localização em Segundo Plano",
-            descriptionText: "Permite que o aplicativo continue enviando a localização com precisão mesmo quando estiver minimizado ou com a tela bloqueada.",
+            title: NSLocalizedString("2. Localização em Segundo Plano", comment: ""),
+            descriptionText: NSLocalizedString("Permite que o aplicativo continue enviando a localização com precisão mesmo quando estiver minimizado ou com a tela bloqueada.", comment: ""),
             isOptional: false
         )
         backgroundLocCardView.onActionTapped = { [weak self] in
@@ -194,8 +194,8 @@ final class PermissionsViewController: UIViewController {
 
         cameraCardView = PermissionCardView(
             systemIcon: "camera.fill",
-            title: "3. Câmera",
-            descriptionText: "Necessário para tirar fotos do perfil/veículo e realizar a leitura de QR codes para associação rápida.",
+            title: NSLocalizedString("3. Câmera", comment: ""),
+            descriptionText: NSLocalizedString("Necessário para tirar fotos do perfil/veículo e realizar a leitura de QR codes para associação rápida.", comment: ""),
             isOptional: false
         )
         cameraCardView.onActionTapped = { [weak self] in
@@ -204,8 +204,8 @@ final class PermissionsViewController: UIViewController {
 
         notificationCardView = PermissionCardView(
             systemIcon: "bell.badge.fill",
-            title: "4. Notificações Push",
-            descriptionText: "Permite que você receba alertas de emergência, confirmações de rotinas e avisos importantes do sistema em tempo real.",
+            title: NSLocalizedString("4. Notificações Push", comment: ""),
+            descriptionText: NSLocalizedString("Permite que você receba alertas de emergência, confirmações de rotinas e avisos importantes do sistema em tempo real.", comment: ""),
             isOptional: true
         )
         notificationCardView.onActionTapped = { [weak self] in
@@ -244,35 +244,35 @@ final class PermissionsViewController: UIViewController {
             let locStatus = CLLocationManager.authorizationStatus()
 
             if !servicesEnabled {
-                self.gpsCardView.updateStatus(granted: false, badgeText: "GPS Desativado", actionTitle: "Ativar nas Configurações")
+                self.gpsCardView.updateStatus(granted: false, badgeText: NSLocalizedString("GPS Desativado", comment: ""), actionTitle: NSLocalizedString("Ativar nas Configurações", comment: ""))
             } else if locStatus == .authorizedWhenInUse || locStatus == .authorizedAlways {
-                self.gpsCardView.updateStatus(granted: true, badgeText: "Permitido", actionTitle: nil)
+                self.gpsCardView.updateStatus(granted: true, badgeText: NSLocalizedString("Permitido", comment: ""), actionTitle: nil)
             } else if locStatus == .notDetermined {
-                self.gpsCardView.updateStatus(granted: false, badgeText: "Não Configurado", actionTitle: "Permitir Acesso")
+                self.gpsCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Não Configurado", comment: ""), actionTitle: NSLocalizedString("Permitir Acesso", comment: ""))
             } else {
-                self.gpsCardView.updateStatus(granted: false, badgeText: "Negado", actionTitle: "Abrir Configurações")
+                self.gpsCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Negado", comment: ""), actionTitle: NSLocalizedString("Abrir Configurações", comment: ""))
             }
 
             // 2. Background Location
             if locStatus == .authorizedAlways {
-                self.backgroundLocCardView.updateStatus(granted: true, badgeText: "Permitido Sempre", actionTitle: nil)
+                self.backgroundLocCardView.updateStatus(granted: true, badgeText: NSLocalizedString("Permitido Sempre", comment: ""), actionTitle: nil)
             } else if locStatus == .authorizedWhenInUse {
-                self.backgroundLocCardView.updateStatus(granted: false, badgeText: "Apenas em Uso", actionTitle: "Alterar para 'Sempre'")
+                self.backgroundLocCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Apenas em Uso", comment: ""), actionTitle: NSLocalizedString("Alterar para 'Sempre'", comment: ""))
             } else if locStatus == .notDetermined {
-                self.backgroundLocCardView.updateStatus(granted: false, badgeText: "Não Configurado", actionTitle: "Permitir 'Sempre'")
+                self.backgroundLocCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Não Configurado", comment: ""), actionTitle: NSLocalizedString("Permitir 'Sempre'", comment: ""))
             } else {
-                self.backgroundLocCardView.updateStatus(granted: false, badgeText: "Negado", actionTitle: "Abrir Configurações")
+                self.backgroundLocCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Negado", comment: ""), actionTitle: NSLocalizedString("Abrir Configurações", comment: ""))
             }
 
             // 3. Camera
             let cameraStatus = AVCaptureDevice.authorizationStatus(for: .video)
             switch cameraStatus {
             case .authorized:
-                self.cameraCardView.updateStatus(granted: true, badgeText: "Permitido", actionTitle: nil)
+                self.cameraCardView.updateStatus(granted: true, badgeText: NSLocalizedString("Permitido", comment: ""), actionTitle: nil)
             case .notDetermined:
-                self.cameraCardView.updateStatus(granted: false, badgeText: "Não Configurado", actionTitle: "Solicitar Permissão")
+                self.cameraCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Não Configurado", comment: ""), actionTitle: NSLocalizedString("Solicitar Permissão", comment: ""))
             default:
-                self.cameraCardView.updateStatus(granted: false, badgeText: "Negado", actionTitle: "Abrir Configurações")
+                self.cameraCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Negado", comment: ""), actionTitle: NSLocalizedString("Abrir Configurações", comment: ""))
             }
 
             // 4. Notifications
@@ -280,11 +280,11 @@ final class PermissionsViewController: UIViewController {
                 DispatchQueue.main.async {
                     switch settings.authorizationStatus {
                     case .authorized, .provisional:
-                        self.notificationCardView.updateStatus(granted: true, badgeText: "Ativado", actionTitle: nil)
+                        self.notificationCardView.updateStatus(granted: true, badgeText: NSLocalizedString("Ativado", comment: ""), actionTitle: nil)
                     case .notDetermined:
-                        self.notificationCardView.updateStatus(granted: false, badgeText: "Opcional", actionTitle: "Ativar Notificações")
+                        self.notificationCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Opcional", comment: ""), actionTitle: NSLocalizedString("Ativar Notificações", comment: ""))
                     default:
-                        self.notificationCardView.updateStatus(granted: false, badgeText: "Desativado (Opcional)", actionTitle: "Abrir Configurações")
+                        self.notificationCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Desativado (Opcional)", comment: ""), actionTitle: NSLocalizedString("Abrir Configurações", comment: ""))
                     }
                 }
             }

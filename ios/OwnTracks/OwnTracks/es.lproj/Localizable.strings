@@ -370,3 +370,40 @@
 /* "Please keep OwnTracks running to ensure the desired functionality" */
 "Please keep Bipe.me running to ensure the desired functionality" = "Por favor, mantenga Bipe.me en ejecución para garantizar el funcionamiento deseado.";
 "Please keep OwnTracks running to ensure the desired functionality" = "Por favor, mantenga Bipe.me en ejecución para garantizar el funcionamiento deseado.";
+
+/* Permissions Screen */
+"Permissões" = "Permisos";
+"Fechar" = "Cerrar";
+"Status das Permissões" = "Estado de Permisos";
+"Confira e gerencie as permissões necessárias para o funcionamento completo do Bipe.me no seu iPhone." = "Consulte y administre los permisos necesarios para el funcionamiento completo de Bipe.me en su iPhone.";
+"Abrir Configurações do iOS" = "Abrir Configuración de iOS";
+"1. GPS e Localização" = "1. GPS y Ubicación";
+"Necessário para obter a posição exata do seu dispositivo em tempo real e habilitar os recursos de rastreamento do Bipe.me." = "Necesario para obtener la posición exacta de su dispositivo en tiempo real y activar el seguimiento de Bipe.me.";
+"2. Localização em Segundo Plano" = "2. Ubicación en Segundo Plano";
+"Permite que o aplicativo continue enviando a localização com precisão mesmo quando estiver minimizado ou com a tela bloqueada." = "Permite que la aplicación continúe enviando la ubicación de forma precisa incluso cuando esté minimizada o bloqueada.";
+"3. Câmera" = "3. Cámara";
+"Necessário para tirar fotos do perfil/veículo e realizar a leitura de QR codes para associação rápida." = "Necesario para tomar fotos de perfil/vehículo y escanear códigos QR para una vinculación rápida.";
+"4. Notificações Push" = "4. Notificaciones Push";
+"Permite que você receba alertas de emergência, confirmações de rotinas e avisos importantes do sistema em tempo real." = "Le permite recibir alertas de emergencia, confirmaciones de rutinas y avisos importantes del sistema en tiempo real.";
+"GPS Desativado" = "GPS Desactivado";
+"Ativar nas Configurações" = "Activar en Ajustes";
+"Permitido" = "Permitido";
+"Não Configurado" = "No Configurado";
+"Permitir Acesso" = "Permitir Acceso";
+"Negado" = "Denegado";
+"Abrir Configurações" = "Abrir Ajustes";
+"Permitido Sempre" = "Permitido Siempre";
+"Apenas em Uso" = "Solo en Uso";
+"Alterar para 'Sempre'" = "Cambiar a 'Siempre'";
+"Permitir 'Sempre'" = "Permitir 'Siempre'";
+"Solicitar Permissão" = "Solicitar Permiso";
+"Ativado" = "Activado";
+"Opcional" = "Opcional";
+"Ativar Notificações" = "Activar Notificaciones";
+"Desativado (Opcional)" = "Desactivado (Opcional)";
+
+/* Login Screen */
+"Abrindo autenticação…" = "Abriendo autenticación…";
+"Configurando dispositivo…" = "Configurando dispositivo…";
+"Erro desconhecido" = "Error desconocido";
+"Falha no login" = "Fallo de inicio de sesión";

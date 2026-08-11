@@ -370,3 +370,40 @@
 /* "Please keep OwnTracks running to ensure the desired functionality" */
 "Please keep Bipe.me running to ensure the desired functionality" = "Please keep Bipe.me running to ensure the desired functionality.";
 "Please keep OwnTracks running to ensure the desired functionality" = "Please keep Bipe.me running to ensure the desired functionality.";
+
+/* Permissions Screen */
+"Permissões" = "Permissions";
+"Fechar" = "Close";
+"Status das Permissões" = "Permission Status";
+"Confira e gerencie as permissões necessárias para o funcionamento completo do Bipe.me no seu iPhone." = "Check and manage the permissions required for Bipe.me to work fully on your iPhone.";
+"Abrir Configurações do iOS" = "Open iOS Settings";
+"1. GPS e Localização" = "1. GPS & Location";
+"Necessário para obter a posição exata do seu dispositivo em tempo real e habilitar os recursos de rastreamento do Bipe.me." = "Required to get the exact real-time position of your device and enable Bipe.me tracking features.";
+"2. Localização em Segundo Plano" = "2. Background Location";
+"Permite que o aplicativo continue enviando a localização com precisão mesmo quando estiver minimizado ou com a tela bloqueada." = "Allows the app to keep sending location accurately even when minimized or when the screen is locked.";
+"3. Câmera" = "3. Camera";
+"Necessário para tirar fotos do perfil/veículo e realizar a leitura de QR codes para associação rápida." = "Required to take profile/vehicle photos and scan QR codes for quick pairing.";
+"4. Notificações Push" = "4. Push Notifications";
+"Permite que você receba alertas de emergência, confirmações de rotinas e avisos importantes do sistema em tempo real." = "Allows you to receive emergency alerts, routine confirmations, and system notifications in real time.";
+"GPS Desativado" = "GPS Disabled";
+"Ativar nas Configurações" = "Enable in Settings";
+"Permitido" = "Allowed";
+"Não Configurado" = "Not Configured";
+"Permitir Acesso" = "Allow Access";
+"Negado" = "Denied";
+"Abrir Configurações" = "Open Settings";
+"Permitido Sempre" = "Always Allowed";
+"Apenas em Uso" = "While in Use Only";
+"Alterar para 'Sempre'" = "Change to 'Always'";
+"Permitir 'Sempre'" = "Allow 'Always'";
+"Solicitar Permissão" = "Request Permission";
+"Ativado" = "Enabled";
+"Opcional" = "Optional";
+"Ativar Notificações" = "Enable Notifications";
+"Desativado (Opcional)" = "Disabled (Optional)";
+
+/* Login Screen */
+"Abrindo autenticação…" = "Opening authentication…";
+"Configurando dispositivo…" = "Setting up device…";
+"Erro desconhecido" = "Unknown error";
+"Falha no login" = "Login failed";
