@@ -205,6 +205,18 @@
     
     [[UIApplication sharedApplication] registerForRemoteNotifications];
     
+    [[FIRMessaging messaging] tokenWithCompletion:^(NSString * _Nullable token, NSError * _Nullable error) {
+        if (error) {
+            OwnTracksLogError("[OwnTracksAppDelegate] Error fetching FCM registration token: %@", error);
+        } else if (token) {
+            OwnTracksLogDefault("[OwnTracksAppDelegate] FCM direct token: %@", token);
+            [[NSUserDefaults standardUserDefaults] setObject:token forKey:@"fcm_token"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            NSDictionary *dataDict = @{@"token" : token};
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"FCMToken" object:nil userInfo:dataDict];
+        }
+    }];
+    
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
     // Verificar se o setup BIPE jÃ¡ foi concluÃ­do
