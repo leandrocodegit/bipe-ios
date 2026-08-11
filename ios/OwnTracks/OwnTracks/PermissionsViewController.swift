@@ -304,7 +304,7 @@ final class PermissionsViewController: UIViewController {
 
     private func handleBackgroundLocationAction() {
         let status = CLLocationManager.authorizationStatus()
-        if status == .notDetermined || status == .authorizedWhenInUse {
+        if status == .notDetermined {
             locationManager.requestAlwaysAuthorization()
         } else {
             openSystemSettingsTapped()
