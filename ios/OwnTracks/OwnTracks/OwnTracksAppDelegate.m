@@ -281,8 +281,8 @@
         return FALSE;
     }
 
-    // Redirecionar para o AuthManager tratar o callback do Keycloak (owntracks://auth)
-    if ([url.scheme isEqualToString:@"owntracks"] && [url.host isEqualToString:@"auth"]) {
+    // Redirecionar para o AuthManager tratar o callback do Keycloak (owntracks://auth ou bipe.me://auth)
+    if (([url.scheme isEqualToString:@"owntracks"] || [url.scheme isEqualToString:@"bipe.me"]) && [url.host isEqualToString:@"auth"]) {
         OwnTracksLogDefault("[OwnTracksAppDelegate] openURL auth callback: %@", url);
         return [AuthManager.shared handleRedirectURL:url];
     }
