@@ -36,13 +36,13 @@ enum SetupError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .notAuthorized:              return "Usuário não autorizado. Faça login primeiro."
+        case .notAuthorized:              return "Usuário não autorizado. Faça login novamente."
         case .noToken:                    return "Token de acesso indisponível."
-        case .networkError(let e):        return "Erro de rede: \(e.localizedDescription)"
-        case .invalidResponse(let code):  return "Resposta inválida do servidor (HTTP \(code))."
-        case .emptyBody:                  return "Resposta vazia do servidor."
-        case .decodingError(let e):       return "Erro ao interpretar resposta: \(e.localizedDescription)"
-        case .coreDataUnavailable:        return "CoreData indisponível."
+        case .networkError(let e):        return "Sem conexão com a internet ou falha de rede: \(e.localizedDescription)"
+        case .invalidResponse(let code):  return "Servidor retornou erro (HTTP \(code)). A conexão com a internet está ativa."
+        case .emptyBody:                  return "Resposta vazia recebida do servidor."
+        case .decodingError(let e):       return "Erro ao interpretar resposta do servidor: \(e.localizedDescription)"
+        case .coreDataUnavailable:        return "Armazenamento local (CoreData) indisponível."
         }
     }
 }
