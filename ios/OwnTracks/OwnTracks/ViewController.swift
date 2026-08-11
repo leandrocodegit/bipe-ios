@@ -1121,18 +1121,17 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 completionHandler("{\"locked\": true}")
                 return
             }
-            if let loc = LocationManager.sharedInstance().lastLocation {
-                let locDict: [String: Any] = [
-                    "lat": loc.coordinate.latitude,
-                    "lon": loc.coordinate.longitude,
-                    "tst": Int64(loc.timestamp.timeIntervalSince1970),
-                    "acc": loc.horizontalAccuracy
-                ]
-                if let data = try? JSONSerialization.data(withJSONObject: locDict, options: []),
-                   let jsonString = String(data: data, encoding: .utf8) {
-                    completionHandler(jsonString)
-                    return
-                }
+            let loc = LocationManager.sharedInstance().location
+            let locDict: [String: Any] = [
+                "lat": loc.coordinate.latitude,
+                "lon": loc.coordinate.longitude,
+                "tst": Int64(loc.timestamp.timeIntervalSince1970),
+                "acc": loc.horizontalAccuracy
+            ]
+            if let data = try? JSONSerialization.data(withJSONObject: locDict, options: []),
+               let jsonString = String(data: data, encoding: .utf8) {
+                completionHandler(jsonString)
+                return
             }
             completionHandler("{}")
             return
