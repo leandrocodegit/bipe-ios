@@ -15,15 +15,15 @@ class LoginViewController: UIViewController {
     private lazy var logoImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
-        iv.image = UIImage(named: "AppIcon") ?? UIImage(systemName: "location.circle.fill")
-        iv.tintColor = .systemBlue
+        let img = UIImage(named: "OwnTracks-320.png") ?? UIImage(named: "OwnTracks-320") ?? UIImage(named: "AppIcon")
+        iv.image = img?.withRenderingMode(.alwaysOriginal)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
 
     private lazy var titleLabel: UILabel = {
         let l = UILabel()
-        l.text = "BIPE"
+        l.text = "Bipe.me"
         l.font = UIFont.systemFont(ofSize: 42, weight: .bold)
         l.textColor = .white
         l.textAlignment = .center
@@ -43,7 +43,7 @@ class LoginViewController: UIViewController {
 
     private lazy var loginButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Entrar com BIPE"
+        config.title = "Entrar com Bipe.me"
         config.image = UIImage(systemName: "person.badge.key.fill")
         config.imagePlacement = .leading
         config.imagePadding = 8
