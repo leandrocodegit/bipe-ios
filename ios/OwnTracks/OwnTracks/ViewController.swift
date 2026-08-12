@@ -1184,14 +1184,22 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 let storyboard = UIStoryboard(name: "Storyboard", bundle: nil)
-                if let regionsNav = storyboard.instantiateViewController(withIdentifier: "RegionsNavController") as? UINavigationController {
-                    if let regionsVC = regionsNav.viewControllers.first {
+                var targetNav: UINavigationController?
+                
+                if let nav = storyboard.instantiateViewController(withIdentifier: "RegionsNavController") as? UINavigationController {
+                    targetNav = nav
+                } else if let vc = storyboard.instantiateViewController(withIdentifier: "RegionsTVC") as? UIViewController {
+                    targetNav = UINavigationController(rootViewController: vc)
+                }
+                
+                if let navController = targetNav {
+                    if let rootVC = navController.viewControllers.first {
                         let closeBtn = UIBarButtonItem(title: NSLocalizedString("Fechar", comment: ""), style: .done, target: self, action: #selector(self.dismissModalViewController))
                         closeBtn.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
-                        regionsVC.navigationItem.leftBarButtonItem = closeBtn
+                        rootVC.navigationItem.leftBarButtonItem = closeBtn
                     }
-                    regionsNav.modalPresentationStyle = .fullScreen
-                    self.present(regionsNav, animated: true, completion: nil)
+                    navController.modalPresentationStyle = .fullScreen
+                    self.present(navController, animated: true, completion: nil)
                 }
             } 
         case "openAccountManagement":
