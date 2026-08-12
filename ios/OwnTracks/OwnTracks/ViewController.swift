@@ -1338,7 +1338,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         let moc = CoreData.sharedInstance().mainMOC
         moc.performAndWait {
             let generalTopic = Settings.theGeneralTopic(inMOC: moc)
-            guard let myself = Friend.existsFriend(withTopic: generalTopic, in: moc) else { return }
+            let myself = Friend.friend(withTopic: generalTopic, in: moc)
             
             for wp in list {
                 let name = (wp["name"] as? String) ?? (wp["label"] as? String) ?? (wp["descricao"] as? String) ?? "Waypoint"

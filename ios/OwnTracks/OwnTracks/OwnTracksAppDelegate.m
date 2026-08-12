@@ -1495,13 +1495,22 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
 }
 
 - (void)performSetWaypoints:(NSDictionary *)dictionary {
-    NSDictionary *waypoints = dictionary[@"waypoints"];
-    if (waypoints && [waypoints isKindOfClass:[NSDictionary class]]) {
-        [Settings waypointsFromDictionary:waypoints
+    id waypoints = dictionary[@"waypoints"];
+    if ([waypoints isKindOfClass:[NSDictionary class]]) {
+        [Settings waypointsFromDictionary:(NSDictionary *)waypoints
+                                    inMOC:CoreData.sharedInstance.mainMOC];
+    } else if ([waypoints isKindOfClass:[NSArray class]]) {
+        [Settings setWaypoints:(NSArray *)waypoints
+                          inMOC:CoreData.sharedInstance.mainMOC];
+    } else if ([dictionary[@"_type"] isEqualToString:@"waypoints"]) {
+        [Settings waypointsFromDictionary:dictionary
                                     inMOC:CoreData.sharedInstance.mainMOC];
     } else {
         OwnTracksLogError("[OwnTracksAppDelegate performSetWaypoints] no valid waypoints");
     }
+    [CoreData.sharedInstance sync:CoreData.sharedInstance.mainMOC];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"reload" object:nil];
+    [[LocationManager sharedInstance] resetRegions];
 }
 
 - (void)performClearWaypoints:(NSDictionary *)dictionary {

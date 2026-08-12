@@ -658,64 +658,78 @@ static SettingsDefaults *defaults;
             continue;
         }
         
-        NSString *type = waypoint[@"_type"];
-        if (!type || ![type isKindOfClass:[NSString class]] || ![type isEqualToString:@"waypoint"]) {
-            changes = [changes stringByAppendingFormat:@"waypoint does not contain _type waypoint\n"];
-            OwnTracksLogError("[Settings][setWaypoints] waypoint does not contain _type waypoint");
-            continue;
+        NSString *name = waypoint[@"name"];
+        if (!name || ![name isKindOfClass:[NSString class]]) {
+            name = waypoint[@"label"];
+        }
+        if (!name || ![name isKindOfClass:[NSString class]]) {
+            name = waypoint[@"descricao"];
         }
         
         NSString *desc = waypoint[@"desc"];
-        if (!desc || ![desc isKindOfClass:[NSString class]]) {
-            changes = [changes stringByAppendingFormat:@"waypoint does not contain valid desc\n"];
-            OwnTracksLogError("[Settings][setWaypoints] waypoint does not contain valid desc");
-            continue;
+        NSString *uuid = @"";
+        unsigned int major = 0;
+        unsigned int minor = 0;
+        
+        if (desc && [desc isKindOfClass:[NSString class]]) {
+            NSArray *components = [desc componentsSeparatedByString:@":"];
+            if (!name || name.length == 0) {
+                name = components[0];
+            }
+            uuid = components.count >= 2 ? components[1] : @"";
+            major = components.count >= 3 ? [components[2] unsignedIntValue]: 0;
+            minor = components.count >= 4 ? [components[3] unsignedIntValue]: 0;
         }
         
-        NSArray *components = [desc componentsSeparatedByString:@":"];
-        NSString *name = components[0];
-        NSString *uuid = components.count >= 2 ? components[1] : @"";
-        unsigned int major = components.count >= 3 ? [components[2] unsignedIntValue]: 0;
-        unsigned int minor = components.count >= 4 ? [components[3] unsignedIntValue]: 0;
+        if (!name || name.length == 0) {
+            name = @"Waypoint";
+        }
+        
+        if (waypoint[@"uuid"] && [waypoint[@"uuid"] isKindOfClass:[NSString class]]) {
+            uuid = waypoint[@"uuid"];
+        }
+        if (waypoint[@"major"] && [waypoint[@"major"] respondsToSelector:@selector(unsignedIntValue)]) {
+            major = [waypoint[@"major"] unsignedIntValue];
+        }
+        if (waypoint[@"minor"] && [waypoint[@"minor"] respondsToSelector:@selector(unsignedIntValue)]) {
+            minor = [waypoint[@"minor"] unsignedIntValue];
+        }
 
         NSNumber *tstNumber = waypoint[@"tst"];
-        if (!tstNumber || ![tstNumber isKindOfClass:[NSNumber class]]) {
-            changes = [changes stringByAppendingFormat:@"waypoint does not contain valid tst\n"];
-            OwnTracksLogError("[Settings][setWaypoints] waypoint does not contain valid tst");
-            continue;
+        NSDate *tst = nil;
+        if (tstNumber && [tstNumber isKindOfClass:[NSNumber class]]) {
+            tst = [NSDate dateWithTimeIntervalSince1970:[tstNumber doubleValue]];
+        } else {
+            tst = [NSDate date];
         }
-        
-        NSDate *tst = [NSDate dateWithTimeIntervalSince1970:
-                       [tstNumber doubleValue]];
                         
-        NSString *rid = waypoint[@"rid"];
+        NSString *rid = waypoint[@"waypointId"];
+        if (!rid || ![rid isKindOfClass:[NSString class]]) {
+            rid = waypoint[@"id"];
+        }
+        if (!rid || ![rid isKindOfClass:[NSString class]]) {
+            rid = waypoint[@"uuid"];
+        }
+        if (!rid || ![rid isKindOfClass:[NSString class]]) {
+            rid = waypoint[@"rid"];
+        }
         if (!rid || ![rid isKindOfClass:[NSString class]]) {
             rid = [Region ridFromTst:tst andName:name];
         }
                                 
-        CLLocationDegrees latDegrees = 0.0;
         NSNumber *lat = waypoint[@"lat"];
-        if (lat && ![lat isKindOfClass:[NSNumber class]]) {
-            OwnTracksLogError("[Settings][setWaypoints] json does not contain valid lat: not processed");
-            continue;
-        }
-        latDegrees = lat.doubleValue;
+        if (!lat) lat = waypoint[@"latitude"];
+        CLLocationDegrees latDegrees = (lat && [lat respondsToSelector:@selector(doubleValue)]) ? lat.doubleValue : 0.0;
 
-        CLLocationDegrees lonDegrees = 0.0;
         NSNumber *lon = waypoint[@"lon"];
-        if (lon && ![lon isKindOfClass:[NSNumber class]]) {
-            OwnTracksLogError("[Settings][setWaypoints] json does not contain valid lon: not processed");
-            continue;
-        }
-        lonDegrees = lon.doubleValue;
+        if (!lon) lon = waypoint[@"lng"];
+        if (!lon) lon = waypoint[@"longitude"];
+        CLLocationDegrees lonDegrees = (lon && [lon respondsToSelector:@selector(doubleValue)]) ? lon.doubleValue : 0.0;
 
-        CLLocationDistance radDistance = 0.0;
         NSNumber *rad = waypoint[@"rad"];
-        if (rad && ![rad isKindOfClass:[NSNumber class]]) {
-            OwnTracksLogError("[Settings][setWaypoints] json does not contain valid rad: not processed");
-            continue;
-        }
-        radDistance = rad.doubleValue;
+        if (!rad) rad = waypoint[@"radius"];
+        if (!rad) rad = waypoint[@"raio"];
+        CLLocationDistance radDistance = (rad && [rad respondsToSelector:@selector(doubleValue)]) ? rad.doubleValue : 100.0;
 
         CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(latDegrees, lonDegrees);
         if (!CLLocationCoordinate2DIsValid(coord)) {
