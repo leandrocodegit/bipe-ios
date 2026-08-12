@@ -1172,13 +1172,20 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     delegate.presentLoginViewController()
                 }
             }
-        case "openPermissions", "openWaypoints":
+        case "openPermissions":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 let permissionsVC = PermissionsViewController()
                 let navController = UINavigationController(rootViewController: permissionsVC)
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
+            }
+        case "openWaypoints", "openSettings":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let configVC = ConfigWebViewController()
+                configVC.modalPresentationStyle = .fullScreen
+                self.present(configVC, animated: true, completion: nil)
             }
         case "openAccountManagement":
             DispatchQueue.main.async { [weak self] in

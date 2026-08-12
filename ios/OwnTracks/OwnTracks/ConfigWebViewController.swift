@@ -60,7 +60,10 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
 
         let navBar = UINavigationBar()
         navBar.translatesAutoresizingMaskIntoConstraints = false
-        let navItem = UINavigationItem(title: "Configurações Avançadas")
+        let navItem = UINavigationItem(title: NSLocalizedString("Configurações Avançadas", comment: ""))
+        let closeBtn = UIBarButtonItem(title: NSLocalizedString("Fechar", comment: ""), style: .done, target: self, action: #selector(closeTapped))
+        closeBtn.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        navItem.rightBarButtonItem = closeBtn
         navBar.setItems([navItem], animated: false)
         self.view.addSubview(navBar)
         
@@ -141,7 +144,7 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                     print("Error parsing JSON: \(error)")
                 }
             }
-        } else if message.name == "openPermissions" || message.name == "openWaypoints" {
+        } else if message.name == "openPermissions" {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 let permissionsVC = PermissionsViewController()
@@ -149,12 +152,23 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
             }
+        } else if message.name == "openWaypoints" || message.name == "openSettings" {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let configVC = ConfigWebViewController()
+                configVC.modalPresentationStyle = .fullScreen
+                self.present(configVC, animated: true, completion: nil)
+            }
         } else if message.name == "openAccountManagement" {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 AuthManager.shared.openAccountManagement(presenting: self)
             }
         }
+    }
+
+    @objc private func closeTapped() {
+        dismiss(animated: true, completion: nil)
     }
 }
 
