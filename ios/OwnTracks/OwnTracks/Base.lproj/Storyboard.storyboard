@@ -4586,7 +4586,7 @@
         <!--Regions-->
         <scene sceneID="J8y-eh-Sot">
             <objects>
-                <navigationController storyboardIdentifier="RegionsNavController" automaticallyAdjustsScrollViewInsets="NO" id="gCm-FQ-VzQ" customClass="NavigationController" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="gCm-FQ-VzQ" customClass="NavigationController" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" tag="96" title="Regions" image="Regions" id="HB5-wo-JZx"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="qvG-MG-aSJ">

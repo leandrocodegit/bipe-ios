@@ -152,21 +152,7 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
             }
-        } else if message.name == "openWaypoints" {
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                let storyboard = UIStoryboard(name: "Storyboard", bundle: nil)
-                if let regionsNav = storyboard.instantiateViewController(withIdentifier: "RegionsNavController") as? UINavigationController {
-                    if let regionsVC = regionsNav.viewControllers.first {
-                        let closeBtn = UIBarButtonItem(title: NSLocalizedString("Fechar", comment: ""), style: .done, target: self, action: #selector(self.closeTapped))
-                        closeBtn.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
-                        regionsVC.navigationItem.leftBarButtonItem = closeBtn
-                    }
-                    regionsNav.modalPresentationStyle = .fullScreen
-                    self.present(regionsNav, animated: true, completion: nil)
-                }
-            }
-        } else if message.name == "openSettings" {
+        } else if message.name == "openWaypoints" || message.name == "openSettings" {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 let configVC = ConfigWebViewController()
