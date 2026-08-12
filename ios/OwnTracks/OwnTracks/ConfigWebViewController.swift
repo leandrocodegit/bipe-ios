@@ -21,6 +21,7 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         let contentController = WKUserContentController()
         contentController.add(self, name: "saveConfig")
         contentController.add(self, name: "openPermissions")
+        contentController.add(self, name: "saveWaypoints")
         
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
@@ -48,6 +49,12 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 },
                 openAccountManagement: function() {
                     window.webkit.messageHandlers.openAccountManagement.postMessage("");
+                },
+                saveWaypoints: function(json) {
+                    window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json);
+                },
+                setWaypoints: function(json) {
+                    window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json);
                 },
                 getDeviceId: function() {
                     return "\(Settings.string(forKey: "deviceid_preference", inMOC: self.moc) ?? "")";
@@ -177,6 +184,11 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 AuthManager.shared.openAccountManagement(presenting: self)
+            }
+        } else if message.name == "saveWaypoints", let jsonString = message.body as? String {
+            if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate,
+               let rootVC = delegate.window?.rootViewController as? ViewController {
+                rootVC.processSaveWaypoints(jsonString: jsonString)
             }
         }
     }

@@ -703,6 +703,10 @@ static OwnTracking *theInstance = nil;
 
     json[@"tst"] = [NSNumber doubleValueWithZeroDecimals:region.andFillTst.timeIntervalSince1970];
     json[@"rid"] = region.andFillRid;
+    NSString *wpId = (region.uuid && region.uuid.length > 0) ? region.uuid : region.andFillRid;
+    if (wpId && wpId.length > 0) {
+        json[@"waypointId"] = wpId;
+    }
     json[@"desc"] = [NSString stringWithFormat:@"%@%@%@%@",
                      region.name,
                      (region.uuid && region.uuid.length > 0) ?

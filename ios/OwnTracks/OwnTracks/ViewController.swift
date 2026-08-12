@@ -991,7 +991,9 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             logout: function() { if (window.webkit && window.webkit.messageHandlers.logout) window.webkit.messageHandlers.logout.postMessage({}); },
             startVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.startVoiceCall) window.webkit.messageHandlers.startVoiceCall.postMessage({}); },
             stopVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.stopVoiceCall) window.webkit.messageHandlers.stopVoiceCall.postMessage({}); },
-            saveConfig: function(json) { if (window.webkit && window.webkit.messageHandlers.saveConfig) window.webkit.messageHandlers.saveConfig.postMessage(json); }
+            saveConfig: function(json) { if (window.webkit && window.webkit.messageHandlers.saveConfig) window.webkit.messageHandlers.saveConfig.postMessage(json); },
+            saveWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); },
+            setWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); }
         };
         """
 
@@ -999,7 +1001,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1207,6 +1209,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 guard let self = self else { return }
                 AuthManager.shared.openAccountManagement(presenting: self)
             }
+        case "saveWaypoints":
+            if let jsonString = message.body as? String {
+                processSaveWaypoints(jsonString: jsonString)
+            }
         case "saveConfig":
             if let jsonString = message.body as? String,
                let data = jsonString.data(using: .utf8),
@@ -1302,5 +1308,81 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
     @objc private func dismissModalViewController() {
         dismiss(animated: true, completion: nil)
+    }
+
+    func processSaveWaypoints(jsonString: String) {
+        guard let data = jsonString.data(using: .utf8) else { return }
+        
+        var waypoints: [[String: Any]]? = nil
+        if let array = try? JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+            waypoints = array
+        } else if let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+            if let array = dict["waypoints"] as? [[String: Any]] {
+                waypoints = array
+            } else if let array = dict["data"] as? [[String: Any]] {
+                waypoints = array
+            } else {
+                waypoints = [dict]
+            }
+        }
+        
+        guard let list = waypoints, !list.isEmpty else { return }
+        
+        DispatchQueue.main.async {
+            let moc = CoreData.sharedInstance().mainMOC
+            moc.performAndWait {
+                let generalTopic = Settings.theGeneralTopic(inMOC: moc)
+                guard let myself = Friend.existsFriend(withTopic: generalTopic, in: moc) else { return }
+                
+                for wp in list {
+                    let name = (wp["name"] as? String) ?? (wp["label"] as? String) ?? (wp["descricao"] as? String) ?? "Waypoint"
+                    let lat = (wp["lat"] as? Double) ?? (wp["latitude"] as? Double) ?? 0.0
+                    let lon = (wp["lon"] as? Double) ?? (wp["lng"] as? Double) ?? (wp["longitude"] as? Double) ?? 0.0
+                    let rad = (wp["radius"] as? Double) ?? (wp["rad"] as? Double) ?? (wp["raio"] as? Double) ?? 100.0
+                    
+                    let wpIdRaw = wp["waypointId"] ?? wp["id"] ?? wp["uuid"] ?? wp["rid"]
+                    let wpId = "\(wpIdRaw ?? Region.newRid())"
+                    
+                    let major = (wp["major"] as? Int32) ?? 0
+                    let minor = (wp["minor"] as? Int32) ?? 0
+                    let uuid = (wp["uuid"] as? String) ?? wpId
+                    
+                    let fetchRequest = NSFetchRequest<Region>(entityName: "Region")
+                    fetchRequest.predicate = NSPredicate(format: "belongsTo == %@ AND (rid == %@ OR uuid == %@ OR name == %@)", myself, wpId, wpId, name)
+                    
+                    let existing = (try? moc.fetch(fetchRequest))?.first
+                    if let region = existing {
+                        region.lat = NSNumber(value: lat)
+                        region.lon = NSNumber(value: lon)
+                        region.radius = NSNumber(value: rad)
+                        region.name = name
+                        region.rid = wpId
+                        region.uuid = uuid
+                        region.major = NSNumber(value: major)
+                        region.minor = NSNumber(value: minor)
+                    } else {
+                        let newRegion = OwnTracking.sharedInstance().addRegion(for: wpId,
+                                                                               friend: myself,
+                                                                               name: name,
+                                                                               tst: Date() as NSDate,
+                                                                               uuid: uuid,
+                                                                               major: major,
+                                                                               minor: minor,
+                                                                               radius: Int32(rad),
+                                                                               lat: lat,
+                                                                               lon: lon)
+                        newRegion?.rid = wpId
+                        newRegion?.uuid = uuid
+                    }
+                }
+                
+                if moc.hasChanges {
+                    try? moc.save()
+                }
+            }
+            
+            LocationManager.sharedInstance().resetRegions()
+            NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil)
+        }
     }
 }

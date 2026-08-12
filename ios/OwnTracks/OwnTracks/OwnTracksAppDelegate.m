@@ -981,6 +981,10 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                     json[@"desc"] = components[0];
                     json[@"wtst"] = [NSNumber doubleValueWithZeroDecimals:anyRegion.tst.timeIntervalSince1970];
                     json[@"rid"] = anyRegion.andFillRid;
+                    NSString *wpId = (anyRegion.uuid && anyRegion.uuid.length > 0) ? anyRegion.uuid : anyRegion.andFillRid;
+                    if (wpId && wpId.length > 0) {
+                        json[@"waypointId"] = wpId;
+                    }
                     
                     [self.connection sendData:[self jsonToData:json]
                                         topic:[[Settings theGeneralTopicInMOC:moc] stringByAppendingString:@"/event"]
