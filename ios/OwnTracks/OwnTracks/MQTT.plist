@@ -51,7 +51,7 @@
 	<key>allowremoteconfiguration_preference</key>
 	<true/>
 	<key>allowConfigurationByURIAndConfigFile</key>
-	<false/>
+	<true/>
 	<key>allowIntentControl</key>
 	<false/>
 	<key>extendeddata_preference</key>
