@@ -25,13 +25,13 @@
 	<key>ranging_preference</key>
 	<false/>
 	<key>cmd_preference</key>
-	<false/>
+	<true/>
 	<key>allowremotelocation_preference</key>
 	<true/>
 	<key>allowremoteconfiguration_preference</key>
-	<false/>
+	<true/>
 	<key>allowConfigurationByURIAndConfigFile</key>
-	<false/>
+	<true/>
 	<key>allowIntentControl</key>
 	<false/>
 	<key>extendeddata_preference</key>
