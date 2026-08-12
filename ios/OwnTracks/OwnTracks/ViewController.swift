@@ -1329,61 +1329,65 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         
         guard let list = waypoints, !list.isEmpty else { return }
         
-        DispatchQueue.main.async {
-            let moc = CoreData.sharedInstance().mainMOC
-            moc.performAndWait {
-                let generalTopic = Settings.theGeneralTopic(inMOC: moc)
-                guard let myself = Friend.existsFriend(withTopic: generalTopic, in: moc) else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.performWaypointsSave(list: list)
+        }
+    }
+
+    private func performWaypointsSave(list: [[String: Any]]) {
+        let moc = CoreData.sharedInstance().mainMOC
+        moc.performAndWait {
+            let generalTopic = Settings.theGeneralTopic(inMOC: moc)
+            guard let myself = Friend.existsFriend(withTopic: generalTopic, in: moc) else { return }
+            
+            for wp in list {
+                let name = (wp["name"] as? String) ?? (wp["label"] as? String) ?? (wp["descricao"] as? String) ?? "Waypoint"
+                let lat = (wp["lat"] as? Double) ?? (wp["latitude"] as? Double) ?? 0.0
+                let lon = (wp["lon"] as? Double) ?? (wp["lng"] as? Double) ?? (wp["longitude"] as? Double) ?? 0.0
+                let rad = (wp["radius"] as? Double) ?? (wp["rad"] as? Double) ?? (wp["raio"] as? Double) ?? 100.0
                 
-                for wp in list {
-                    let name = (wp["name"] as? String) ?? (wp["label"] as? String) ?? (wp["descricao"] as? String) ?? "Waypoint"
-                    let lat = (wp["lat"] as? Double) ?? (wp["latitude"] as? Double) ?? 0.0
-                    let lon = (wp["lon"] as? Double) ?? (wp["lng"] as? Double) ?? (wp["longitude"] as? Double) ?? 0.0
-                    let rad = (wp["radius"] as? Double) ?? (wp["rad"] as? Double) ?? (wp["raio"] as? Double) ?? 100.0
-                    
-                    let wpIdRaw = wp["waypointId"] ?? wp["id"] ?? wp["uuid"] ?? wp["rid"]
-                    let wpId = "\(wpIdRaw ?? Region.newRid())"
-                    
-                    let major = (wp["major"] as? Int32) ?? 0
-                    let minor = (wp["minor"] as? Int32) ?? 0
-                    let uuid = (wp["uuid"] as? String) ?? wpId
-                    
-                    let fetchRequest = NSFetchRequest<Region>(entityName: "Region")
-                    fetchRequest.predicate = NSPredicate(format: "belongsTo == %@ AND (rid == %@ OR uuid == %@ OR name == %@)", myself, wpId, wpId, name)
-                    
-                    let existing = (try? moc.fetch(fetchRequest))?.first
-                    if let region = existing {
-                        region.lat = NSNumber(value: lat)
-                        region.lon = NSNumber(value: lon)
-                        region.radius = NSNumber(value: rad)
-                        region.name = name
-                        region.rid = wpId
-                        region.uuid = uuid
-                        region.major = NSNumber(value: major)
-                        region.minor = NSNumber(value: minor)
-                    } else {
-                        let newRegion = OwnTracking.sharedInstance().addRegion(for: wpId,
-                                                                               friend: myself,
-                                                                               name: name,
-                                                                               tst: Date() as NSDate,
-                                                                               uuid: uuid,
-                                                                               major: major,
-                                                                               minor: minor,
-                                                                               radius: Int32(rad),
-                                                                               lat: lat,
-                                                                               lon: lon)
-                        newRegion?.rid = wpId
-                        newRegion?.uuid = uuid
-                    }
-                }
+                let wpIdRaw = wp["waypointId"] ?? wp["id"] ?? wp["uuid"] ?? wp["rid"]
+                let wpId = "\(wpIdRaw ?? Region.newRid())"
                 
-                if moc.hasChanges {
-                    try? moc.save()
+                let major = (wp["major"] as? Int32) ?? 0
+                let minor = (wp["minor"] as? Int32) ?? 0
+                let uuid = (wp["uuid"] as? String) ?? wpId
+                
+                let fetchRequest = NSFetchRequest<Region>(entityName: "Region")
+                fetchRequest.predicate = NSPredicate(format: "belongsTo == %@ AND (rid == %@ OR uuid == %@ OR name == %@)", myself, wpId, wpId, name)
+                
+                let existing = (try? moc.fetch(fetchRequest))?.first
+                if let region = existing {
+                    region.lat = NSNumber(value: lat)
+                    region.lon = NSNumber(value: lon)
+                    region.radius = NSNumber(value: rad)
+                    region.name = name
+                    region.rid = wpId
+                    region.uuid = uuid
+                    region.major = NSNumber(value: major)
+                    region.minor = NSNumber(value: minor)
+                } else {
+                    let newRegion = OwnTracking.sharedInstance().addRegion(for: wpId,
+                                                                           friend: myself,
+                                                                           name: name,
+                                                                           tst: Date() as NSDate,
+                                                                           uuid: uuid,
+                                                                           major: major,
+                                                                           minor: minor,
+                                                                           radius: Int32(rad),
+                                                                           lat: lat,
+                                                                           lon: lon)
+                    newRegion?.rid = wpId
+                    newRegion?.uuid = uuid
                 }
             }
             
-            LocationManager.sharedInstance().resetRegions()
-            NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil)
+            if moc.hasChanges {
+                try? moc.save()
+            }
         }
+        
+        LocationManager.sharedInstance().resetRegions()
+        NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil)
     }
 }
