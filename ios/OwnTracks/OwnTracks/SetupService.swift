@@ -95,12 +95,15 @@ enum SetupError: LocalizedError {
                     NSLog("[SetupService] Fallback no simulador. Retornando token FCM mockado após falha.")
                     completion("mock-token-simulator-12345")
                     #else
-                    completion("")
+                    // Retornar nil evita salvar string vazia no banco do Spring Boot
+                    completion(nil)
                     #endif
                 }
+            } else if let token = token, !token.isEmpty {
+                NSLog("[SetupService] Token FCM obtido: %@", token)
+                completion(token)
             } else {
-                NSLog("[SetupService] Token FCM obtido: %@", token ?? "")
-                completion(token ?? "")
+                completion(nil)
             }
         }
     }

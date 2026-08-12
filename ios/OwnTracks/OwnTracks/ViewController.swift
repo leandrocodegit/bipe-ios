@@ -1172,13 +1172,34 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     delegate.presentLoginViewController()
                 }
             }
-        case "openPermissions", "openWaypoints":
+        case "openPermissions":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 let permissionsVC = PermissionsViewController()
                 let navController = UINavigationController(rootViewController: permissionsVC)
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
+            }
+        case "openWaypoints":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let storyboard = UIStoryboard(name: "Storyboard", bundle: nil)
+                if let regionsNav = storyboard.instantiateViewController(withIdentifier: "RegionsNavController") as? UINavigationController {
+                    if let regionsVC = regionsNav.viewControllers.first {
+                        let closeBtn = UIBarButtonItem(title: NSLocalizedString("Fechar", comment: ""), style: .done, target: self, action: #selector(self.dismissModalViewController))
+                        closeBtn.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+                        regionsVC.navigationItem.leftBarButtonItem = closeBtn
+                    }
+                    regionsNav.modalPresentationStyle = .fullScreen
+                    self.present(regionsNav, animated: true, completion: nil)
+                }
+            }
+        case "openSettings":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let configVC = ConfigWebViewController()
+                configVC.modalPresentationStyle = .fullScreen
+                self.present(configVC, animated: true, completion: nil)
             }
         case "openAccountManagement":
             DispatchQueue.main.async { [weak self] in
@@ -1276,5 +1297,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         default:
             break
         }
+    }
+
+    @objc private func dismissModalViewController() {
+        dismiss(animated: true, completion: nil)
     }
 }
