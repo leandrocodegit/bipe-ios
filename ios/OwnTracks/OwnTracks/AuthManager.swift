@@ -76,7 +76,10 @@ import SafariServices
             )
 
             DispatchQueue.main.async {
-                let externalUserAgent = OIDExternalUserAgentIOS(presentingViewController: viewController)
+                guard let externalUserAgent = OIDExternalUserAgentIOS(presenting: viewController, prefersEphemeralSession: false) ?? OIDExternalUserAgentIOS(presenting: viewController) else {
+                    completion(false, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Falha ao inicializar OIDExternalUserAgentIOS"]))
+                    return
+                }
                 self.currentAuthorizationFlow = OIDAuthorizationService.present(
                     request,
                     externalUserAgent: externalUserAgent
