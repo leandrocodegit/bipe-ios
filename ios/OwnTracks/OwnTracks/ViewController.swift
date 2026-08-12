@@ -1193,14 +1193,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     regionsNav.modalPresentationStyle = .fullScreen
                     self.present(regionsNav, animated: true, completion: nil)
                 }
-            }
-        case "openSettings":
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                let configVC = ConfigWebViewController()
-                configVC.modalPresentationStyle = .fullScreen
-                self.present(configVC, animated: true, completion: nil)
-            }
+            } 
         case "openAccountManagement":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
