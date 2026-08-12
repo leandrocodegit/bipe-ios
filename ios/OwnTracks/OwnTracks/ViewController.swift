@@ -1167,7 +1167,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         switch message.name {
         case "logout":
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                _ = self
                 AuthManager.shared.logout()
                 SetupService.shared.resetSetup()
                 if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
