@@ -166,14 +166,14 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                     self.present(regionsNav, animated: true, completion: nil)
                 }
             }
-        } else if message.name == "openSettings" {
+        } /* else if message.name == "openSettings" {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 let configVC = ConfigWebViewController()
                 configVC.modalPresentationStyle = .fullScreen
                 self.present(configVC, animated: true, completion: nil)
             }
-        } else if message.name == "openAccountManagement" {
+        }  */else if message.name == "openAccountManagement" {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 AuthManager.shared.openAccountManagement(presenting: self)
