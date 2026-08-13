@@ -1207,103 +1207,60 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
         
         OwnTracksLogDebug("[OwnTracksAppDelegate] device %@ owndevice %d", device, ownDevice);
         
-        if (ownDevice) {
+        BOOL isCmdTopic = [topic hasSuffix:@"/cmd"];
+        if (ownDevice || isCmdTopic) {
             
-            NSDictionary *dictionary = nil;
             id json = [[Validation sharedInstance] validateMessageData:data];
-            if (json && [json isKindOfClass:[NSDictionary class]]) {
-                dictionary = json;
-            }
             
-            if (dictionary) {
+            if (json && [json isKindOfClass:[NSArray class]]) {
+                // Array direto de waypoints [ {...}, {...} ]
+                NSDictionary *wrapped = @{@"_type": @"cmd", @"action": @"setWaypoints", @"waypoints": json};
+                [self performSelectorOnMainThread:@selector(performSetWaypoints:)
+                                       withObject:wrapped
+                                    waitUntilDone:NO];
+            } else if (json && [json isKindOfClass:[NSDictionary class]]) {
+                NSDictionary *dictionary = (NSDictionary *)json;
                 NSString *type = dictionary[@"_type"];
-                if (type && [type isKindOfClass:[NSString class]]) {
-                    if ([type isEqualToString:@"cmd"]) {
-                        if ([Settings boolForKey:@"cmd_preference"
-                                           inMOC:CoreData.sharedInstance.queuedMOC]) {
-                            NSString *action = dictionary[@"action"];
-                            if (action && [action isKindOfClass:[NSString class]]) {
-                                if ([action isEqualToString:@"dump"]) {
-                                    [self dump];
-                                    
-                                } else if ([action isEqualToString:@"status"]) {
-                                    [self status];
-
-                                } else if ([action isEqualToString:@"reportLocation"]) {
-                                    if (([LocationManager sharedInstance].monitoring == LocationMonitoringSignificant ||
-                                        [LocationManager sharedInstance].monitoring == LocationMonitoringMove) &&
-                                        [Settings theAllowRemoteLocationInMOC:CoreData.sharedInstance.queuedMOC]) {
-                                        [self performSelectorOnMainThread:@selector(reportLocation)
-                                                               withObject:nil
-                                                            waitUntilDone:NO];
-                                    } else {
-                                        OwnTracksLogError("[OwnTracksAppDelegate] remote location not allowed");
-                                    }
-
-                                } else if ([action isEqualToString:@"reportSteps"]) {
-                                    NSNumber *from = dictionary[@"from"];
-                                    NSNumber *to = dictionary[@"to"];
-                                    if ((!from || [from isKindOfClass:[NSNumber class]]) &&
-                                        (!to || [to isKindOfClass:[NSNumber class]])) {
-                                        [self stepsFrom:from to:to];
-                                    } else {
-                                        OwnTracksLogError("[OwnTracksAppDelegate] from and to must be numbers");
-                                    }
-                                    
-                                } else if ([action isEqualToString:@"waypoints"]) {
-                                    [self performSelectorOnMainThread:@selector(waypoints)
-                                                           withObject:nil
-                                                        waitUntilDone:NO];
-                                                                        
-                                } else if ([action isEqualToString:@"setWaypoints"]) {
-                                    if ([Settings theAllowRemoteConfigurationInMOC:CoreData.sharedInstance.queuedMOC]) {
-                                        [self performSelectorOnMainThread:@selector(performSetWaypoints:)
-                                                               withObject:dictionary
-                                                            waitUntilDone:NO];
-                                    } else {
-                                        OwnTracksLogError("[OwnTracksAppDelegate] remote configuration not allowed");
-                                    }
-
-                                } else if ([action isEqualToString:@"clearWaypoints"]) {
-                                    if ([Settings theAllowRemoteConfigurationInMOC:CoreData.sharedInstance.queuedMOC]) {
-                                        [self performSelectorOnMainThread:@selector(performClearWaypoints:)
-                                                               withObject:dictionary
-                                                            waitUntilDone:NO];
-                                    } else {
-                                        OwnTracksLogError("[OwnTracksAppDelegate] remote configuration not allowed");
-                                    }
-
-                                } else if ([action isEqualToString:@"setConfiguration"]) {
-                                    if ([Settings theAllowRemoteConfigurationInMOC:CoreData.sharedInstance.queuedMOC]) {
-                                        [self performSelectorOnMainThread:@selector(performSetConfiguration:)
-                                                               withObject:dictionary
-                                                            waitUntilDone:NO];
-                                    } else {
-                                        OwnTracksLogError("[OwnTracksAppDelegate] remote configuration not allowed");
-                                    }
-                                    
-                                } else if ([action isEqualToString:@"response"]) {
-                                    [self performSelectorOnMainThread:@selector(performResponse:)
-                                                           withObject:dictionary
-                                                        waitUntilDone:NO];
-                                    
-                                } else {
-                                    OwnTracksLogError("[OwnTracksAppDelegate] unknown action %{public}@", action);
-                                }
-                            } else {
-                                OwnTracksLogError("[OwnTracksAppDelegate] no action in JSON");
-                            }
-                        } else {
-                            OwnTracksLogError("[OwnTracksAppDelegate] remote cmd not allowed");
-                        }
+                
+                if ([type isEqualToString:@"waypoints"] || [type isEqualToString:@"waypoint"]) {
+                    [self performSelectorOnMainThread:@selector(performSetWaypoints:)
+                                           withObject:dictionary
+                                        waitUntilDone:NO];
+                } else if (!type || [type isEqualToString:@"cmd"]) {
+                    NSString *action = dictionary[@"action"];
+                    if ([action isEqualToString:@"setWaypoints"]) {
+                        [self performSelectorOnMainThread:@selector(performSetWaypoints:)
+                                               withObject:dictionary
+                                            waitUntilDone:NO];
+                    } else if ([action isEqualToString:@"dump"]) {
+                        [self dump];
+                    } else if ([action isEqualToString:@"status"]) {
+                        [self status];
+                    } else if ([action isEqualToString:@"reportLocation"]) {
+                        [self performSelectorOnMainThread:@selector(reportLocation) withObject:nil waitUntilDone:NO];
+                    } else if ([action isEqualToString:@"waypoints"]) {
+                        [self performSelectorOnMainThread:@selector(waypoints) withObject:nil waitUntilDone:NO];
+                    } else if ([action isEqualToString:@"clearWaypoints"]) {
+                        [self performSelectorOnMainThread:@selector(performClearWaypoints:) withObject:dictionary waitUntilDone:NO];
+                    } else if ([action isEqualToString:@"setConfiguration"]) {
+                        [self performSelectorOnMainThread:@selector(performSetConfiguration:) withObject:dictionary waitUntilDone:NO];
+                    } else if ([action isEqualToString:@"response"]) {
+                        [self performSelectorOnMainThread:@selector(performResponse:) withObject:dictionary waitUntilDone:NO];
                     } else {
-                        OwnTracksLogError("[OwnTracksAppDelegate] unhandled _type (%{public}@) in JSON", type);
+                        // Se não tem action mas tem waypoints no dicionário
+                        if (dictionary[@"waypoints"]) {
+                            [self performSelectorOnMainThread:@selector(performSetWaypoints:)
+                                                   withObject:dictionary
+                                                waitUntilDone:NO];
+                        } else {
+                            OwnTracksLogError("[OwnTracksAppDelegate] unknown action in JSON");
+                        }
                     }
                 } else {
-                    OwnTracksLogError("[OwnTracksAppDelegate] no _type in JSON");
+                    OwnTracksLogError("[OwnTracksAppDelegate] unhandled _type (%{public}@) in JSON", type);
                 }
             } else {
-                OwnTracksLogError("[OwnTracksAppDelegate] JSON is not an object");
+                OwnTracksLogError("[OwnTracksAppDelegate] JSON is not valid object or array");
             }
         }
         @synchronized (self.inQueue) {
@@ -1497,12 +1454,16 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
 
 - (void)performSetWaypoints:(NSDictionary *)dictionary {
     id waypoints = dictionary[@"waypoints"];
-    if ([waypoints isKindOfClass:[NSDictionary class]]) {
-        [Settings waypointsFromDictionary:(NSDictionary *)waypoints
-                                    inMOC:CoreData.sharedInstance.mainMOC];
-    } else if ([waypoints isKindOfClass:[NSArray class]]) {
+    if ([waypoints isKindOfClass:[NSDictionary class]] && waypoints[@"waypoints"] && [waypoints[@"waypoints"] isKindOfClass:[NSArray class]]) {
+        waypoints = waypoints[@"waypoints"];
+    }
+    
+    if ([waypoints isKindOfClass:[NSArray class]]) {
         [Settings setWaypoints:(NSArray *)waypoints
                           inMOC:CoreData.sharedInstance.mainMOC];
+    } else if ([waypoints isKindOfClass:[NSDictionary class]]) {
+        [Settings waypointsFromDictionary:(NSDictionary *)waypoints
+                                    inMOC:CoreData.sharedInstance.mainMOC];
     } else if ([dictionary[@"_type"] isEqualToString:@"waypoints"]) {
         [Settings waypointsFromDictionary:dictionary
                                     inMOC:CoreData.sharedInstance.mainMOC];
