@@ -365,9 +365,9 @@ static LocationManager *theInstance = nil;
         Friend *myself = [Friend existsFriendWithTopic:[Settings theGeneralTopicInMOC:moc] inManagedObjectContext:moc];
         if (myself && myself.hasRegions) {
             for (Region *region in myself.hasRegions) {
-                if (region.cLregion) {
-                    OwnTracksLogDefault("[LocationManager] Reset & register region for monitoring: %@", region.cLregion.identifier);
-                    [self startRegion:region.cLregion];
+                if (region.CLregion) {
+                    OwnTracksLogDefault("[LocationManager] Reset & register region for monitoring: %@", region.CLregion.identifier);
+                    [self startRegion:region.CLregion];
                 }
             }
         }
