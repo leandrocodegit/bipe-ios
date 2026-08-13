@@ -42,7 +42,7 @@ class RegionTVC: UITableViewController, UITextFieldDelegate {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        if needsUpdate {
+        if needsUpdate && (editAllowed?.boolValue ?? false) {
             if region != nil {
                 region!.name = UIname.text;
                 region!.lat = NSNumber(value: (UIlatitude!.text! as NSString).doubleValue);
@@ -73,27 +73,28 @@ class RegionTVC: UITableViewController, UITextFieldDelegate {
     }
     
     private func setup() {
-        if region != nil && editAllowed != nil {
+        let isEditable = editAllowed?.boolValue ?? false
+        if region != nil {
             UIname.text = region!.name;
-            UIname.isEnabled = editAllowed!.boolValue;
+            UIname.isEnabled = isEditable;
             
             UIlatitude.text = "\(NSString(format: "%.6f", region!.lat?.doubleValue ?? 0.0))";
-            UIlatitude.isEnabled = editAllowed!.boolValue;
+            UIlatitude.isEnabled = isEditable;
             
             UIlongitude.text = "\(NSString(format: "%.6f", region!.lon?.doubleValue ?? 0.0))";
-            UIlongitude.isEnabled = editAllowed!.boolValue;
+            UIlongitude.isEnabled = isEditable;
             
             UIradius.text = "\(NSString(format: "%.0f", region!.radius?.doubleValue ?? 0.0))";
-            UIradius.isEnabled = editAllowed!.boolValue;
+            UIradius.isEnabled = isEditable;
             
             UIuuid.text = region!.uuid;
-            UIuuid.isEnabled = editAllowed!.boolValue;
+            UIuuid.isEnabled = isEditable;
             
             UImajor.text = "\(NSString(format: "%u", region!.major?.uintValue ?? 0))";
-            UImajor.isEnabled = editAllowed!.boolValue;
+            UImajor.isEnabled = isEditable;
             
             UIminor.text = "\(NSString(format: "%u", region!.minor?.uintValue ?? 0))";
-            UIminor.isEnabled = editAllowed!.boolValue;
+            UIminor.isEnabled = isEditable;
         }
     }
     

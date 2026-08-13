@@ -25,6 +25,8 @@ class RegionsTVC: OwnTracksEditFetchTVC {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
+        // Remove a opção de adicionar (+) da barra de navegação
+        navigationItem.rightBarButtonItem = nil;
         reset();
     }
     
@@ -39,34 +41,9 @@ class RegionsTVC: OwnTracksEditFetchTVC {
                     if segue.destination is RegionTVC {
                         let regionTVC = segue.destination as! RegionTVC;
                         regionTVC.region = region;
-                        regionTVC.editAllowed = NSNumber(booleanLiteral: true);
+                        // Desabilita a opção de editar (modo leitura apenas)
+                        regionTVC.editAllowed = NSNumber(booleanLiteral: false);
                     }
-                }
-            }
-        }
-        
-        if segue.identifier == "newRegion:" {
-            let moc = CoreData.sharedInstance().mainMOC;
-            let topic = Settings.theGeneralTopic(inMOC: moc);
-            let myself = Friend.existsFriend(withTopic: topic, in: moc);
-            if myself != nil {
-                let location = LocationManager.sharedInstance().location;
-                let rid = Region.newRid();
-                let newRegion = OwnTracking.sharedInstance().addRegion(for: rid,
-                                                                       friend: myself!,
-                                                                       name: "Here-\(rid)",
-                                                                       tst: NSDate.now,
-                                                                       uuid: nil,
-                                                                       major: 0,
-                                                                       minor: 0,
-                                                                       radius: 0,
-                                                                       lat: location.coordinate.latitude,
-                                                                       lon: location.coordinate.longitude);
-                tableView.reloadData();
-                if segue.destination is RegionTVC {
-                    let regionTVC = segue.destination as! RegionTVC;
-                    regionTVC.region = newRegion;
-                    regionTVC.editAllowed = NSNumber(booleanLiteral: true);
                 }
             }
         }
@@ -149,7 +126,9 @@ class RegionsTVC: OwnTracksEditFetchTVC {
             if context != nil {
                 let region = frc?.object(at: indexPath);
                 if region != nil {
-                    OwnTracking.sharedInstance().remove(region!, context: context);
+                    OwnTracking.sharedInstance().remove(region!, context: context!);
+                    CoreData.sharedInstance().sync(context!);
+                    LocationManager.sharedInstance().resetRegions();
                 }
             }
         }

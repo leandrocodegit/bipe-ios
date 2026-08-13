@@ -1456,6 +1456,9 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
 }
 
 - (void)performSetWaypoints:(NSDictionary *)dictionary {
+    // Limpa todos os waypoints anteriores para evitar acúmulo de sujeira
+    [Settings clearWaypoints:CoreData.sharedInstance.mainMOC];
+
     id waypoints = dictionary[@"waypoints"];
     if ([waypoints isKindOfClass:[NSDictionary class]] && waypoints[@"waypoints"] && [waypoints[@"waypoints"] isKindOfClass:[NSArray class]]) {
         waypoints = waypoints[@"waypoints"];
