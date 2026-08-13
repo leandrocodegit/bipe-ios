@@ -1484,22 +1484,40 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     [Settings clearWaypoints:CoreData.sharedInstance.mainMOC];
 }
 
+static NSString * _Nullable safeEventString(id _Nullable obj) {
+    if (obj && [obj isKindOfClass:[NSString class]]) {
+        NSString *str = (NSString *)obj;
+        if (str.length > 0) {
+            return str;
+        }
+    }
+    return nil;
+}
+
 - (void)performReceiveEvent:(NSDictionary *)dictionary {
+    if (!dictionary || ![dictionary isKindOfClass:[NSDictionary class]]) {
+        OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent dictionary is invalid");
+        return;
+    }
     OwnTracksLogDefault("[OwnTracksAppDelegate] performReceiveEvent %@", dictionary);
     
-    NSString *nickname = dictionary[@"nickname"] ? dictionary[@"nickname"] : (dictionary[@"name"] ? dictionary[@"name"] : dictionary[@"userName"]);
-    NSString *notificationTitle = (nickname && nickname.length > 0) ? nickname : NSLocalizedString(@"Região", @"Header of an alert message regarding circular region");
+    NSString *nickname = safeEventString(dictionary[@"nickname"]);
+    if (!nickname) nickname = safeEventString(dictionary[@"name"]);
+    if (!nickname) nickname = safeEventString(dictionary[@"userName"]);
     
-    NSString *event = dictionary[@"event"];
-    NSString *desc = dictionary[@"desc"] ? dictionary[@"desc"] : dictionary[@"description"];
-    NSString *text = dictionary[@"text"] ? dictionary[@"text"] : dictionary[@"msg"];
-    if (!text) {
-        text = dictionary[@"title"];
-    }
+    NSString *notificationTitle = nickname ? nickname : NSLocalizedString(@"Região", @"Header of an alert message regarding circular region");
+    
+    NSString *event = safeEventString(dictionary[@"event"]);
+    NSString *desc = safeEventString(dictionary[@"desc"]);
+    if (!desc) desc = safeEventString(dictionary[@"description"]);
+    
+    NSString *text = safeEventString(dictionary[@"text"]);
+    if (!text) text = safeEventString(dictionary[@"msg"]);
+    if (!text) text = safeEventString(dictionary[@"title"]);
     
     NSString *messageText = text;
-    if (!messageText || messageText.length == 0) {
-        if (desc && desc.length > 0) {
+    if (!messageText) {
+        if (desc) {
             if ([event isEqualToString:@"enter"]) {
                 messageText = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Entering", @""), desc];
             } else if ([event isEqualToString:@"leave"]) {
@@ -1507,7 +1525,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
             } else {
                 messageText = desc;
             }
-        } else if (event && event.length > 0) {
+        } else if (event) {
             messageText = event;
         } else {
             messageText = NSLocalizedString(@"Evento recebido", @"Evento recebido");
@@ -1515,39 +1533,47 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     }
     
     // Salva no Histórico do App
-    NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
-    [History historyInGroup:notificationTitle
-                   withText:messageText
-                         at:nil
-                      inMOC:moc
-                    maximum:[Settings theMaximumHistoryInMOC:moc]];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"reload" object:nil];
-    
-    // Checa por URL de imagem/ícone no payload (ex: "icon", "iconUrl", "image", "imageUrl", "avatar")
-    NSString *iconUrlString = dictionary[@"icon"] ? dictionary[@"icon"] : (dictionary[@"iconUrl"] ? dictionary[@"iconUrl"] : (dictionary[@"image"] ? dictionary[@"image"] : dictionary[@"imageUrl"]));
-    if (!iconUrlString || iconUrlString.length == 0) {
-        iconUrlString = dictionary[@"avatar"];
+    @try {
+        NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+        [History historyInGroup:notificationTitle
+                       withText:messageText
+                             at:nil
+                          inMOC:moc
+                        maximum:[Settings theMaximumHistoryInMOC:moc]];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"reload" object:nil];
+    } @catch (NSException *exception) {
+        OwnTracksLogError("[OwnTracksAppDelegate] History exception: %@", exception);
     }
+    
+    // Checa por URL de imagem/ícone no payload
+    NSString *iconUrlString = safeEventString(dictionary[@"icon"]);
+    if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"iconUrl"]);
+    if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"image"]);
+    if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"imageUrl"]);
+    if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"avatar"]);
 
     void (^scheduleNotification)(UNNotificationAttachment *) = ^(UNNotificationAttachment *attachment) {
-        UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-        content.title = notificationTitle;
-        content.body = messageText;
-        content.sound = [UNNotificationSound defaultSound];
-        if (attachment) {
-            content.attachments = @[attachment];
-        }
-        
-        UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
-        NSString *identifier = [NSString stringWithFormat:@"event_rx_%f", [NSDate date].timeIntervalSince1970];
-        UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
-        
-        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-            if (error) {
-                OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent notification error %@", error);
+        @try {
+            UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+            content.title = notificationTitle;
+            content.body = messageText;
+            content.sound = [UNNotificationSound defaultSound];
+            if (attachment) {
+                content.attachments = @[attachment];
             }
-        }];
+            
+            UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
+            NSString *identifier = [NSString stringWithFormat:@"event_rx_%f", [NSDate date].timeIntervalSince1970];
+            UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+            
+            [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+                if (error) {
+                    OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent notification error %@", error);
+                }
+            }];
+        } @catch (NSException *ex) {
+            OwnTracksLogError("[OwnTracksAppDelegate] Notification exception: %@", ex);
+        }
     };
 
     if (iconUrlString && ([iconUrlString hasPrefix:@"http://"] || [iconUrlString hasPrefix:@"https://"])) {
@@ -1556,11 +1582,16 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
             NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:iconURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
                 UNNotificationAttachment *attachment = nil;
                 if (data && data.length > 0 && !error) {
-                    NSString *ext = iconURL.pathExtension.length > 0 ? iconURL.pathExtension : @"png";
-                    NSString *tempFilename = [NSString stringWithFormat:@"notif_icon_%f.%@", [NSDate date].timeIntervalSince1970, ext];
-                    NSURL *tempFileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:tempFilename]];
-                    if ([data writeToURL:tempFileURL atomically:YES]) {
-                        attachment = [UNNotificationAttachment attachmentWithIdentifier:@"icon" URL:tempFileURL options:nil error:nil];
+                    @try {
+                        NSString *ext = iconURL.pathExtension.length > 0 ? iconURL.pathExtension : @"png";
+                        NSString *tempFilename = [NSString stringWithFormat:@"notif_icon_%f.%@", [NSDate date].timeIntervalSince1970, ext];
+                        NSURL *tempFileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:tempFilename]];
+                        if ([data writeToURL:tempFileURL atomically:YES]) {
+                            NSError *attErr = nil;
+                            attachment = [UNNotificationAttachment attachmentWithIdentifier:@"icon" URL:tempFileURL options:nil error:&attErr];
+                        }
+                    } @catch (NSException *e) {
+                        OwnTracksLogError("[OwnTracksAppDelegate] Attachment exception: %@", e);
                     }
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
