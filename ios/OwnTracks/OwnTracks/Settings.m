@@ -1157,7 +1157,7 @@ static SettingsDefaults *defaults;
             anyDevice = [anyDevice stringByAppendingString:@"+"];
         }
 
-        subscriptions = [NSString stringWithFormat:@"%@ %@/event %@/info %@/cmd %@/call",
+        subscriptions = [NSString stringWithFormat:@"%@ %@/event/receive %@/info %@/cmd %@/call",
                          anyDevice,
                          anyDevice,
                          anyDevice,
