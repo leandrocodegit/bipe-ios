@@ -219,14 +219,15 @@
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
-    // Verificar se o setup BIPE jÃ¡ foi concluÃ­do
+    // Verificar se o setup BIPE já foi concluído e se a biometria não está ativada
     BOOL setupCompleted = [SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized];
+    BOOL biometricsEnabled = [BiometricAuthManager.shared isBiometricsEnabled];
     
-    if (setupCompleted) {
-        // Setup jÃ¡ feito: inicia normalmente
+    if (setupCompleted && !biometricsEnabled) {
+        // Setup feito e sem biometria: inicia normalmente
         [self startOwnTracksMonitoring];
     } else {
-        // Primeiro acesso ou logout: apresentar tela de login
+        // Primeiro acesso, logout ou biometria ativada: apresentar tela de login/biometria
         [self presentLoginViewController];
     }
     

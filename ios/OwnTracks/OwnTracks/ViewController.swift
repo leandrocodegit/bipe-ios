@@ -1230,6 +1230,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         case "enableBiometrics":
             BiometricAuthManager.shared.isBiometricsEnabled = true
+            if let token = AuthManager.shared.getRefreshToken() {
+                BiometricAuthManager.shared.saveRefreshToken(token)
+            }
         case "disableBiometrics":
             BiometricAuthManager.shared.isBiometricsEnabled = false
         case "saveConfig":

@@ -144,6 +144,11 @@ import SafariServices
         return authState?.lastTokenResponse?.accessToken
     }
 
+    /// Retorna o Refresh Token atual
+    @objc func getRefreshToken() -> String? {
+        return authState?.lastTokenResponse?.refreshToken ?? authState?.refreshToken
+    }
+
     /// Extrai o `sub` do ID token (userId Keycloak)
     @objc func getUserId() -> String? {
         guard let idToken = authState?.lastTokenResponse?.idToken else { return nil }

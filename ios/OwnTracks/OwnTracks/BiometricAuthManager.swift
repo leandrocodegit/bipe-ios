@@ -118,7 +118,7 @@ import Security
         SecItemAdd(newQuery as CFDictionary, nil)
     }
 
-    /// Recupera o Refresh Token armazenado no Keychain
+    /// Recupera o Refresh Token armazenado no Keychain (com fallback para a sessão atual)
     @objc func getStoredRefreshToken() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -131,9 +131,14 @@ import Security
         var dataTypeRef: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
 
-        if status == errSecSuccess, let data = dataTypeRef as? Data {
-            return String(data: data, encoding: .utf8)
+        if status == errSecSuccess, let data = dataTypeRef as? Data, let token = String(data: data, encoding: .utf8), !token.isEmpty {
+            return token
         }
+        
+        if let currentToken = AuthManager.shared.getRefreshToken(), !currentToken.isEmpty {
+            return currentToken
+        }
+        
         return nil
     }
 

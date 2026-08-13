@@ -126,8 +126,8 @@ class LoginViewController: UIViewController {
         view.backgroundColor = UIColor(named: "primaryBackgroundColor") ?? UIColor(red: 11.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0)
         buildLayout()
 
-        // Se já estiver autorizado e setup concluído, dispensa imediatamente
-        if authManager.isAuthorized && setupService.isSetupCompleted {
+        // Se já estiver autorizado, setup concluído E BIOMETRIA DESATIVADA, dispensa imediatamente
+        if authManager.isAuthorized && setupService.isSetupCompleted && !BiometricAuthManager.shared.isBiometricsEnabled {
             DispatchQueue.main.async { [weak self] in
                 self?.dismissAndStart()
             }
@@ -139,7 +139,7 @@ class LoginViewController: UIViewController {
         
         if BiometricAuthManager.shared.canLoginWithBiometrics {
             biometricButton.isHidden = false
-            if !hasPromptedBiometrics && !authManager.isAuthorized {
+            if !hasPromptedBiometrics {
                 hasPromptedBiometrics = true
                 biometricLoginTapped()
             }
@@ -285,6 +285,9 @@ class LoginViewController: UIViewController {
 
         alert.addAction(UIAlertAction(title: "Ativar \(name)", style: .default) { [weak self] _ in
             BiometricAuthManager.shared.isBiometricsEnabled = true
+            if let token = AuthManager.shared.getRefreshToken() {
+                BiometricAuthManager.shared.saveRefreshToken(token)
+            }
             self?.dismissAndStart()
         })
 

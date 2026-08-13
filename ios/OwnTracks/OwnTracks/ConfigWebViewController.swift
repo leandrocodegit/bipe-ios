@@ -22,6 +22,8 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         contentController.add(self, name: "saveConfig")
         contentController.add(self, name: "openPermissions")
         contentController.add(self, name: "saveWaypoints")
+        contentController.add(self, name: "enableBiometrics")
+        contentController.add(self, name: "disableBiometrics")
         
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
@@ -55,6 +57,21 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 },
                 setWaypoints: function(json) {
                     window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json);
+                },
+                canUseBiometrics: function() {
+                    return "\(BiometricAuthManager.shared.isBiometricsAvailable)";
+                },
+                isBiometricsEnabled: function() {
+                    return "\(BiometricAuthManager.shared.isBiometricsEnabled)";
+                },
+                getBiometricName: function() {
+                    return "\(BiometricAuthManager.shared.biometricName)";
+                },
+                enableBiometrics: function() {
+                    window.webkit.messageHandlers.enableBiometrics.postMessage("");
+                },
+                disableBiometrics: function() {
+                    window.webkit.messageHandlers.disableBiometrics.postMessage("");
                 },
                 getDeviceId: function() {
                     return "\(Settings.string(forKey: "deviceid_preference", inMOC: self.moc) ?? "")";
@@ -190,6 +207,14 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                let rootVC = delegate.window?.rootViewController as? ViewController {
                 rootVC.processSaveWaypoints(jsonString: jsonString)
             }
+        } else if message.name == "enableBiometrics" {
+            BiometricAuthManager.shared.isBiometricsEnabled = true
+            if let token = AuthManager.shared.getRefreshToken() {
+                BiometricAuthManager.shared.saveRefreshToken(token)
+            }
+        } else if message.name == "disableBiometrics" {
+            BiometricAuthManager.shared.isBiometricsEnabled = false
+            BiometricAuthManager.shared.clearBiometricData()
         }
     }
 
