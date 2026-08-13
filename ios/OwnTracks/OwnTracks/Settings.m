@@ -1140,7 +1140,7 @@ static SettingsDefaults *defaults;
     }
 
     NSString *userWildcardTopic = [NSString stringWithFormat:@"owntracks/%@/+", userId];
-    NSString *eventReceiveTopic = [NSString stringWithFormat:@"owntracks/%@/+/event/receive", userId];
+    NSString *eventReceiveTopic = [NSString stringWithFormat:@"owntracks/%@/%@/event/receive", userId, deviceId];
     NSString *cmdTopic = [NSString stringWithFormat:@"%@/cmd", generalTopic];
     NSString *callTopic = [NSString stringWithFormat:@"%@/call", generalTopic];
 
