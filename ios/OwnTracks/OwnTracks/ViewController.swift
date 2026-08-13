@@ -993,7 +993,12 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             stopVoiceCall: function() { if (window.webkit && window.webkit.messageHandlers.stopVoiceCall) window.webkit.messageHandlers.stopVoiceCall.postMessage({}); },
             saveConfig: function(json) { if (window.webkit && window.webkit.messageHandlers.saveConfig) window.webkit.messageHandlers.saveConfig.postMessage(json); },
             saveWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); },
-            setWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); }
+            setWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); },
+            canUseBiometrics: function() { return "\(BiometricAuthManager.shared.isBiometricsAvailable)"; },
+            isBiometricsEnabled: function() { return "\(BiometricAuthManager.shared.isBiometricsEnabled)"; },
+            getBiometricName: function() { return "\(BiometricAuthManager.shared.biometricName)"; },
+            enableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.enableBiometrics) window.webkit.messageHandlers.enableBiometrics.postMessage({}); },
+            disableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.disableBiometrics) window.webkit.messageHandlers.disableBiometrics.postMessage({}); }
         };
         """
 
@@ -1001,7 +1006,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1214,6 +1219,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             if let jsonString = message.body as? String {
                 processSaveWaypoints(jsonString: jsonString)
             }
+        case "enableBiometrics":
+            BiometricAuthManager.shared.isBiometricsEnabled = true
+        case "disableBiometrics":
+            BiometricAuthManager.shared.isBiometricsEnabled = false
         case "saveConfig":
             if let jsonString = message.body as? String,
                let data = jsonString.data(using: .utf8),

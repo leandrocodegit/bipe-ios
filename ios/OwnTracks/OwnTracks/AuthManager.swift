@@ -156,10 +156,55 @@ import SafariServices
         return sub
     }
 
+    /// Inicia a sessão utilizando o Refresh Token salvo (usado na Biometria)
+    func loginWithRefreshToken(refreshToken: String? = nil, completion: @escaping (Bool, Error?) -> Void) {
+        let tokenToUse = refreshToken ?? BiometricAuthManager.shared.getStoredRefreshToken()
+        guard let refreshTok = tokenToUse, !refreshTok.isEmpty else {
+            completion(false, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Nenhum refresh token encontrado"]))
+            return
+        }
+
+        guard let issuerURL = URL(string: AuthManager.issuerURI) else {
+            completion(false, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "ISSUER_URI inválida"]))
+            return
+        }
+
+        OIDAuthorizationService.discoverConfiguration(forIssuer: issuerURL) { [weak self] config, error in
+            guard let self = self, let config = config else {
+                completion(false, error)
+                return
+            }
+
+            let tokenRequest = OIDTokenRequest(
+                configuration: config,
+                grantType: OIDGrantTypeRefreshToken,
+                authorizationCode: nil,
+                redirectURL: URL(string: AuthManager.redirectURI),
+                clientID: AuthManager.clientID,
+                clientSecret: nil,
+                scopes: [OIDScopeOpenID, OIDScopeProfile, "email"],
+                refreshToken: refreshTok,
+                codeVerifier: nil,
+                additionalParameters: nil
+            )
+
+            OIDAuthorizationService.perform(tokenRequest) { tokenResponse, tokenError in
+                if let tokenResponse = tokenResponse {
+                    let newAuthState = OIDAuthState(authorizationResponse: nil, tokenResponse: tokenResponse)
+                    self.authState = newAuthState
+                    completion(true, nil)
+                } else {
+                    completion(false, tokenError)
+                }
+            }
+        }
+    }
+
     /// Remove todos os tokens e estado salvo
     @objc func logout() {
         authState = nil
         UserDefaults.standard.removeObject(forKey: AuthManager.authStateKey)
+        BiometricAuthManager.shared.clearBiometricData()
     }
 
     // MARK: - Persistência interna
@@ -171,6 +216,10 @@ import SafariServices
         }
         let data = try? NSKeyedArchiver.archivedData(withRootObject: state, requiringSecureCoding: false)
         UserDefaults.standard.set(data, forKey: AuthManager.authStateKey)
+
+        if let refreshToken = state.lastTokenResponse?.refreshToken, !refreshToken.isEmpty {
+            BiometricAuthManager.shared.saveRefreshToken(refreshToken)
+        }
     }
 
     private func loadAuthState() {

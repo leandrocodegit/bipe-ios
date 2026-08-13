@@ -80,6 +80,7 @@
 		84B1BE0012F800001000001 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000002 /* AuthManager.swift */; };
 		84B1BE0012F800001000003 /* SetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000004 /* SetupService.swift */; };
 		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
+		84B1BE0012F800001000007 /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000008 /* BiometricAuthManager.swift */; };
 		99B1BE0012F8000010000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F8000010000002 /* GoogleService-Info.plist */; };
 		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
 		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
@@ -311,6 +312,7 @@
 		84B1BE0012F800001000002 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		84B1BE0012F800001000004 /* SetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupService.swift; sourceTree = "<group>"; };
 		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		84B1BE0012F800001000008 /* BiometricAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthManager.swift; sourceTree = "<group>"; };
 		99B1BE0012F8000010000002 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OwnTracks/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
 		84B739781A65629200B103F4 /* LocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationManager.h; sourceTree = "<group>"; };
@@ -552,6 +554,7 @@
 				99B1BE0012F800001000002 /* GoogleService-Info.plist */,
 				84B1BE0012F800001000004 /* SetupService.swift */,
 				84B1BE0012F800001000006 /* LoginViewController.swift */,
+				84B1BE0012F800001000008 /* BiometricAuthManager.swift */,
 				6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */,
 				846FFA491B40A301001482A6 /* UI */,
 				8411B834189FDB140019D2D6 /* Supporting Files */,
@@ -1012,6 +1015,7 @@
 				84B1BE0012F800001000001 /* AuthManager.swift in Sources */,
 				84B1BE0012F800001000003 /* SetupService.swift in Sources */,
 				84B1BE0012F800001000005 /* LoginViewController.swift in Sources */,
+				84B1BE0012F800001000007 /* BiometricAuthManager.swift in Sources */,
 				6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

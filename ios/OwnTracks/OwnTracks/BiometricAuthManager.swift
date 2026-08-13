@@ -1,0 +1,150 @@
+//
+//  BiometricAuthManager.swift
+//  OwnTracks
+//
+//  Gerencia a autenticação biométrica (Face ID / Touch ID) e o armazenamento seguro
+//  do Refresh Token no Keychain do iOS para login fluido.
+//
+
+import Foundation
+import LocalAuthentication
+import Security
+
+@objc class BiometricAuthManager: NSObject {
+
+    @objc static let shared = BiometricAuthManager()
+
+    private let keychainService = "br.com.bipe.me.refreshtoken"
+    private let keychainAccount = "user_refresh_token"
+    private let biometricsEnabledKey = "biometrics_login_enabled"
+
+    private override init() {
+        super.init()
+    }
+
+    // MARK: - Status e Capacidades
+
+    /// Retorna se a biometria (Face ID / Touch ID) está disponível no dispositivo
+    @objc var isBiometricsAvailable: Bool {
+        let context = LAContext()
+        var error: NSError?
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+    }
+
+    /// Retorna o tipo de biometria suportada pelo aparelho (.faceID, .touchID ou .none)
+    var biometricType: LABiometryType {
+        let context = LAContext()
+        var error: NSError?
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            return .none
+        }
+        return context.biometryType
+    }
+
+    /// Nome amigável do tipo de biometria para a interface (ex: "Face ID" ou "Touch ID")
+    @objc var biometricName: String {
+        switch biometricType {
+        case .faceID:
+            return "Face ID"
+        case .touchID:
+            return "Touch ID"
+        default:
+            return "Biometria"
+        }
+    }
+
+    /// Nome do ícone SF Symbols correspondente
+    @objc var biometricIconName: String {
+        switch biometricType {
+        case .faceID:
+            return "faceid"
+        case .touchID:
+            return "touchid"
+        default:
+            return "lock.shield.fill"
+        }
+    }
+
+    /// Flag de habilitação da biometria configurada pelo usuário
+    @objc var isBiometricsEnabled: Bool {
+        get {
+            return UserDefaults.standard.bool(forKey: biometricsEnabledKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: biometricsEnabledKey)
+        }
+    }
+
+    /// Verifica se há um refresh token salvo no Keychain e a biometria está pronta para uso
+    @objc var canLoginWithBiometrics: Bool {
+        return isBiometricsAvailable && isBiometricsEnabled && getStoredRefreshToken() != nil
+    }
+
+    // MARK: - Autenticação Biométrica
+
+    /// Executa a leitura da biometria (Face ID / Touch ID)
+    @objc func authenticate(reason: String? = nil, completion: @escaping (Bool, Error?) -> Void) {
+        let context = LAContext()
+        context.localizedCancelTitle = NSLocalizedString("Cancelar", comment: "")
+        
+        let localizedReason = reason ?? String(format: NSLocalizedString("Autentique-se com %@ para acessar o Bipe.me", comment: ""), biometricName)
+
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: localizedReason) { success, error in
+            DispatchQueue.main.async {
+                completion(success, error)
+            }
+        }
+    }
+
+    // MARK: - Armazenamento Seguro no Keychain
+
+    /// Salva o Refresh Token de forma criptografada no Keychain
+    @objc func saveRefreshToken(_ token: String) {
+        guard let data = token.data(using: .utf8) else { return }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount
+        ]
+
+        // Deleta registro anterior para evitar duplicidade
+        SecItemDelete(query as CFDictionary)
+
+        var newQuery = query
+        newQuery[kSecValueData as String] = data
+        newQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+
+        SecItemAdd(newQuery as CFDictionary, nil)
+    }
+
+    /// Recupera o Refresh Token armazenado no Keychain
+    @objc func getStoredRefreshToken() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var dataTypeRef: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
+
+        if status == errSecSuccess, let data = dataTypeRef as? Data {
+            return String(data: data, encoding: .utf8)
+        }
+        return nil
+    }
+
+    /// Limpa os dados biométricos e tokens armazenados (chamado no logout)
+    @objc func clearBiometricData() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount
+        ]
+        SecItemDelete(query as CFDictionary)
+        isBiometricsEnabled = false
+    }
+}
