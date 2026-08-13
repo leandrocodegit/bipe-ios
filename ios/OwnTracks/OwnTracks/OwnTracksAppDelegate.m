@@ -2043,6 +2043,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
         }
         
         self.connection.subscriptions = subscriptions;
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Subscriptions: %@", subscriptions);
         self.connection.subscriptionQos = subscriptionQos;
         
         NSMutableDictionary *json = [[NSMutableDictionary alloc] init];

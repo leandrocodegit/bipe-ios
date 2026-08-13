@@ -1130,39 +1130,44 @@ static SettingsDefaults *defaults;
 + (NSString *)theSubscriptionsInMOC:(NSManagedObjectContext *)context {
     NSString *subscriptions = [self stringForKey:@"subscription_preference" inMOC:context];
 
+    NSArray *baseComponents = [[self theGeneralTopicInMOC:context] componentsSeparatedByString:@"/"];
+
+    NSString *anyDevice = @"";
+    int any = 1;
+    NSString *firstString = nil;
+    if (baseComponents.count > 0) {
+        firstString = baseComponents[0];
+    }
+    if (firstString && firstString.length == 0) {
+        any++;
+    }
+
+    for (int i = 0; i < any; i++) {
+        if (i > 0) {
+            anyDevice = [anyDevice stringByAppendingString:@"/"];
+        }
+        anyDevice = [anyDevice stringByAppendingString:baseComponents[i]];
+    }
+
+    for (int i = any; i < baseComponents.count; i++) {
+        if (i > 0) {
+            anyDevice = [anyDevice stringByAppendingString:@"/"];
+        }
+        anyDevice = [anyDevice stringByAppendingString:@"+"];
+    }
+
     if (!subscriptions || subscriptions.length == 0) {
-        NSArray *baseComponents = [[self theGeneralTopicInMOC:context] componentsSeparatedByString:@"/"];
-
-        NSString *anyDevice = @"";
-        int any = 1;
-        NSString *firstString = nil;
-        if (baseComponents.count > 0) {
-            firstString = baseComponents[0];
-        }
-        if (firstString && firstString.length == 0) {
-            any++;
-        }
-
-        for (int i = 0; i < any; i++) {
-            if (i > 0) {
-                anyDevice = [anyDevice stringByAppendingString:@"/"];
-            }
-            anyDevice = [anyDevice stringByAppendingString:baseComponents[i]];
-        }
-
-        for (int i = any; i < baseComponents.count; i++) {
-            if (i > 0) {
-                anyDevice = [anyDevice stringByAppendingString:@"/"];
-            }
-            anyDevice = [anyDevice stringByAppendingString:@"+"];
-        }
-
-        subscriptions = [NSString stringWithFormat:@"%@ %@/event/receive %@/info %@/cmd %@/call",
+        subscriptions = [NSString stringWithFormat:@"%@ %@/event/receive %@/info %@/cmd",
                          anyDevice,
                          anyDevice,
                          anyDevice,
                          [self theGeneralTopicInMOC:context],
                          [self theGeneralTopicInMOC:context]];
+    } else {
+        NSString *eventReceiveTopic = [NSString stringWithFormat:@"%@/event/receive", anyDevice];
+        if (![subscriptions containsString:eventReceiveTopic] && ![subscriptions containsString:@"/event/receive"]) {
+            subscriptions = [subscriptions stringByAppendingFormat:@" %@", eventReceiveTopic];
+        }
     }
     NSString *userId = [Settings theUserIdInMOC:context];
     if (userId) {
