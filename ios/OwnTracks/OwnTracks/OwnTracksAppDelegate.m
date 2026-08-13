@@ -10,6 +10,7 @@
 #import "OwnTracksAppDelegate.h"
 #import <UserNotifications/UserNotifications.h>
 #import <BackgroundTasks/BackgroundTasks.h>
+#import <WebKit/WebKit.h>
 
 #import "CoreData.h"
 #import "Setting+CoreDataClass.h"
@@ -1494,6 +1495,44 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
     return nil;
 }
 
+- (void)renderSVGData:(NSData *)svgData completion:(void (^)(NSData * _Nullable pngData))completion {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+            WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+            WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 200, 200) configuration:config];
+            webView.opaque = NO;
+            webView.backgroundColor = [UIColor clearColor];
+            
+            NSString *svgString = [[NSString alloc] initWithData:svgData encoding:NSUTF8StringEncoding];
+            if (!svgString || svgString.length == 0) {
+                completion(nil);
+                return;
+            }
+            
+            NSString *html = [NSString stringWithFormat:
+                @"<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;background:transparent;width:100%%;height:100%%;display:flex;align-items:center;justify-content:center;} svg{width:100%%;height:100%%;}</style></head><body>%@</body></html>", svgString];
+            
+            [webView loadHTMLString:html baseURL:nil];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                WKSnapshotConfiguration *snapConfig = [[WKSnapshotConfiguration alloc] init];
+                snapConfig.rect = CGRectMake(0, 0, 200, 200);
+                
+                [webView takeSnapshotWithConfiguration:snapConfig completionHandler:^(UIImage * _Nullable snapshotImage, NSError * _Nullable error) {
+                    if (snapshotImage) {
+                        NSData *pngData = UIImagePNGRepresentation(snapshotImage);
+                        completion(pngData);
+                    } else {
+                        completion(nil);
+                    }
+                }];
+            });
+        } @catch (NSException *ex) {
+            completion(nil);
+        }
+    });
+}
+
 - (void)performReceiveEvent:(NSDictionary *)dictionary {
     if (!dictionary || ![dictionary isKindOfClass:[NSDictionary class]]) {
         OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent dictionary is invalid");
@@ -1580,22 +1619,51 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
         NSURL *iconURL = [NSURL URLWithString:iconUrlString];
         if (iconURL) {
             NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:iconURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                UNNotificationAttachment *attachment = nil;
                 if (data && data.length > 0 && !error) {
-                    @try {
-                        NSString *ext = iconURL.pathExtension.length > 0 ? iconURL.pathExtension : @"png";
-                        NSString *tempFilename = [NSString stringWithFormat:@"notif_icon_%f.%@", [NSDate date].timeIntervalSince1970, ext];
-                        NSURL *tempFileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:tempFilename]];
-                        if ([data writeToURL:tempFileURL atomically:YES]) {
-                            NSError *attErr = nil;
-                            attachment = [UNNotificationAttachment attachmentWithIdentifier:@"icon" URL:tempFileURL options:nil error:&attErr];
+                    NSString *ext = iconURL.pathExtension.lowercaseString;
+                    BOOL isSVG = [ext isEqualToString:@"svg"];
+                    if (!isSVG && data.length > 5) {
+                        NSString *header = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, MIN(data.length, 120))] encoding:NSUTF8StringEncoding];
+                        if ([header containsString:@"<svg"] || [header containsString:@"<?xml"]) {
+                            isSVG = YES;
                         }
-                    } @catch (NSException *e) {
-                        OwnTracksLogError("[OwnTracksAppDelegate] Attachment exception: %@", e);
+                    }
+                    
+                    void (^writeAndAttach)(NSData *, NSString *) = ^(NSData *imgData, NSString *imgExt) {
+                        UNNotificationAttachment *attachment = nil;
+                        @try {
+                            NSString *tempFilename = [NSString stringWithFormat:@"notif_icon_%f.%@", [NSDate date].timeIntervalSince1970, imgExt];
+                            NSURL *tempFileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:tempFilename]];
+                            if ([imgData writeToURL:tempFileURL atomically:YES]) {
+                                NSError *attErr = nil;
+                                attachment = [UNNotificationAttachment attachmentWithIdentifier:@"icon" URL:tempFileURL options:nil error:&attErr];
+                            }
+                        } @catch (NSException *e) {
+                            OwnTracksLogError("[OwnTracksAppDelegate] Attachment exception: %@", e);
+                        }
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            scheduleNotification(attachment);
+                        });
+                    };
+
+                    if (isSVG) {
+                        [self renderSVGData:data completion:^(NSData * _Nullable pngData) {
+                            if (pngData && pngData.length > 0) {
+                                writeAndAttach(pngData, @"png");
+                            } else {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    scheduleNotification(nil);
+                                });
+                            }
+                        }];
+                        return;
+                    } else {
+                        writeAndAttach(data, ext.length > 0 ? ext : @"png");
+                        return;
                     }
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    scheduleNotification(attachment);
+                    scheduleNotification(nil);
                 });
             }];
             [task resume];
