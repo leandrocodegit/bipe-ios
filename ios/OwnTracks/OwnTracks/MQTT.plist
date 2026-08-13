@@ -5,7 +5,7 @@
 	<key>mindist_preference</key>
 	<integer>200</integer>
 	<key>mintime_preference</key>
-	<integer>180</integer>
+	<integer>30</integer>
 	<key>deviceid_preference</key>
 	<string></string>
 	<key>clientid_preference</key>

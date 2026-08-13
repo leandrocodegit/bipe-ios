@@ -228,6 +228,10 @@ enum SetupError: LocalizedError {
             Settings.setString(SetupService.mqttHost as NSString, forKey: "host_preference", inMOC: context)
             Settings.setInt(Int32(SetupService.mqttPort), forKey: "port_preference", inMOC: context)
 
+            // Tempo de envio padrão (30 segundos)
+            Settings.setString("30" as NSString, forKey: "mintime_preference", inMOC: context)
+            LocationManager.sharedInstance().minTime = 30.0
+
             // Flags TLS e autenticação
             Settings.setBool(true, forKey: "tls_preference", inMOC: context)
             Settings.setBool(true, forKey: "auth_preference", inMOC: context)
