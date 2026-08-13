@@ -190,8 +190,23 @@ import SafariServices
 
             OIDAuthorizationService.perform(tokenRequest) { tokenResponse, tokenError in
                 if let tokenResponse = tokenResponse {
-                    let newAuthState = OIDAuthState(authorizationResponse: nil, tokenResponse: tokenResponse)
-                    self.authState = newAuthState
+                    if let currentAuthState = self.authState {
+                        currentAuthState.update(with: tokenResponse, error: nil)
+                        self.authState = currentAuthState
+                    } else {
+                        let dummyReq = OIDAuthorizationRequest(
+                            configuration: config,
+                            clientId: AuthManager.clientID,
+                            clientSecret: nil,
+                            scopes: [OIDScopeOpenID, OIDScopeProfile, "email"],
+                            redirectURL: URL(string: AuthManager.redirectURI)!,
+                            responseType: OIDResponseTypeCode,
+                            additionalParameters: nil
+                        )
+                        let dummyResp = OIDAuthorizationResponse(request: dummyReq, parameters: [:])
+                        let newAuthState = OIDAuthState(authorizationResponse: dummyResp, tokenResponse: tokenResponse)
+                        self.authState = newAuthState
+                    }
                     completion(true, nil)
                 } else {
                     completion(false, tokenError)
