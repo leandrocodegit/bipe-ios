@@ -994,9 +994,9 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             saveConfig: function(json) { if (window.webkit && window.webkit.messageHandlers.saveConfig) window.webkit.messageHandlers.saveConfig.postMessage(json); },
             saveWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); },
             setWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); },
-            canUseBiometrics: function() { return "\(BiometricAuthManager.shared.isBiometricsAvailable)"; },
-            isBiometricsEnabled: function() { return "\(BiometricAuthManager.shared.isBiometricsEnabled)"; },
-            getBiometricName: function() { return "\(BiometricAuthManager.shared.biometricName)"; },
+            canUseBiometrics: function() { return window.prompt("can_use_biometrics", "") === "true"; },
+            isBiometricsEnabled: function() { return window.prompt("is_biometrics_enabled", "") === "true"; },
+            getBiometricName: function() { return window.prompt("get_biometric_name", ""); },
             enableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.enableBiometrics) window.webkit.messageHandlers.enableBiometrics.postMessage({}); },
             disableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.disableBiometrics) window.webkit.messageHandlers.disableBiometrics.postMessage({}); }
         };
@@ -1163,6 +1163,15 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         } else if prompt == "get_fcm_token" {
             let fcmToken = UserDefaults.standard.string(forKey: "fcm_token") ?? ""
             completionHandler(fcmToken)
+            return
+        } else if prompt == "can_use_biometrics" {
+            completionHandler(BiometricAuthManager.shared.isBiometricsAvailable ? "true" : "false")
+            return
+        } else if prompt == "is_biometrics_enabled" {
+            completionHandler(BiometricAuthManager.shared.isBiometricsEnabled ? "true" : "false")
+            return
+        } else if prompt == "get_biometric_name" {
+            completionHandler(BiometricAuthManager.shared.biometricName)
             return
         }
 
