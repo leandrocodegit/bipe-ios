@@ -1595,13 +1595,21 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
     if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"image"]);
     if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"imageUrl"]);
     if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"avatar"]);
+    NSString *soundName = safeEventString(dictionary[@"sound"]);
+    if (!soundName) soundName = safeEventString(dictionary[@"soundName"]);
 
     void (^scheduleNotification)(UNNotificationAttachment *) = ^(UNNotificationAttachment *attachment) {
         @try {
             UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
             content.title = notificationTitle;
             content.body = messageText;
-            content.sound = [UNNotificationSound defaultSound];
+            
+            if (soundName && soundName.length > 0) {
+                content.sound = [UNNotificationSound soundNamed:soundName];
+            } else {
+                content.sound = [UNNotificationSound defaultSound];
+            }
+            
             if (attachment) {
                 content.attachments = @[attachment];
             }
