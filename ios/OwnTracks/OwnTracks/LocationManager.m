@@ -717,7 +717,6 @@ static LocationManager *theInstance = nil;
     
     if (![self removeHoldDown:region]) {
         [self locationManager:manager didDetermineState:CLRegionStateInside forRegion:region];
-        [self.delegate regionEvent:region enter:YES];
     }
 }
 
@@ -730,7 +729,6 @@ static LocationManager *theInstance = nil;
         [self.pendingRegionEvents addObject:[PendingRegionEvent holdDown:region for:3.0 to:self]];
     } else {
         [self locationManager:manager didDetermineState:CLRegionStateOutside forRegion:region];
-        [self.delegate regionEvent:region enter:NO];
     }
 }
 

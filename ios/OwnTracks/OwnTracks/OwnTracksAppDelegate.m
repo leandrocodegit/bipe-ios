@@ -862,6 +862,18 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
 - (void)regionEvent:(CLRegion *)region enter:(BOOL)enter {
     [self background];
     NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+    
+    if (!self.lastRegionStates) {
+        self.lastRegionStates = [[NSMutableDictionary alloc] init];
+    }
+    
+    NSNumber *lastState = self.lastRegionStates[region.identifier];
+    if (lastState && lastState.boolValue == enter) {
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Ignorando evento duplicado para a mesma regiao (%@, enter=%d)", region.identifier, enter);
+        return;
+    }
+    self.lastRegionStates[region.identifier] = @(enter);
+    
     if ([LocationManager sharedInstance].monitoring != LocationMonitoringQuiet &&
         [Settings validIdsInMOC:moc]) {
         
@@ -1475,6 +1487,9 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
 - (void)performReceiveEvent:(NSDictionary *)dictionary {
     OwnTracksLogDefault("[OwnTracksAppDelegate] performReceiveEvent %@", dictionary);
     
+    NSString *nickname = dictionary[@"nickname"] ? dictionary[@"nickname"] : (dictionary[@"name"] ? dictionary[@"name"] : dictionary[@"userName"]);
+    NSString *notificationTitle = (nickname && nickname.length > 0) ? nickname : NSLocalizedString(@"Região", @"Header of an alert message regarding circular region");
+    
     NSString *event = dictionary[@"event"];
     NSString *desc = dictionary[@"desc"] ? dictionary[@"desc"] : dictionary[@"description"];
     NSString *text = dictionary[@"text"] ? dictionary[@"text"] : dictionary[@"msg"];
@@ -1499,31 +1514,65 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
         }
     }
     
-    // Dispara Notificação Local no iOS (Banner + Som)
-    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    content.title = NSLocalizedString(@"Região", @"Header of an alert message regarding circular region");
-    content.body = messageText;
-    content.sound = [UNNotificationSound defaultSound];
-    
-    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.5 repeats:NO];
-    NSString *identifier = [NSString stringWithFormat:@"event_rx_%f", [NSDate date].timeIntervalSince1970];
-    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
-    
-    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-        if (error) {
-            OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent notification error %@", error);
-        }
-    }];
-    
     // Salva no Histórico do App
     NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
-    [History historyInGroup:NSLocalizedString(@"Region", @"")
+    [History historyInGroup:notificationTitle
                    withText:messageText
                          at:nil
                       inMOC:moc
                     maximum:[Settings theMaximumHistoryInMOC:moc]];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"reload" object:nil];
+    
+    // Checa por URL de imagem/ícone no payload (ex: "icon", "iconUrl", "image", "imageUrl", "avatar")
+    NSString *iconUrlString = dictionary[@"icon"] ? dictionary[@"icon"] : (dictionary[@"iconUrl"] ? dictionary[@"iconUrl"] : (dictionary[@"image"] ? dictionary[@"image"] : dictionary[@"imageUrl"]));
+    if (!iconUrlString || iconUrlString.length == 0) {
+        iconUrlString = dictionary[@"avatar"];
+    }
+
+    void (^scheduleNotification)(UNNotificationAttachment *) = ^(UNNotificationAttachment *attachment) {
+        UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+        content.title = notificationTitle;
+        content.body = messageText;
+        content.sound = [UNNotificationSound defaultSound];
+        if (attachment) {
+            content.attachments = @[attachment];
+        }
+        
+        UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
+        NSString *identifier = [NSString stringWithFormat:@"event_rx_%f", [NSDate date].timeIntervalSince1970];
+        UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+        
+        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+            if (error) {
+                OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent notification error %@", error);
+            }
+        }];
+    };
+
+    if (iconUrlString && ([iconUrlString hasPrefix:@"http://"] || [iconUrlString hasPrefix:@"https://"])) {
+        NSURL *iconURL = [NSURL URLWithString:iconUrlString];
+        if (iconURL) {
+            NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:iconURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                UNNotificationAttachment *attachment = nil;
+                if (data && data.length > 0 && !error) {
+                    NSString *ext = iconURL.pathExtension.length > 0 ? iconURL.pathExtension : @"png";
+                    NSString *tempFilename = [NSString stringWithFormat:@"notif_icon_%f.%@", [NSDate date].timeIntervalSince1970, ext];
+                    NSURL *tempFileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:tempFilename]];
+                    if ([data writeToURL:tempFileURL atomically:YES]) {
+                        attachment = [UNNotificationAttachment attachmentWithIdentifier:@"icon" URL:tempFileURL options:nil error:nil];
+                    }
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    scheduleNotification(attachment);
+                });
+            }];
+            [task resume];
+            return;
+        }
+    }
+    
+    scheduleNotification(nil);
 }
 
 - (void)waypoints {

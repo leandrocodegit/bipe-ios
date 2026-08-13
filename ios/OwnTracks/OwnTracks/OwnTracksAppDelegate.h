@@ -38,6 +38,7 @@
 @property (nonatomic) BOOL inRefresh;
 
 @property (strong, nonatomic) NSNumber * _Nonnull inQueue;
+@property (strong, nonatomic) NSMutableDictionary * _Nullable lastRegionStates;
 
 - (BOOL)sendNow:(CLLocation *_Nonnull)location
         withPOI:(nullable NSString *)poi
