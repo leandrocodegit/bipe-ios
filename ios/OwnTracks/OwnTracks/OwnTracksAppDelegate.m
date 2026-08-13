@@ -355,7 +355,12 @@
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     OwnTracksLogDefault("[OwnTracksAppDelegate] didReceiveRemoteNotification: %@", userInfo);
-    // Aqui processamos Data Messages (Push Silencioso do FCM) como comandos do Bipe
+    
+    // Se o payload conter campos de evento do Bipe, processamos via a mesma função do MQTT
+    if (userInfo[@"event"] != nil || userInfo[@"desc"] != nil || userInfo[@"text"] != nil || userInfo[@"nickname"] != nil) {
+        [self performReceiveEvent:userInfo];
+    }
+    
     completionHandler(UIBackgroundFetchResultNewData);
 }
 
