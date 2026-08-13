@@ -1,4 +1,4 @@
-﻿//
+//
 //  LocationManager.m
 //  OwnTracks
 //
@@ -356,9 +356,22 @@ static LocationManager *theInstance = nil;
 }
 
 - (void)resetRegions {
-    for (CLRegion *region in self.manager.monitoredRegions) {
+    for (CLRegion *region in [self.manager.monitoredRegions copy]) {
         [self stopRegion:region];
     }
+    
+    NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+    [moc performBlockAndWait:^{
+        Friend *myself = [Friend existsFriendWithTopic:[Settings theGeneralTopicInMOC:moc] inManagedObjectContext:moc];
+        if (myself && myself.hasRegions) {
+            for (Region *region in myself.hasRegions) {
+                if (region.cLregion) {
+                    OwnTracksLogDefault("[LocationManager] Reset & register region for monitoring: %@", region.cLregion.identifier);
+                    [self startRegion:region.cLregion];
+                }
+            }
+        }
+    }];
 }
 
 - (BOOL)insideBeaconRegion {
@@ -596,6 +609,27 @@ static LocationManager *theInstance = nil;
 
         self.lastUsedLocation = location;
         [self.delegate newLocation:location];
+        
+        // Checagem via Software Geofencing (calcula distância GPS exata para cada waypoint monitorado)
+        for (CLRegion *r in self.manager.monitoredRegions) {
+            if ([r isKindOfClass:[CLCircularRegion class]]) {
+                CLCircularRegion *circ = (CLCircularRegion *)r;
+                CLLocation *centerLoc = [[CLLocation alloc] initWithLatitude:circ.center.latitude longitude:circ.center.longitude];
+                CLLocationDistance distance = [location distanceFromLocation:centerLoc];
+                BOOL isInsideNow = (distance <= circ.radius);
+                BOOL wasInside = [(self.insideCircularRegions)[circ.identifier] boolValue];
+                
+                if (isInsideNow && !wasInside) {
+                    (self.insideCircularRegions)[circ.identifier] = @YES;
+                    OwnTracksLogDefault("[LocationManager] Software Geofence ENTER: %@ (dist: %.1fm, radius: %.1fm)", circ.identifier, distance, circ.radius);
+                    [self.delegate regionEvent:circ enter:YES];
+                } else if (!isInsideNow && wasInside) {
+                    [self.insideCircularRegions removeObjectForKey:circ.identifier];
+                    OwnTracksLogDefault("[LocationManager] Software Geofence LEAVE: %@ (dist: %.1fm, radius: %.1fm)", circ.identifier, distance, circ.radius);
+                    [self.delegate regionEvent:circ enter:NO];
+                }
+            }
+        }
     }
 }
 
@@ -659,10 +693,19 @@ static LocationManager *theInstance = nil;
     }
     
     if ([region isKindOfClass:[CLCircularRegion class]]) {
+        BOOL wasInside = [(self.insideCircularRegions)[region.identifier] boolValue];
         if (state == CLRegionStateInside) {
             (self.insideCircularRegions)[region.identifier] = [NSNumber numberWithBool:TRUE];
+            if (!wasInside) {
+                OwnTracksLogDefault("[LocationManager] didDetermineState CLRegionStateInside ENTER: %@", region.identifier);
+                [self.delegate regionEvent:region enter:YES];
+            }
         } else {
             [self.insideCircularRegions removeObjectForKey:region.identifier];
+            if (wasInside) {
+                OwnTracksLogDefault("[LocationManager] didDetermineState CLRegionStateOutside LEAVE: %@", region.identifier);
+                [self.delegate regionEvent:region enter:NO];
+            }
         }
     }
     [self.delegate regionState:region inside:(state == CLRegionStateInside)];
