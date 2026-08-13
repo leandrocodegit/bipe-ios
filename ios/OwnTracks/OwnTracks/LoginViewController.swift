@@ -126,8 +126,8 @@ class LoginViewController: UIViewController {
         view.backgroundColor = UIColor(named: "primaryBackgroundColor") ?? UIColor(red: 11.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0)
         buildLayout()
 
-        // Se já estiver autorizado, setup concluído E BIOMETRIA DESATIVADA, dispensa imediatamente
-        if authManager.isAuthorized && setupService.isSetupCompleted && !BiometricAuthManager.shared.isBiometricsEnabled {
+        // Se o setup já tiver sido concluído e o usuário estiver autorizado, dispensa a tela de setup
+        if authManager.isAuthorized && setupService.isSetupCompleted {
             DispatchQueue.main.async { [weak self] in
                 self?.dismissAndStart()
             }

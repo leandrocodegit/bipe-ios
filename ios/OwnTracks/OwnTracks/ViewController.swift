@@ -67,6 +67,133 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             view.bringSubviewToFront(webView);
         }
         notifyWebviewSession()
+        checkAndApplyBiometricLock()
+    }
+
+    // MARK: - Biometric Lock Overlay
+
+    private var biometricOverlayView: UIView?
+    private var isBiometricUnlocked = false
+
+    @objc func checkAndApplyBiometricLock() {
+        guard BiometricAuthManager.shared.isBiometricsEnabled && BiometricAuthManager.shared.isBiometricsAvailable else {
+            removeBiometricOverlay()
+            return
+        }
+
+        if isBiometricUnlocked {
+            removeBiometricOverlay()
+            return
+        }
+
+        showBiometricOverlay()
+        evaluateBiometricsForLock()
+    }
+
+    private func showBiometricOverlay() {
+        if biometricOverlayView != nil { return }
+
+        let overlay = UIView(frame: view.bounds)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.backgroundColor = UIColor(red: 11.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 0.95)
+
+        let blurEffect = UIBlurEffect(style: .dark)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = overlay.bounds
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.addSubview(blurView)
+
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 16
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        let iconImageView = UIImageView(image: UIImage(systemName: BiometricAuthManager.shared.biometricIconName))
+        iconImageView.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        iconImageView.contentMode = .scaleAspectFit
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+
+        let titleLabel = UILabel()
+        titleLabel.text = "Aplicativo Bloqueado"
+        titleLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        titleLabel.textColor = .white
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = "Desbloqueie com \(BiometricAuthManager.shared.biometricName) para acessar o Bipe.me"
+        subtitleLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        subtitleLabel.textColor = UIColor(white: 0.7, alpha: 1.0)
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.numberOfLines = 0
+
+        var config = UIButton.Configuration.filled()
+        config.title = "Desbloquear com \(BiometricAuthManager.shared.biometricName)"
+        config.image = UIImage(systemName: BiometricAuthManager.shared.biometricIconName)
+        config.imagePlacement = .leading
+        config.imagePadding = 8
+        config.baseBackgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        config.baseForegroundColor = .white
+        config.cornerStyle = .large
+
+        let unlockButton = UIButton(configuration: config)
+        unlockButton.translatesAutoresizingMaskIntoConstraints = false
+        unlockButton.addTarget(self, action: #selector(unlockButtonTapped), for: .touchUpInside)
+
+        stack.addArrangedSubview(iconImageView)
+        stack.addArrangedSubview(titleLabel)
+        stack.addArrangedSubview(subtitleLabel)
+        stack.addArrangedSubview(unlockButton)
+
+        overlay.addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            iconImageView.widthAnchor.constraint(equalToConstant: 64),
+            iconImageView.heightAnchor.constraint(equalToConstant: 64),
+            unlockButton.heightAnchor.constraint(equalToConstant: 50),
+            unlockButton.widthAnchor.constraint(equalToConstant: 280),
+            stack.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
+            stack.leadingAnchor.constraint(equalTo: overlay.leadingAnchor, constant: 32),
+            stack.trailingAnchor.constraint(equalTo: overlay.trailingAnchor, constant: -32)
+        ])
+
+        view.addSubview(overlay)
+        view.bringSubviewToFront(overlay)
+        biometricOverlayView = overlay
+    }
+
+    @objc private func unlockButtonTapped() {
+        evaluateBiometricsForLock()
+    }
+
+    private func evaluateBiometricsForLock() {
+        BiometricAuthManager.shared.authenticate { [weak self] success, error in
+            guard let self = self else { return }
+            if success {
+                // Renova o token de acesso com o Keycloak usando o Refresh Token salvo
+                AuthManager.shared.loginWithRefreshToken { [weak self] authSuccess, authError in
+                    guard let self = self else { return }
+                    if authSuccess {
+                        self.notifyWebviewSession()
+                        self.loadAndroidSetupRoute()
+                    } else {
+                        NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
+                    }
+                    
+                    self.isBiometricUnlocked = true
+                    self.removeBiometricOverlay()
+                }
+            }
+        }
+    }
+
+    private func removeBiometricOverlay() {
+        UIView.animate(withDuration: 0.25, animations: {
+            self.biometricOverlayView?.alpha = 0.0
+        }) { _ in
+            self.biometricOverlayView?.removeFromSuperview()
+            self.biometricOverlayView = nil
+        }
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -1053,7 +1180,14 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         view.bringSubviewToFront(topBar)
         view.bringSubviewToFront(webView)
 
-        if let url = URL(string: "https://bipe.simodapp.com") {
+        if let url = URL(string: "https://bipe.simodapp.com/android-setup") {
+            webView.load(URLRequest(url: url))
+        }
+    }
+
+    @objc func loadAndroidSetupRoute() {
+        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/android-setup") else { return }
+        DispatchQueue.main.async {
             webView.load(URLRequest(url: url))
         }
     }

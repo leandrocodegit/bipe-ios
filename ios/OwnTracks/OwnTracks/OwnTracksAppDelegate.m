@@ -219,15 +219,14 @@
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
-    // Verificar se o setup BIPE já foi concluído e se a biometria não está ativada
+    // Verificar se o setup BIPE já foi concluído
     BOOL setupCompleted = [SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized];
-    BOOL biometricsEnabled = [BiometricAuthManager.shared isBiometricsEnabled];
     
-    if (setupCompleted && !biometricsEnabled) {
-        // Setup feito e sem biometria: inicia normalmente
+    if (setupCompleted) {
+        // Setup já feito: inicia o aplicativo normalmente
         [self startOwnTracksMonitoring];
     } else {
-        // Primeiro acesso, logout ou biometria ativada: apresentar tela de login/biometria
+        // Primeiro acesso ou logout: apresentar tela de login e setup
         [self presentLoginViewController];
     }
     
@@ -270,8 +269,12 @@
         // O LoginViewController dispensa a si mesmo antes de chamar este bloco.
         __weak OwnTracksAppDelegate *weakSelf = self;
         [loginVC setCompletionHandler:^{
-            OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluÃ­do â€” iniciando monitoramento");
+            OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluído — iniciando monitoramento");
             [weakSelf startOwnTracksMonitoring];
+            if ([weakSelf.window.rootViewController isKindOfClass:[ViewController class]]) {
+                ViewController *vc = (ViewController *)weakSelf.window.rootViewController;
+                [vc loadAndroidSetupRoute];
+            }
         }];
         
         UIViewController *rootVC = self.window.rootViewController;
