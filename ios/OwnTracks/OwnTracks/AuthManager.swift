@@ -249,10 +249,28 @@ import SafariServices
     }
 
     private func loadAuthState() {
-        guard let data = UserDefaults.standard.data(forKey: AuthManager.authStateKey),
-              let state = try? NSKeyedUnarchiver.unarchivedObject(ofClass: OIDAuthState.self, from: data)
-        else { return }
-        authState = state
+        guard let data = UserDefaults.standard.data(forKey: AuthManager.authStateKey) else { return }
+        
+        let classes: [AnyClass] = [
+            OIDAuthState.self,
+            OIDAuthorizationResponse.self,
+            OIDTokenResponse.self,
+            OIDServiceConfiguration.self,
+            OIDAuthorizationRequest.self,
+            OIDTokenRequest.self,
+            NSDictionary.self,
+            NSArray.self,
+            NSString.self,
+            NSNumber.self,
+            NSDate.self,
+            NSURL.self
+        ]
+        
+        if let state = (try? NSKeyedUnarchiver.unarchivedObject(ofClasses: classes, from: data)) as? OIDAuthState {
+            authState = state
+        } else if let state = (try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data)) as? OIDAuthState {
+            authState = state
+        }
     }
 
     // MARK: - Helpers
