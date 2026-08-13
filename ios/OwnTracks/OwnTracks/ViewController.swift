@@ -11,7 +11,7 @@ import UIKit
 import MapKit
 import WebKit
 
-class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
+@objc class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
     @IBOutlet weak var mapView: MKMapView!;
     @IBOutlet weak var actionButton: UIBarButtonItem!;
     @IBOutlet weak var privacyButton: UIBarButtonItem!;

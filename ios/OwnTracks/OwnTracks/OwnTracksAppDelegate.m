@@ -271,9 +271,9 @@
         [loginVC setCompletionHandler:^{
             OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluído — iniciando monitoramento");
             [weakSelf startOwnTracksMonitoring];
-            if ([weakSelf.window.rootViewController isKindOfClass:[ViewController class]]) {
-                ViewController *vc = (ViewController *)weakSelf.window.rootViewController;
-                [vc loadAndroidSetupRoute];
+            UIViewController *rootVC = weakSelf.window.rootViewController;
+            if ([rootVC respondsToSelector:@selector(loadAndroidSetupRoute)]) {
+                [rootVC performSelector:@selector(loadAndroidSetupRoute)];
             }
         }];
         
