@@ -1100,7 +1100,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["token"] = token
             configDict["accessToken"] = token
             configDict["refreshToken"] = refreshToken
-            configDict["idToken"] = AuthManager.shared.authState?.lastTokenResponse?.idToken ?? token
+            configDict["idToken"] = AuthManager.shared.getIdToken() ?? token
 
             if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
                let jsonString = String(data: data, encoding: .utf8) {
@@ -1131,7 +1131,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["token"] = token
             configDict["accessToken"] = token
             configDict["refreshToken"] = refreshToken
-            configDict["idToken"] = AuthManager.shared.authState?.lastTokenResponse?.idToken ?? token
+            configDict["idToken"] = AuthManager.shared.getIdToken() ?? token
 
             if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
                let jsonString = String(data: data, encoding: .utf8) {
@@ -1204,7 +1204,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         configDict["token"] = token
         configDict["accessToken"] = token
         configDict["refreshToken"] = refreshToken
-        configDict["idToken"] = AuthManager.shared.authState?.lastTokenResponse?.idToken ?? token
+        configDict["idToken"] = AuthManager.shared.getIdToken() ?? token
 
         if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
            let jsonString = String(data: data, encoding: .utf8) {

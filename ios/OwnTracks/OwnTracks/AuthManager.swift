@@ -144,6 +144,11 @@ import SafariServices
         return authState?.lastTokenResponse?.accessToken
     }
 
+    /// Retorna o ID Token atual
+    @objc func getIdToken() -> String? {
+        return authState?.lastTokenResponse?.idToken
+    }
+
     /// Retorna o Refresh Token atual
     @objc func getRefreshToken() -> String? {
         return authState?.lastTokenResponse?.refreshToken ?? authState?.refreshToken
