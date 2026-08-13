@@ -212,6 +212,7 @@ import SafariServices
                         let newAuthState = OIDAuthState(authorizationResponse: dummyResp, tokenResponse: tokenResponse)
                         self.authState = newAuthState
                     }
+                    self.saveAuthState()
                     completion(true, nil)
                 } else {
                     completion(false, tokenError)

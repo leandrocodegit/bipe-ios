@@ -66,6 +66,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         if webView != nil {
             view.bringSubviewToFront(webView);
         }
+        notifyWebviewSession()
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -1060,6 +1061,10 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
 
 // MARK: - WKWebView Delegates
 extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        notifyWebviewSession()
+    }
+
     func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
             if let trust = challenge.protectionSpace.serverTrust {
@@ -1091,8 +1096,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["locked"] = locked
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
+            let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
             configDict["token"] = token
             configDict["accessToken"] = token
+            configDict["refreshToken"] = refreshToken
+            configDict["idToken"] = AuthManager.shared.authState?.lastTokenResponse?.idToken ?? token
 
             if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
                let jsonString = String(data: data, encoding: .utf8) {
@@ -1119,8 +1127,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
+            let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
             configDict["token"] = token
             configDict["accessToken"] = token
+            configDict["refreshToken"] = refreshToken
+            configDict["idToken"] = AuthManager.shared.authState?.lastTokenResponse?.idToken ?? token
 
             if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
                let jsonString = String(data: data, encoding: .utf8) {
@@ -1176,6 +1187,32 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         }
 
         completionHandler(nil)
+    }
+
+    @objc func notifyWebviewSession() {
+        guard let webView = webView else { return }
+        let moc = CoreData.sharedInstance().mainMOC
+        var configDict: [String: Any] = [:]
+        moc.performAndWait {
+            configDict["deviceId"] = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
+            configDict["username"] = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
+            configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
+            configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+        }
+        let token = AuthManager.shared.getAccessToken() ?? ""
+        let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
+        configDict["token"] = token
+        configDict["accessToken"] = token
+        configDict["refreshToken"] = refreshToken
+        configDict["idToken"] = AuthManager.shared.authState?.lastTokenResponse?.idToken ?? token
+
+        if let data = try? JSONSerialization.data(withJSONObject: configDict, options: []),
+           let jsonString = String(data: data, encoding: .utf8) {
+            let script = "window.dispatchEvent(new CustomEvent('androidSessionReady', { detail: \(jsonString) }));"
+            DispatchQueue.main.async {
+                webView.evaluateJavaScript(script, completionHandler: nil)
+            }
+        }
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
