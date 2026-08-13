@@ -25,6 +25,8 @@
 		8411B832189FDB140019D2D6 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8411B831189FDB140019D2D6 /* CoreData.framework */; };
 		8411B83A189FDB140019D2D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B839189FDB140019D2D6 /* main.m */; };
 		8411B83E189FDB140019D2D6 /* OwnTracksAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */; };
+		BIPE00000000000000000002 /* smb_1-up.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000001 /* smb_1-up.wav */; };
+		BIPE00000000000000000004 /* smb_powerup.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000003 /* smb_powerup.wav */; };
 		8411B843189FDB140019D2D6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8411B842189FDB140019D2D6 /* Images.xcassets */; };
 		8411B87F189FE35C0019D2D6 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8411B87D189FE35C0019D2D6 /* Model.xcdatamodeld */; };
 		8411B88B189FE79B0019D2D6 /* CoreData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B889189FE79B0019D2D6 /* CoreData.m */; };
@@ -81,7 +83,7 @@
 		84B1BE0012F800001000003 /* SetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000004 /* SetupService.swift */; };
 		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
 		77B1BE0012F8000010000001 /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B1BE0012F8000010000002 /* BiometricAuthManager.swift */; };
-		99B1BE0012F8000010000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F8000010000002 /* GoogleService-Info.plist */; };
+		99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F8000010000002 /* GoogleService-Info.plist */; };
 		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
 		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
 		84B7397A1A65629200B103F4 /* LocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84B739791A65629200B103F4 /* LocationManager.m */; };
@@ -192,6 +194,8 @@
 		8411B83B189FDB140019D2D6 /* OwnTracks-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OwnTracks-Prefix.pch"; sourceTree = "<group>"; };
 		8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OwnTracksAppDelegate.h; sourceTree = "<group>"; };
 		8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OwnTracksAppDelegate.m; sourceTree = "<group>"; };
+		BIPE00000000000000000001 /* smb_1-up.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "smb_1-up.wav"; sourceTree = "<group>"; };
+		BIPE00000000000000000003 /* smb_powerup.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "smb_powerup.wav"; sourceTree = "<group>"; };
 		8411B842189FDB140019D2D6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		8411B849189FDB140019D2D6 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		8411B860189FDD200019D2D6 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -529,6 +533,8 @@
 				8411B867189FE1ED0019D2D6 /* coredata */,
 				8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */,
 				8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */,
+				BIPE00000000000000000001 /* smb_1-up.wav */,
+				BIPE00000000000000000003 /* smb_powerup.wav */,
 				84BDD0CF2F2A815500358CC2 /* OwnTracksLog.h */,
 				84BDD0D02F2A815500358CC2 /* OwnTracksLog.m */,
 				847444381DA4BC9600975BE4 /* ConnType.h */,
@@ -891,6 +897,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				99B1BE0012F8000010000001 /* GoogleService-Info.plist in Resources */,
+				BIPE00000000000000000002 /* smb_1-up.wav in Resources */,
+				BIPE00000000000000000004 /* smb_powerup.wav in Resources */,
 				8479EEB718E4529900923B24 /* MQTT.plist in Resources */,
 				8400D9731D83825E00DEA134 /* HTTP.plist in Resources */,
 				843B91721C8A14BF00DBD306 /* Storyboard.storyboard in Resources */,
