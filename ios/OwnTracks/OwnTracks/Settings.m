@@ -1128,11 +1128,10 @@ static SettingsDefaults *defaults;
 }
 
 + (NSString *)theSubscriptionsInMOC:(NSManagedObjectContext *)context {
-    NSString *subscriptions = [self stringForKey:@"subscription_preference" inMOC:context];
-
-    NSArray *baseComponents = [[self theGeneralTopicInMOC:context] componentsSeparatedByString:@"/"];
-
-    NSString *anyDevice = @"";
+    NSString *generalTopic = [self theGeneralTopicInMOC:context];
+    
+    NSArray *baseComponents = [generalTopic componentsSeparatedByString:@"/"];
+    NSString *anyDevice = @"owntracks/+";
     int any = 1;
     NSString *firstString = nil;
     if (baseComponents.count > 0) {
@@ -1142,45 +1141,63 @@ static SettingsDefaults *defaults;
         any++;
     }
 
-    for (int i = 0; i < any; i++) {
-        if (i > 0) {
-            anyDevice = [anyDevice stringByAppendingString:@"/"];
+    if (baseComponents.count >= any) {
+        anyDevice = @"";
+        for (int i = 0; i < any; i++) {
+            if (i > 0) {
+                anyDevice = [anyDevice stringByAppendingString:@"/"];
+            }
+            anyDevice = [anyDevice stringByAppendingString:baseComponents[i]];
         }
-        anyDevice = [anyDevice stringByAppendingString:baseComponents[i]];
+
+        for (int i = any; i < baseComponents.count; i++) {
+            if (i > 0) {
+                anyDevice = [anyDevice stringByAppendingString:@"/"];
+            }
+            anyDevice = [anyDevice stringByAppendingString:@"+"];
+        }
     }
 
-    for (int i = any; i < baseComponents.count; i++) {
-        if (i > 0) {
-            anyDevice = [anyDevice stringByAppendingString:@"/"];
-        }
-        anyDevice = [anyDevice stringByAppendingString:@"+"];
+    NSString *cmdTopic = [NSString stringWithFormat:@"%@/cmd", generalTopic];
+    NSString *callTopic = [NSString stringWithFormat:@"%@/call", generalTopic];
+    NSString *eventReceiveTopic = [NSString stringWithFormat:@"%@/event/receive", anyDevice];
+
+    NSMutableSet *topicSet = [NSMutableSet set];
+    if (anyDevice.length > 0) {
+        [topicSet addObject:anyDevice];
+        [topicSet addObject:eventReceiveTopic];
+    }
+    if (generalTopic && generalTopic.length > 0) {
+        [topicSet addObject:cmdTopic];
+        [topicSet addObject:callTopic];
     }
 
-    if (!subscriptions || subscriptions.length == 0) {
-        subscriptions = [NSString stringWithFormat:@"%@ %@/event/receive %@/info %@/cmd",
-                         anyDevice,
-                         anyDevice,
-                         anyDevice,
-                         [self theGeneralTopicInMOC:context],
-                         [self theGeneralTopicInMOC:context]];
-    } else {
-        NSString *eventReceiveTopic = [NSString stringWithFormat:@"%@/event/receive", anyDevice];
-        if (![subscriptions containsString:eventReceiveTopic] && ![subscriptions containsString:@"/event/receive"]) {
-            subscriptions = [subscriptions stringByAppendingFormat:@" %@", eventReceiveTopic];
+    NSString *customSub = [self stringForKey:@"subscription_preference" inMOC:context];
+    if (customSub && customSub.length > 0) {
+        NSArray *items = [customSub componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        for (NSString *item in items) {
+            if (item.length > 0) {
+                [topicSet addObject:item];
+            }
         }
     }
+
     NSString *userId = [Settings theUserIdInMOC:context];
-    if (userId) {
-        subscriptions = [subscriptions stringByReplacingOccurrencesOfString:@"%u"
-                                                                 withString:userId];
-    }
     NSString *deviceId = [Settings theDeviceIdInMOC:context];
-    if (deviceId) {
-        subscriptions = [subscriptions stringByReplacingOccurrencesOfString:@"%d"
-                                                                 withString:deviceId];
+
+    NSMutableArray *resultTopics = [NSMutableArray array];
+    for (NSString *t in topicSet) {
+        NSString *replaced = t;
+        if (userId) {
+            replaced = [replaced stringByReplacingOccurrencesOfString:@"%u" withString:userId];
+        }
+        if (deviceId) {
+            replaced = [replaced stringByReplacingOccurrencesOfString:@"%d" withString:deviceId];
+        }
+        [resultTopics addObject:replaced];
     }
 
-    return subscriptions;
+    return [resultTopics componentsJoinedByString:@" "];
 }
 
 + (NSString *)theUserIdInMOC:(NSManagedObjectContext *)context {

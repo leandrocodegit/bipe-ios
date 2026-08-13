@@ -1192,8 +1192,9 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
         OwnTracksLogDebug("[OwnTracksAppDelegate] device %@ owndevice %d", device, ownDevice);
         
         BOOL isCmdTopic = [topic hasSuffix:@"/cmd"];
+        BOOL isCallTopic = [topic hasSuffix:@"/call"];
         BOOL isEventReceiveTopic = [topic hasSuffix:@"/event/receive"] || [topic containsString:@"/event/"];
-        if (ownDevice || isCmdTopic || isEventReceiveTopic) {
+        if (ownDevice || isCmdTopic || isCallTopic || isEventReceiveTopic) {
             
             id json = [[Validation sharedInstance] validateMessageData:data];
             
