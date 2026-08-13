@@ -66,40 +66,7 @@
 
 - (void)setShortcutItems {
     UIApplication *application = [UIApplication sharedApplication];
-    UIApplicationShortcutItem *move =
-    [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.me.movemode"
-     localizedTitle:NSLocalizedString(@"Switch to Move Monitoring Mode",
-                                      @"Shortcut Switch to Move Monitoring Mode")
-     localizedSubtitle:nil
-     icon:[UIApplicationShortcutIcon iconWithSystemImageName:@"forward.fill"]
-     userInfo:nil];
-    UIApplicationShortcutItem *significant =
-    [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.me.significantmode"
-     localizedTitle:NSLocalizedString(@"Switch to Significant Changes Monitoring Mode",
-                                      @"Shortcut Switch to Significant Changes Monitoring Mode")
-     localizedSubtitle:nil
-     icon:[UIApplicationShortcutIcon iconWithSystemImageName:@"play.fill"]
-     userInfo:nil];
-    UIApplicationShortcutItem *manual =
-    [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.me.manualmode"
-     localizedTitle:NSLocalizedString(@"Switch to Manual Monitoring Mode",
-                                      @"Shortcut Switch to Manual Monitoring Mode")
-     localizedSubtitle:nil
-     icon:[UIApplicationShortcutIcon iconWithSystemImageName:@"pause.fill"]
-     userInfo:nil];
-    UIApplicationShortcutItem *quiet =
-    [[UIApplicationShortcutItem alloc]
-     initWithType:@"br.com.bipe.me.quietmode"
-     localizedTitle:NSLocalizedString(@"Switch to Quiet Monitoring Mode",
-                                      @"Shortcut Switch to Quiet Monitoring Mode")
-     localizedSubtitle:nil
-     icon:[UIApplicationShortcutIcon iconWithSystemImageName:@"stop.fill"]
-     userInfo:nil];
-    
-    application.shortcutItems = @[quiet, manual, significant, move];
+    application.shortcutItems = @[];
 }
 
 
