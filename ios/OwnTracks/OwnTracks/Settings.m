@@ -514,6 +514,23 @@ static SettingsDefaults *defaults;
                          inMOC:context];
     }
     
+    object = dictionary[@"opMode"];
+    if (object && [object respondsToSelector:@selector(intValue)]) {
+        int opMode = [((id)object) intValue];
+        [self setInt:opMode forKey:@"custom_opmode" inMOC:context];
+        
+        int monitoringMode = 2;
+        switch (opMode) {
+            case 0: monitoringMode = 2; break; // FULL (Real-time GPS)
+            case 1:
+            case 2: monitoringMode = 0; break; // ROUTINE / RESTRICTED (Geofences)
+            case 3: monitoringMode = -1; break; // PRIVATE (Quiet)
+            default: monitoringMode = 2; break;
+        }
+        [self setInt:monitoringMode forKey:@"monitoring_preference" inMOC:context];
+        [LocationManager sharedInstance].monitoring = (LocationMonitoring)monitoringMode;
+    }
+    
     object = dictionary[@"monitoring"];
     if (object) {
         [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"downgraded"];

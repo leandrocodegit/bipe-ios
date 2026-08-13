@@ -1228,6 +1228,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["locked"] = locked
+                configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
             let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -1406,6 +1407,18 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         case "disableBiometrics":
             BiometricAuthManager.shared.isBiometricsEnabled = false
+        case "startVoiceCall":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let moc = CoreData.sharedInstance().mainMOC
+                let opMode = Settings.int(forKey: "custom_opmode", inMOC: moc)
+                if opMode == 2 || opMode == 3 {
+                    let alert = UIAlertController(title: "Chamada Não Permitida", message: "O modo de operação atual não permite chamadas de áudio.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(alert, animated: true)
+                    return
+                }
+            }
         case "saveConfig":
             if let jsonString = message.body as? String,
                let data = jsonString.data(using: .utf8),
