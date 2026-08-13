@@ -972,7 +972,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                     }
                     
                     [self.connection sendData:[self jsonToData:json]
-                                        topic:[[Settings theGeneralTopicInMOC:moc] stringByAppendingString:@"/event"]
+                                        topic:[[Settings theGeneralTopicInMOC:moc] stringByAppendingString:@"/event/send"]
                                    topicAlias:@(2)
                                           qos:[Settings theQosInMOC:moc]
                                        retain:NO];
