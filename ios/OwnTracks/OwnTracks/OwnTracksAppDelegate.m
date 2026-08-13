@@ -1208,7 +1208,11 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                 NSDictionary *dictionary = (NSDictionary *)json;
                 NSString *type = dictionary[@"_type"];
                 
-                if ([type isEqualToString:@"waypoints"] || [type isEqualToString:@"waypoint"]) {
+                if ([type isEqualToString:@"transition"] || [type isEqualToString:@"event"] || isEventReceiveTopic) {
+                    [self performSelectorOnMainThread:@selector(performReceiveEvent:)
+                                           withObject:dictionary
+                                        waitUntilDone:NO];
+                } else if ([type isEqualToString:@"waypoints"] || [type isEqualToString:@"waypoint"]) {
                     [self performSelectorOnMainThread:@selector(performSetWaypoints:)
                                            withObject:dictionary
                                         waitUntilDone:NO];
@@ -1466,6 +1470,60 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
 
 - (void)performClearWaypoints:(NSDictionary *)dictionary {
     [Settings clearWaypoints:CoreData.sharedInstance.mainMOC];
+}
+
+- (void)performReceiveEvent:(NSDictionary *)dictionary {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] performReceiveEvent %@", dictionary);
+    
+    NSString *event = dictionary[@"event"];
+    NSString *desc = dictionary[@"desc"] ? dictionary[@"desc"] : dictionary[@"description"];
+    NSString *text = dictionary[@"text"] ? dictionary[@"text"] : dictionary[@"msg"];
+    if (!text) {
+        text = dictionary[@"title"];
+    }
+    
+    NSString *messageText = text;
+    if (!messageText || messageText.length == 0) {
+        if (desc && desc.length > 0) {
+            if ([event isEqualToString:@"enter"]) {
+                messageText = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Entering", @""), desc];
+            } else if ([event isEqualToString:@"leave"]) {
+                messageText = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Leaving", @""), desc];
+            } else {
+                messageText = desc;
+            }
+        } else if (event && event.length > 0) {
+            messageText = event;
+        } else {
+            messageText = NSLocalizedString(@"Evento recebido", @"Evento recebido");
+        }
+    }
+    
+    // Dispara Notificação Local no iOS (Banner + Som)
+    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+    content.title = NSLocalizedString(@"Região", @"Header of an alert message regarding circular region");
+    content.body = messageText;
+    content.sound = [UNNotificationSound defaultSound];
+    
+    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.5 repeats:NO];
+    NSString *identifier = [NSString stringWithFormat:@"event_rx_%f", [NSDate date].timeIntervalSince1970];
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+    
+    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        if (error) {
+            OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent notification error %@", error);
+        }
+    }];
+    
+    // Salva no Histórico do App
+    NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+    [History historyInGroup:NSLocalizedString(@"Region", @"")
+                   withText:messageText
+                         at:nil
+                      inMOC:moc
+                    maximum:[Settings theMaximumHistoryInMOC:moc]];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"reload" object:nil];
 }
 
 - (void)waypoints {
