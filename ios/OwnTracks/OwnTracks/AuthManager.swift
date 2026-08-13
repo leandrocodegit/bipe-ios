@@ -139,19 +139,19 @@ import SafariServices
         }
     }
 
-    /// Retorna o Access Token atual de forma síncrona
+    /// Retorna o Access Token atual
     @objc func getAccessToken() -> String? {
-        return authState?.lastTokenResponse?.accessToken
+        return authState?.accessToken ?? authState?.lastTokenResponse?.accessToken
     }
 
     /// Retorna o ID Token atual
     @objc func getIdToken() -> String? {
-        return authState?.lastTokenResponse?.idToken
+        return authState?.idToken ?? authState?.lastTokenResponse?.idToken
     }
 
     /// Retorna o Refresh Token atual
     @objc func getRefreshToken() -> String? {
-        return authState?.lastTokenResponse?.refreshToken ?? authState?.refreshToken
+        return authState?.refreshToken ?? authState?.lastTokenResponse?.refreshToken
     }
 
     /// Extrai o `sub` do ID token (userId Keycloak)
