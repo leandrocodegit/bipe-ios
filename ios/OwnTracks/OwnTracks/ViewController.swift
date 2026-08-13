@@ -1347,7 +1347,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         let moc = CoreData.sharedInstance().mainMOC
         moc.performAndWait {
             let generalTopic = Settings.theGeneralTopic(inMOC: moc)
-            let myself = Friend.friend(withTopic: generalTopic, inManagedObjectContext: moc)
+            let myself = Friend(topic: generalTopic, in: moc)
             
             for wp in list {
                 let name = (wp["name"] as? String) ?? (wp["label"] as? String) ?? (wp["descricao"] as? String) ?? "Waypoint"
@@ -1379,11 +1379,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     let newRegion = OwnTracking.sharedInstance().addRegion(for: wpId,
                                                                            friend: myself,
                                                                            name: name,
-                                                                           tst: Date() as NSDate,
+                                                                           tst: Date(),
                                                                            uuid: uuid,
-                                                                           major: major,
-                                                                           minor: minor,
-                                                                           radius: Int32(rad),
+                                                                           major: UInt32(major),
+                                                                           minor: UInt32(minor),
+                                                                           radius: rad,
                                                                            lat: lat,
                                                                            lon: lon)
                     newRegion?.rid = wpId
