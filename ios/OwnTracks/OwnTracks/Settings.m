@@ -1129,44 +1129,24 @@ static SettingsDefaults *defaults;
 
 + (NSString *)theSubscriptionsInMOC:(NSManagedObjectContext *)context {
     NSString *generalTopic = [self theGeneralTopicInMOC:context];
+    NSString *userId = [Settings theUserIdInMOC:context];
+    NSString *deviceId = [Settings theDeviceIdInMOC:context];
     
-    NSArray *baseComponents = [generalTopic componentsSeparatedByString:@"/"];
-    NSString *anyDevice = @"owntracks/+";
-    int any = 1;
-    NSString *firstString = nil;
-    if (baseComponents.count > 0) {
-        firstString = baseComponents[0];
+    if (!userId || userId.length == 0) {
+        userId = @"user";
     }
-    if (firstString && firstString.length == 0) {
-        any++;
+    if (!deviceId || deviceId.length == 0) {
+        deviceId = @"device";
     }
 
-    if (baseComponents.count >= any) {
-        anyDevice = @"";
-        for (int i = 0; i < any; i++) {
-            if (i > 0) {
-                anyDevice = [anyDevice stringByAppendingString:@"/"];
-            }
-            anyDevice = [anyDevice stringByAppendingString:baseComponents[i]];
-        }
-
-        for (int i = any; i < baseComponents.count; i++) {
-            if (i > 0) {
-                anyDevice = [anyDevice stringByAppendingString:@"/"];
-            }
-            anyDevice = [anyDevice stringByAppendingString:@"+"];
-        }
-    }
-
+    NSString *userWildcardTopic = [NSString stringWithFormat:@"owntracks/%@/+", userId];
+    NSString *eventReceiveTopic = [NSString stringWithFormat:@"owntracks/%@/+/event/receive", userId];
     NSString *cmdTopic = [NSString stringWithFormat:@"%@/cmd", generalTopic];
     NSString *callTopic = [NSString stringWithFormat:@"%@/call", generalTopic];
-    NSString *eventReceiveTopic = [NSString stringWithFormat:@"%@/event/receive", anyDevice];
 
     NSMutableSet *topicSet = [NSMutableSet set];
-    if (anyDevice.length > 0) {
-        [topicSet addObject:anyDevice];
-        [topicSet addObject:eventReceiveTopic];
-    }
+    [topicSet addObject:userWildcardTopic];
+    [topicSet addObject:eventReceiveTopic];
     if (generalTopic && generalTopic.length > 0) {
         [topicSet addObject:cmdTopic];
         [topicSet addObject:callTopic];
@@ -1177,23 +1157,19 @@ static SettingsDefaults *defaults;
         NSArray *items = [customSub componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         for (NSString *item in items) {
             if (item.length > 0) {
-                [topicSet addObject:item];
+                NSString *replaced = item;
+                replaced = [replaced stringByReplacingOccurrencesOfString:@"%u" withString:userId];
+                replaced = [replaced stringByReplacingOccurrencesOfString:@"%d" withString:deviceId];
+                [topicSet addObject:replaced];
             }
         }
     }
 
-    NSString *userId = [Settings theUserIdInMOC:context];
-    NSString *deviceId = [Settings theDeviceIdInMOC:context];
-
     NSMutableArray *resultTopics = [NSMutableArray array];
     for (NSString *t in topicSet) {
         NSString *replaced = t;
-        if (userId) {
-            replaced = [replaced stringByReplacingOccurrencesOfString:@"%u" withString:userId];
-        }
-        if (deviceId) {
-            replaced = [replaced stringByReplacingOccurrencesOfString:@"%d" withString:deviceId];
-        }
+        replaced = [replaced stringByReplacingOccurrencesOfString:@"%u" withString:userId];
+        replaced = [replaced stringByReplacingOccurrencesOfString:@"%d" withString:deviceId];
         [resultTopics addObject:replaced];
     }
 
