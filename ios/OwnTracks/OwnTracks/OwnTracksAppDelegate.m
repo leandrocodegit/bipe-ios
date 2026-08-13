@@ -398,10 +398,17 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     OwnTracksLogDefault("[OwnTracksAppDelegate] applicationDidEnterBackground");
     
-    // Altera para modo Significant (segundo plano)
     NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
-    [LocationManager sharedInstance].monitoring = LocationMonitoringSignificant;
-    [Settings setInt:LocationMonitoringSignificant forKey:@"monitoring_preference" inMOC:moc];
+    int opMode = [Settings intForKey:@"custom_opmode" inMOC:moc];
+    if (opMode == 3) {
+        // Modo Privado: Mantém desativado (Quiet)
+        [LocationManager sharedInstance].monitoring = LocationMonitoringQuiet;
+        [Settings setInt:LocationMonitoringQuiet forKey:@"monitoring_preference" inMOC:moc];
+    } else {
+        // Altera para modo Significant em segundo plano (economia de bateria)
+        [LocationManager sharedInstance].monitoring = LocationMonitoringSignificant;
+        [Settings setInt:LocationMonitoringSignificant forKey:@"monitoring_preference" inMOC:moc];
+    }
     [CoreData.sharedInstance sync:moc];
     [self background];
     if ([LocationManager sharedInstance].monitoring != LocationMonitoringMove) {
@@ -682,10 +689,17 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     OwnTracksLogDefault("[OwnTracksAppDelegate] applicationDidBecomeActive");
     
-    // Altera para modo Move (primeiro plano)
     NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
-    [LocationManager sharedInstance].monitoring = LocationMonitoringMove;
-    [Settings setInt:LocationMonitoringMove forKey:@"monitoring_preference" inMOC:moc];
+    int opMode = [Settings intForKey:@"custom_opmode" inMOC:moc];
+    if (opMode == 3) {
+        // Modo Privado: Mantém desativado (Quiet)
+        [LocationManager sharedInstance].monitoring = LocationMonitoringQuiet;
+        [Settings setInt:LocationMonitoringQuiet forKey:@"monitoring_preference" inMOC:moc];
+    } else {
+        // Altera para modo Move em primeiro plano (alta precisão / tempo real)
+        [LocationManager sharedInstance].monitoring = LocationMonitoringMove;
+        [Settings setInt:LocationMonitoringMove forKey:@"monitoring_preference" inMOC:moc];
+    }
     [CoreData.sharedInstance sync:moc];
     
     [self.connection connectToLast];
