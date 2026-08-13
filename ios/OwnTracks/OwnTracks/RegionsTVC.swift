@@ -109,11 +109,18 @@ class RegionsTVC: OwnTracksEditFetchTVC {
             } else {
                 cell.imageView?.image = UIImage(named: "Friend");
             }
-
+            cell.accessoryType = .none;
         } else {
             cell.textLabel?.text = "no region";
         }
         return cell;
+    }
+
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        if identifier == "setRegion:" || identifier == "newRegion:" {
+            return false
+        }
+        return super.shouldPerformSegue(withIdentifier: identifier, sender: sender)
     }
 
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -135,19 +142,7 @@ class RegionsTVC: OwnTracksEditFetchTVC {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let region = frc?.object(at: indexPath);
-        let tbc = tabBarController;
-        let vcs = tbc?.viewControllers;
-        let nc = vcs?[0];
-        if nc != nil && nc is NavigationController {
-            let navigationController = nc as! NavigationController;
-            let vc = navigationController.topViewController;
-            if vc != nil && vc is ViewController {
-                let viewController = vc as! ViewController;
-                viewController.setCenter(annotation: region!);
-            }
-            tabBarController?.selectedIndex = 0;
-        }
+        tableView.deselectRow(at: indexPath, animated: true);
     }
 
     override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
