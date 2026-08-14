@@ -176,12 +176,23 @@ import WebKit
                     if authSuccess {
                         self.notifyWebviewSession()
                         self.loadAndroidSetupRoute()
+                        self.isBiometricUnlocked = true
+                        self.removeBiometricOverlay()
                     } else {
                         NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
+                        // Força a tela de login se não conseguiu renovar
+                        DispatchQueue.main.async {
+                            AuthManager.shared.startLogin(presenting: self) { [weak self] newLoginSuccess, _ in
+                                guard let self = self else { return }
+                                if newLoginSuccess {
+                                    self.notifyWebviewSession()
+                                    self.loadAndroidSetupRoute()
+                                    self.isBiometricUnlocked = true
+                                    self.removeBiometricOverlay()
+                                }
+                            }
+                        }
                     }
-                    
-                    self.isBiometricUnlocked = true
-                    self.removeBiometricOverlay()
                 }
             }
         }
