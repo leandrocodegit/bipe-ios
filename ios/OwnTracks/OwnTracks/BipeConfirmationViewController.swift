@@ -150,8 +150,6 @@ public class BipeConfirmationViewController: UIViewController {
                 json["color"] = color
             }
             
-            json["button"] = ""
-            
             if let payload = try? JSONSerialization.data(withJSONObject: json, options: []) {
                 if appDelegate.connection == nil {
                     appDelegate.connection = Connection()
