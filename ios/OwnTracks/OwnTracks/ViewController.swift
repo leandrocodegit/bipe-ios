@@ -74,6 +74,7 @@ import WebKit
 
     private var biometricOverlayView: UIView?
     private var isBiometricUnlocked = false
+    private var isAuthenticating = false
 
     @objc func checkAndApplyBiometricLock() {
         guard BiometricAuthManager.shared.isBiometricsEnabled && BiometricAuthManager.shared.isBiometricsAvailable else {
@@ -81,8 +82,7 @@ import WebKit
             return
         }
 
-        if isBiometricUnlocked {
-            removeBiometricOverlay()
+        if isBiometricUnlocked || isAuthenticating {
             return
         }
 
@@ -167,6 +167,9 @@ import WebKit
     }
 
     private func evaluateBiometricsForLock() {
+        if isAuthenticating { return }
+        isAuthenticating = true
+        
         BiometricAuthManager.shared.authenticate { [weak self] success, error in
             guard let self = self else { return }
             if success {
@@ -178,6 +181,7 @@ import WebKit
                         self.loadAndroidSetupRoute()
                         self.isBiometricUnlocked = true
                         self.removeBiometricOverlay()
+                        self.isAuthenticating = false
                     } else {
                         NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
                         // Aguarda 0.5s para garantir que a UI do FaceID sumiu completamente
@@ -191,10 +195,13 @@ import WebKit
                                     self.isBiometricUnlocked = true
                                     self.removeBiometricOverlay()
                                 }
+                                self.isAuthenticating = false
                             }
                         }
                     }
                 }
+            } else {
+                self.isAuthenticating = false
             }
         }
     }
