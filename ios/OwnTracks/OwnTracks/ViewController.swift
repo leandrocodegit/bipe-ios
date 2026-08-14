@@ -1217,27 +1217,26 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         notifyWebviewSession()
     }
-
+    
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
             if url.scheme == "bipe.me" || url.scheme == "bipe.ia" {
                 if url.host == "login" || url.host == "auth" {
                     decisionHandler(.cancel)
                     
+                    if self.isAuthenticating { return }
+                    self.isAuthenticating = true
+                    
                     let handleAuthSuccess: (Bool, Error?) -> Void = { [weak self] success, error in
                         guard let self = self else { return }
+                        self.isAuthenticating = false
                         if success {
                             let token = AuthManager.shared.getAccessToken() ?? ""
                             let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
                             let idToken = AuthManager.shared.getIdToken() ?? token
                             
-                            // Injetando no sessionStorage (o angular-oauth2-oidc procura por access_token)
-                            let script = """
-                                sessionStorage.setItem('access_token', '\(token)');
-                                sessionStorage.setItem('refresh_token', '\(refreshToken)');
-                                sessionStorage.setItem('id_token', '\(idToken)');
-                                window.location.href = '/android-setup';
-                            """
+                            self.notifyWebviewSession()
+                            let script = "setTimeout(function() { window.location.href = '/distancia'; }, 100);"
                             DispatchQueue.main.async {
                                 self.webView?.evaluateJavaScript(script, completionHandler: nil)
                             }
