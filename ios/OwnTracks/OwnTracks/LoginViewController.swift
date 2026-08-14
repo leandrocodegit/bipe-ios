@@ -212,11 +212,15 @@ class LoginViewController: UIViewController {
             guard let self = self else { return }
 
             if success {
-                self.setStatus(NSLocalizedString("Configurando dispositivo…", comment: ""))
                 // Aguarda 0.5s para garantir que o modal de login (SFAuthenticationSession) fechou completamente
                 // antes de tentarmos apresentar o alerta de FaceID ou dispensar a tela.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.performSetup(isStandardLogin: true)
+                    if self.setupService.isSetupCompleted {
+                        self.dismissAndStart()
+                    } else {
+                        self.setStatus(NSLocalizedString("Configurando dispositivo…", comment: ""))
+                        self.performSetup(isStandardLogin: true)
+                    }
                 }
             } else {
                 let msg = error?.localizedDescription ?? NSLocalizedString("Erro desconhecido", comment: "")
@@ -239,8 +243,12 @@ class LoginViewController: UIViewController {
                 self.authManager.loginWithRefreshToken { [weak self] authSuccess, authError in
                     guard let self = self else { return }
                     if authSuccess {
-                        self.setStatus("Configurando dispositivo…")
-                        self.performSetup(isStandardLogin: false)
+                        if self.setupService.isSetupCompleted {
+                            self.dismissAndStart()
+                        } else {
+                            self.setStatus("Configurando dispositivo…")
+                            self.performSetup(isStandardLogin: false)
+                        }
                     } else {
                         let msg = authError?.localizedDescription ?? "Sessão expirada"
                         self.showError("Falha na renovação da biometria: \(msg)")

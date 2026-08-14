@@ -191,7 +191,8 @@ import WebKit
                             loginVC.managedObjectContext = CoreData.sharedInstance().mainMOC
                             loginVC.setCompletionHandler { [weak self] in
                                 self?.notifyWebviewSession()
-                                self?.loadAndroidSetupRoute()
+                                let script = "setTimeout(function() { window.location.href = '/distancia'; }, 100);"
+                                self?.webView?.evaluateJavaScript(script, completionHandler: nil)
                                 self?.isBiometricUnlocked = true
                                 self?.removeBiometricOverlay()
                             }
