@@ -1199,6 +1199,57 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         notifyWebviewSession()
     }
 
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let url = navigationAction.request.url {
+            if url.scheme == "bipe.me" || url.scheme == "bipe.ia" {
+                if url.host == "login" || url.host == "auth" {
+                    decisionHandler(.cancel)
+                    
+                    let handleAuthSuccess: (Bool, Error?) -> Void = { [weak self] success, error in
+                        guard let self = self else { return }
+                        if success {
+                            let token = AuthManager.shared.getAccessToken() ?? ""
+                            let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
+                            let idToken = AuthManager.shared.getIdToken() ?? token
+                            
+                            // Injetando no sessionStorage (o angular-oauth2-oidc procura por access_token)
+                            let script = """
+                                sessionStorage.setItem('access_token', '\(token)');
+                                sessionStorage.setItem('refresh_token', '\(refreshToken)');
+                                sessionStorage.setItem('id_token', '\(idToken)');
+                                window.location.href = '/distancia';
+                            """
+                            DispatchQueue.main.async {
+                                self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                            }
+                        } else {
+                            NSLog("[ViewController] Falha na autenticação nativa via interceptador: %@", error?.localizedDescription ?? "")
+                        }
+                    }
+                    
+                    if BiometricAuthManager.shared.canLoginWithBiometrics {
+                        BiometricAuthManager.shared.authenticate { success, error in
+                            if success {
+                                AuthManager.shared.loginWithRefreshToken(completion: handleAuthSuccess)
+                            } else {
+                                // Se a biometria falhar ou for cancelada, cai pro login manual
+                                DispatchQueue.main.async {
+                                    AuthManager.shared.startLogin(presenting: self, completion: handleAuthSuccess)
+                                }
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            AuthManager.shared.startLogin(presenting: self, completion: handleAuthSuccess)
+                        }
+                    }
+                    return
+                }
+            }
+        }
+        decisionHandler(.allow)
+    }
+
     func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
             if let trust = challenge.protectionSpace.serverTrust {
