@@ -410,8 +410,6 @@
         NSString *color = [Settings stringForKey:@"color" inMOC:moc];
         if (color && color.length > 0) json[@"color"] = color;
         
-        json[@"button"] = @"";
-        
         NSError *error;
         NSData *payload = [NSJSONSerialization dataWithJSONObject:json options:0 error:&error];
         if (payload && !error) {
