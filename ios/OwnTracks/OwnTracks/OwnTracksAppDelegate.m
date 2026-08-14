@@ -167,6 +167,11 @@
     [FIRMessaging messaging].delegate = self;
     
     UNAuthorizationOptions authOptions = UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge;
+    
+    UNNotificationAction *confirmAction = [UNNotificationAction actionWithIdentifier:@"CONFIRM_BIPE_ACTION" title:@"Confirmar" options:UNNotificationActionOptionForeground];
+    UNNotificationCategory *bipeCategory = [UNNotificationCategory categoryWithIdentifier:@"BIPE_CATEGORY" actions:@[confirmAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithObject:bipeCategory]];
+    
     [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:authOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
         OwnTracksLogDefault("[OwnTracksAppDelegate] Notification authorization granted: %d, error: %@", granted, error);
     }];
@@ -362,6 +367,42 @@
     }
     
     completionHandler(UIBackgroundFetchResultNewData);
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
+    
+    if ([response.actionIdentifier isEqualToString:@"CONFIRM_BIPE_ACTION"]) {
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Ação CONFIRM_BIPE_ACTION disparada pelo usuário");
+        
+        NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
+        NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
+        json[@"_type"] = @"event";
+        json[@"event"] = @"bipe_confirm";
+        
+        NSString *userName = [Settings stringForKey:@"user_preference" inMOC:moc];
+        if (userName && userName.length > 0) {
+            json[@"userName"] = userName;
+        }
+        
+        NSString *clienteId = [Settings stringForKey:@"clientid_preference" inMOC:moc];
+        if (clienteId && clienteId.length > 0) {
+            json[@"clienteId"] = clienteId;
+        }
+        
+        NSError *error;
+        NSData *payload = [NSJSONSerialization dataWithJSONObject:json options:0 error:&error];
+        if (payload && !error) {
+            if (!self.connection) {
+                self.connection = [[Connection alloc] init];
+                self.connection.delegate = self;
+                [self.connection start];
+            }
+            [self.connection sendData:payload topic:[Settings theGeneralTopicInMOC:moc] retain:NO];
+            OwnTracksLogDefault("[OwnTracksAppDelegate] MQTT Payload bipe_confirm enviado");
+        }
+    }
+    
+    completionHandler();
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -1595,6 +1636,8 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
             if (attachment) {
                 content.attachments = @[attachment];
             }
+            
+            content.categoryIdentifier = @"BIPE_CATEGORY";
             
             UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.1 repeats:NO];
             NSString *identifier = [NSString stringWithFormat:@"event_rx_%f", [NSDate date].timeIntervalSince1970];
