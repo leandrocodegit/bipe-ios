@@ -117,6 +117,7 @@ public class BipeConfirmationViewController: UIViewController {
             var json = [String: Any]()
             json["_type"] = "bipe"
             json["status"] = status
+            json["button"] = "VOL_TICK";
             
             if let execId = execucaoId, !execId.isEmpty {
                 json["execucaoId"] = execId
