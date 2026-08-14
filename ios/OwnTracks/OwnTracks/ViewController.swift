@@ -184,16 +184,21 @@ import WebKit
                         self.isAuthenticating = false
                     } else {
                         NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
+                        
                         // Aguarda 0.5s para garantir que a UI do FaceID sumiu completamente
-                        // antes de tentarmos apresentar o modal do Safari/Keycloak, evitando conflitos de apresentação.
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            AuthManager.shared.startLogin(presenting: self) { [weak self] newLoginSuccess, _ in
+                            AuthManager.shared.startLogin(presenting: self) { [weak self] newLoginSuccess, loginError in
                                 guard let self = self else { return }
                                 if newLoginSuccess {
                                     self.notifyWebviewSession()
                                     self.loadAndroidSetupRoute()
                                     self.isBiometricUnlocked = true
                                     self.removeBiometricOverlay()
+                                } else {
+                                    let msg = loginError?.localizedDescription ?? "Erro desconhecido ao abrir tela de login."
+                                    let alert = UIAlertController(title: "Erro de Autenticação", message: "Não foi possível abrir o login: \(msg)", preferredStyle: .alert)
+                                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                                    self.present(alert, animated: true)
                                 }
                                 self.isAuthenticating = false
                             }
@@ -202,6 +207,11 @@ import WebKit
                 }
             } else {
                 self.isAuthenticating = false
+                if let err = error as? NSError, err.code != -2 { // -2 é userCancel
+                    let alert = UIAlertController(title: "Face ID", message: "Falha na biometria: \(err.localizedDescription)", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(alert, animated: true)
+                }
             }
         }
     }
