@@ -130,7 +130,7 @@ public class BipeConfirmationViewController: UIViewController {
                 let topic = Settings.theGeneralTopic(inMOC: moc) ?? ""
                 
                 appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
-                OwnTracksLogDefault("[BipeConfirmationViewController] MQTT Payload bipe_confirm enviado")
+                print("[BipeConfirmationViewController] MQTT Payload bipe_confirm enviado")
             }
         }
         
