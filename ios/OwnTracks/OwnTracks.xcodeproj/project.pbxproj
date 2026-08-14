@@ -25,8 +25,6 @@
 		8411B832189FDB140019D2D6 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8411B831189FDB140019D2D6 /* CoreData.framework */; };
 		8411B83A189FDB140019D2D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B839189FDB140019D2D6 /* main.m */; };
 		8411B83E189FDB140019D2D6 /* OwnTracksAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */; };
-		BIPE00000000000000000002 /* smb_1_up.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000001 /* smb_1_up.wav */; };
-		BIPE00000000000000000004 /* smb_powerup.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000003 /* smb_powerup.wav */; };
 		BIPE00000000000000000006 /* bipe_enter.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000005 /* bipe_enter.wav */; };
 		BIPE00000000000000000008 /* bipe_routine_error.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000007 /* bipe_routine_error.wav */; };
 		BIPE00000000000000000010 /* bipe_routine_ok.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000009 /* bipe_routine_ok.wav */; };
@@ -200,8 +198,6 @@
 		8411B83B189FDB140019D2D6 /* OwnTracks-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OwnTracks-Prefix.pch"; sourceTree = "<group>"; };
 		8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OwnTracksAppDelegate.h; sourceTree = "<group>"; };
 		8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OwnTracksAppDelegate.m; sourceTree = "<group>"; };
-		BIPE00000000000000000001 /* smb_1_up.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "smb_1_up.wav"; sourceTree = "<group>"; };
-		BIPE00000000000000000003 /* smb_powerup.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "smb_powerup.wav"; sourceTree = "<group>"; };
 		BIPE00000000000000000005 /* bipe_enter.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_enter.wav"; sourceTree = "<group>"; };
 		BIPE00000000000000000007 /* bipe_routine_error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_routine_error.wav"; sourceTree = "<group>"; };
 		BIPE00000000000000000009 /* bipe_routine_ok.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_routine_ok.wav"; sourceTree = "<group>"; };
@@ -545,8 +541,6 @@
 				8411B867189FE1ED0019D2D6 /* coredata */,
 				8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */,
 				8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */,
-				BIPE00000000000000000001 /* smb_1_up.wav */,
-				BIPE00000000000000000003 /* smb_powerup.wav */,
 				BIPE00000000000000000005 /* bipe_enter.wav */,
 				BIPE00000000000000000007 /* bipe_routine_error.wav */,
 				BIPE00000000000000000009 /* bipe_routine_ok.wav */,
@@ -915,8 +909,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */,
-				BIPE00000000000000000002 /* smb_1_up.wav in Resources */,
-				BIPE00000000000000000004 /* smb_powerup.wav in Resources */,
 				BIPE00000000000000000006 /* bipe_enter.wav in Resources */,
 				BIPE00000000000000000008 /* bipe_routine_error.wav in Resources */,
 				BIPE00000000000000000010 /* bipe_routine_ok.wav in Resources */,
