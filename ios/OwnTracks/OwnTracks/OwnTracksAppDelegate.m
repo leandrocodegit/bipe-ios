@@ -397,7 +397,11 @@
                 self.connection.delegate = self;
                 [self.connection start];
             }
-            [self.connection sendData:payload topic:[Settings theGeneralTopicInMOC:moc] retain:NO];
+            [self.connection sendData:payload
+                                topic:[Settings theGeneralTopicInMOC:moc]
+                           topicAlias:nil
+                                  qos:[Settings intForKey:@"qos_preference" inMOC:moc]
+                               retain:NO];
             OwnTracksLogDefault("[OwnTracksAppDelegate] MQTT Payload bipe_confirm enviado");
         }
     }
