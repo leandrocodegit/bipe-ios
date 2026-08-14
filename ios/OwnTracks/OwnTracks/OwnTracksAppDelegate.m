@@ -378,7 +378,7 @@
         NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
         json[@"_type"] = @"bipe";
         json[@"status"] = @"COMPLETED";
-        json[@"button"] = @"VOL_TICK";
+        json[@"button"] = @"TOUCH";
         
         if (response.notification.request.content.userInfo[@"execucaoId"]) {
             json[@"execucaoId"] = response.notification.request.content.userInfo[@"execucaoId"];
