@@ -180,8 +180,9 @@ import WebKit
                         self.removeBiometricOverlay()
                     } else {
                         NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
-                        // Força a tela de login se não conseguiu renovar
-                        DispatchQueue.main.async {
+                        // Aguarda 0.5s para garantir que a UI do FaceID sumiu completamente
+                        // antes de tentarmos apresentar o modal do Safari/Keycloak, evitando conflitos de apresentação.
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             AuthManager.shared.startLogin(presenting: self) { [weak self] newLoginSuccess, _ in
                                 guard let self = self else { return }
                                 if newLoginSuccess {
