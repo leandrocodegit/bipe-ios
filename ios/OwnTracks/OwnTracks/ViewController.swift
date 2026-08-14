@@ -185,23 +185,22 @@ import WebKit
                     } else {
                         NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
                         
-                        // Aguarda 0.5s para garantir que a UI do FaceID sumiu completamente
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            AuthManager.shared.startLogin(presenting: self) { [weak self] newLoginSuccess, loginError in
-                                guard let self = self else { return }
-                                if newLoginSuccess {
-                                    self.notifyWebviewSession()
-                                    self.loadAndroidSetupRoute()
-                                    self.isBiometricUnlocked = true
-                                    self.removeBiometricOverlay()
-                                } else {
-                                    let msg = loginError?.localizedDescription ?? "Erro desconhecido ao abrir tela de login."
-                                    let alert = UIAlertController(title: "Erro de Autenticação", message: "Não foi possível abrir o login: \(msg)", preferredStyle: .alert)
-                                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                                    self.present(alert, animated: true)
-                                }
-                                self.isAuthenticating = false
+                        // Ao invés de forçar o navegador, chamamos a nossa bela tela de Login nativa!
+                        DispatchQueue.main.async {
+                            let loginVC = LoginViewController()
+                            loginVC.managedObjectContext = CoreData.sharedInstance().mainMOC
+                            loginVC.setCompletionHandler { [weak self] in
+                                self?.notifyWebviewSession()
+                                self?.loadAndroidSetupRoute()
+                                self?.isBiometricUnlocked = true
+                                self?.removeBiometricOverlay()
                             }
+                            
+                            let nav = UINavigationController(rootViewController: loginVC)
+                            nav.modalPresentationStyle = .fullScreen
+                            self.present(nav, animated: true, completion: nil)
+                            
+                            self.isAuthenticating = false
                         }
                     }
                 }
