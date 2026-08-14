@@ -1224,6 +1224,13 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 if url.host == "login" || url.host == "auth" {
                     decisionHandler(.cancel)
                     
+                    // Se o aplicativo já estiver mostrando o LoginViewController (ou qualquer outra modal), 
+                    // ignoramos o redirecionamento da WebView para evitar chamadas duplicadas de login!
+                    if self.presentedViewController != nil {
+                        NSLog("[ViewController] WebView tentou pedir login, mas já há uma tela modal aberta. Ignorando.")
+                        return
+                    }
+                    
                     if self.isAuthenticating { return }
                     self.isAuthenticating = true
                     
