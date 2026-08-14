@@ -102,7 +102,8 @@ public class BipeConfirmationViewController: UIViewController {
     }
     
     @objc private func confirmTapped() {
-        if let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate, let moc = CoreData.sharedInstance().mainMOC {
+        if let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+            let moc = CoreData.sharedInstance().mainMOC
             var json = [String: Any]()
             json["_type"] = "bipe"
             json["status"] = "COMPLETED"
