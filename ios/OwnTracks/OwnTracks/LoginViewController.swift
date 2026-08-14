@@ -213,7 +213,11 @@ class LoginViewController: UIViewController {
 
             if success {
                 self.setStatus(NSLocalizedString("Configurando dispositivo…", comment: ""))
-                self.performSetup(isStandardLogin: true)
+                // Aguarda 0.5s para garantir que o modal de login (SFAuthenticationSession) fechou completamente
+                // antes de tentarmos apresentar o alerta de FaceID ou dispensar a tela.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.performSetup(isStandardLogin: true)
+                }
             } else {
                 let msg = error?.localizedDescription ?? NSLocalizedString("Erro desconhecido", comment: "")
                 self.showError("\(NSLocalizedString("Falha no login", comment: "")): \(msg)")

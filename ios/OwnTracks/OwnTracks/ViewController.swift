@@ -1217,7 +1217,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                                 sessionStorage.setItem('access_token', '\(token)');
                                 sessionStorage.setItem('refresh_token', '\(refreshToken)');
                                 sessionStorage.setItem('id_token', '\(idToken)');
-                                window.location.href = '/distancia';
+                                window.location.href = '/android-setup';
                             """
                             DispatchQueue.main.async {
                                 self.webView?.evaluateJavaScript(script, completionHandler: nil)
