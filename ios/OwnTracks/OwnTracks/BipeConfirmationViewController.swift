@@ -102,11 +102,21 @@ public class BipeConfirmationViewController: UIViewController {
     }
     
     @objc private func confirmTapped() {
+        sendMqttStatus("COMPLETED")
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func closeTapped() {
+        sendMqttStatus("FORCED")
+        dismiss(animated: true, completion: nil)
+    }
+    
+    private func sendMqttStatus(_ status: String) {
         if let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
             let moc = CoreData.sharedInstance().mainMOC
             var json = [String: Any]()
             json["_type"] = "bipe"
-            json["status"] = "COMPLETED"
+            json["status"] = status
             
             if let execId = execucaoId, !execId.isEmpty {
                 json["execucaoId"] = execId
@@ -118,6 +128,28 @@ public class BipeConfirmationViewController: UIViewController {
             if let clienteId = Settings.string(forKey: "clientid_preference", inMOC: moc), !clienteId.isEmpty {
                 json["clienteId"] = clienteId
             }
+            
+            if let tid = Settings.string(forKey: "trackerid_preference", inMOC: moc), !tid.isEmpty {
+                json["tid"] = tid
+            }
+            if let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc), !deviceId.isEmpty {
+                json["deviceId"] = deviceId
+            }
+            var nickname = Settings.string(forKey: "device_name_preference", inMOC: moc)
+            if nickname == nil || nickname!.isEmpty {
+                nickname = Settings.string(forKey: "nickname_preference", inMOC: moc)
+            }
+            if let nick = nickname, !nick.isEmpty {
+                json["nickname"] = nick
+            }
+            if let face = Settings.string(forKey: "icon", inMOC: moc), !face.isEmpty {
+                json["face"] = face
+            }
+            if let color = Settings.string(forKey: "color", inMOC: moc), !color.isEmpty {
+                json["color"] = color
+            }
+            
+            json["button"] = ""
             
             if let payload = try? JSONSerialization.data(withJSONObject: json, options: []) {
                 if appDelegate.connection == nil {
@@ -131,14 +163,8 @@ public class BipeConfirmationViewController: UIViewController {
                 let topic = baseTopic.isEmpty ? "" : baseTopic + "/bipe"
                 
                 appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
-                print("[BipeConfirmationViewController] MQTT Payload bipe_confirm enviado")
+                print("[BipeConfirmationViewController] MQTT Payload bipe status \(status) enviado")
             }
         }
-        
-        dismiss(animated: true, completion: nil)
-    }
-    
-    @objc private func closeTapped() {
-        dismiss(animated: true, completion: nil)
     }
 }

@@ -393,6 +393,24 @@
             json[@"clienteId"] = clienteId;
         }
         
+        NSString *tid = [Settings stringForKey:@"trackerid_preference" inMOC:moc];
+        if (tid && tid.length > 0) json[@"tid"] = tid;
+        
+        NSString *deviceId = [Settings stringForKey:@"deviceid_preference" inMOC:moc];
+        if (deviceId && deviceId.length > 0) json[@"deviceId"] = deviceId;
+        
+        NSString *nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
+        if (!nickname || nickname.length == 0) nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
+        if (nickname && nickname.length > 0) json[@"nickname"] = nickname;
+        
+        NSString *face = [Settings stringForKey:@"icon" inMOC:moc];
+        if (face && face.length > 0) json[@"face"] = face;
+        
+        NSString *color = [Settings stringForKey:@"color" inMOC:moc];
+        if (color && color.length > 0) json[@"color"] = color;
+        
+        json[@"button"] = @"";
+        
         NSError *error;
         NSData *payload = [NSJSONSerialization dataWithJSONObject:json options:0 error:&error];
         if (payload && !error) {
