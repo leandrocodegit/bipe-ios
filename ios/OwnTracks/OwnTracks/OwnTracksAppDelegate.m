@@ -1600,11 +1600,14 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
             NSString *identifier = [NSString stringWithFormat:@"event_rx_%f", [NSDate date].timeIntervalSince1970];
             UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
             
-            [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-                if (error) {
-                    OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent notification error %@", error);
-                }
-            }];
+            BOOL isFromPush = (dictionary[@"aps"] != nil);
+            if (!isFromPush) {
+                [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+                    if (error) {
+                        OwnTracksLogError("[OwnTracksAppDelegate] performReceiveEvent notification error %@", error);
+                    }
+                }];
+            }
         } @catch (NSException *ex) {
             OwnTracksLogError("[OwnTracksAppDelegate] Notification exception: %@", ex);
         }
