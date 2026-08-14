@@ -376,8 +376,12 @@
         
         NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
         NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
-        json[@"_type"] = @"event";
-        json[@"event"] = @"bipe_confirm";
+        json[@"_type"] = @"bipe";
+        json[@"status"] = @"COMPLETED";
+        
+        if (response.notification.request.content.userInfo[@"execucaoId"]) {
+            json[@"execucaoId"] = response.notification.request.content.userInfo[@"execucaoId"];
+        }
         
         NSString *userName = [Settings stringForKey:@"user_preference" inMOC:moc];
         if (userName && userName.length > 0) {
@@ -403,6 +407,37 @@
                                   qos:[Settings intForKey:@"qos_preference" inMOC:moc]
                                retain:NO];
             OwnTracksLogDefault("[OwnTracksAppDelegate] MQTT Payload bipe_confirm enviado");
+        }
+    } else if ([response.actionIdentifier isEqualToString:UNNotificationDefaultActionIdentifier]) {
+        if ([response.notification.request.content.categoryIdentifier isEqualToString:@"BIPE_CATEGORY"]) {
+            OwnTracksLogDefault("[OwnTracksAppDelegate] Ação Padrão no Push BIPE_CATEGORY (App Aberto pelo Push)");
+            
+            NSDictionary *userInfo = response.notification.request.content.userInfo;
+            NSString *title = @"Novo Bipe";
+            NSString *body = @"Você recebeu um alerta de Bipe";
+            
+            NSDictionary *aps = userInfo[@"aps"];
+            if (aps && aps[@"alert"]) {
+                if ([aps[@"alert"] isKindOfClass:[NSDictionary class]]) {
+                    title = aps[@"alert"][@"title"] ? aps[@"alert"][@"title"] : title;
+                    body = aps[@"alert"][@"body"] ? aps[@"alert"][@"body"] : body;
+                }
+            }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                BipeConfirmationViewController *bipeVC = [[BipeConfirmationViewController alloc] init];
+                bipeVC.pushTitle = title;
+                bipeVC.pushBody = body;
+                if (userInfo[@"execucaoId"]) {
+                    bipeVC.execucaoId = userInfo[@"execucaoId"];
+                }
+                bipeVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+                
+                UIViewController *rootVC = self.window.rootViewController;
+                if (rootVC) {
+                    [rootVC presentViewController:bipeVC animated:YES completion:nil];
+                }
+            });
         }
     }
     
