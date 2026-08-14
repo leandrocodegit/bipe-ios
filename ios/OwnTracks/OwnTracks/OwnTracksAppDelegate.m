@@ -894,26 +894,8 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                                               ),
                                              components[0]];
             
-            UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-            content.body = notificationMessage;
-            content.sound = [UNNotificationSound defaultSound];
-            UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger
-                                                          triggerWithTimeInterval:1.0
-                                                          repeats:NO];
-            NSString *notificationIdentifier = [NSString stringWithFormat:@"region%f",
-                                                [NSDate date].timeIntervalSince1970];
-            
-            UNNotificationRequest* request =
-            [UNNotificationRequest requestWithIdentifier:notificationIdentifier
-                                                 content:content
-                                                 trigger:trigger];
-            UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-            [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-                if (error) {
-                    OwnTracksLogError("[OwnTracksAppDelegate] addNotificationRequest %@", error);
-                }
-            }];
-            
+            // O próprio aparelho não exibe mais notificação local de geofence.
+            // Apenas registra no histórico e manda para o servidor (linha 929+).
             [History historyInGroup:NSLocalizedString(@"Region",
                                                       @"Header of an alert message regarding circular region")
                            withText:notificationMessage
