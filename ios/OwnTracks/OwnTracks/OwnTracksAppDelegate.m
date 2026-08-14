@@ -401,8 +401,12 @@
                 self.connection.delegate = self;
                 [self.connection start];
             }
+            
+            NSString *baseTopic = [Settings theGeneralTopicInMOC:moc];
+            NSString *topic = baseTopic ? [baseTopic stringByAppendingString:@"/bipe"] : @"";
+            
             [self.connection sendData:payload
-                                topic:[Settings theGeneralTopicInMOC:moc]
+                                topic:topic
                            topicAlias:nil
                                   qos:[Settings intForKey:@"qos_preference" inMOC:moc]
                                retain:NO];
