@@ -139,7 +139,7 @@ class LoginViewController: UIViewController {
         
         if BiometricAuthManager.shared.canLoginWithBiometrics {
             biometricButton.isHidden = false
-            if !hasPromptedBiometrics {
+            if !hasPromptedBiometrics && !BiometricAuthManager.shared.isAuthenticating {
                 hasPromptedBiometrics = true
                 biometricLoginTapped()
             }
