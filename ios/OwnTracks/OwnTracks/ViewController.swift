@@ -178,7 +178,6 @@ import WebKit
                     guard let self = self else { return }
                     if authSuccess {
                         self.notifyWebviewSession()
-                        self.loadAndroidSetupRoute()
                         self.isBiometricUnlocked = true
                         self.removeBiometricOverlay()
                         self.isAuthenticating = false
@@ -191,8 +190,6 @@ import WebKit
                             loginVC.managedObjectContext = CoreData.sharedInstance().mainMOC
                             loginVC.setCompletionHandler { [weak self] in
                                 self?.notifyWebviewSession()
-                                let script = "setTimeout(function() { window.location.href = '/distancia'; }, 100);"
-                                self?.webView?.evaluateJavaScript(script, completionHandler: nil)
                                 self?.isBiometricUnlocked = true
                                 self?.removeBiometricOverlay()
                             }
@@ -1253,10 +1250,6 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                             let idToken = AuthManager.shared.getIdToken() ?? token
                             
                             self.notifyWebviewSession()
-                            let script = "setTimeout(function() { window.location.href = '/distancia'; }, 100);"
-                            DispatchQueue.main.async {
-                                self.webView?.evaluateJavaScript(script, completionHandler: nil)
-                            }
                         } else {
                             NSLog("[ViewController] Falha na autenticação nativa via interceptador: %@", error?.localizedDescription ?? "")
                         }
