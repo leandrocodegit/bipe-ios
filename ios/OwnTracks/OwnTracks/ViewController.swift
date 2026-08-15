@@ -50,6 +50,20 @@ import AppIntents
         mapView?.removeFromSuperview();
 
         setupWebView();
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    @objc private func appDidEnterBackground() {
+        if BiometricAuthManager.shared.isBiometricsEnabled && BiometricAuthManager.shared.isBiometricsAvailable {
+            isBiometricUnlocked = false
+            showBiometricOverlay()
+        }
+    }
+    
+    @objc private func appWillEnterForeground() {
+        checkAndApplyBiometricLock()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -205,11 +219,7 @@ import AppIntents
                 }
             } else {
                 self.isAuthenticating = false
-                if let err = error as? NSError, err.code != -2 { // -2 é userCancel
-                    let alert = UIAlertController(title: "Face ID", message: "Falha na biometria: \(err.localizedDescription)", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    self.present(alert, animated: true)
-                }
+                NSLog("[ViewController] Autenticação biométrica no bloqueio não concluída: %@", error?.localizedDescription ?? "")
             }
         }
     }
