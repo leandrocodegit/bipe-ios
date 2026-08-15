@@ -182,38 +182,39 @@ import AppIntents
     }
 
     private func evaluateBiometricsForLock() {
-        if isAuthenticating { return }
+        if isAuthenticating || BiometricAuthManager.shared.isAuthenticating { return }
         isAuthenticating = true
         
         BiometricAuthManager.shared.authenticate { [weak self] success, error in
             guard let self = self else { return }
             if success {
+                self.isBiometricUnlocked = true
+                self.removeBiometricOverlay()
+                self.notifyWebviewSession()
+                
                 // Renova o token de acesso com o Keycloak usando o Refresh Token salvo
                 AuthManager.shared.loginWithRefreshToken { [weak self] authSuccess, authError in
                     guard let self = self else { return }
+                    self.isAuthenticating = false
                     if authSuccess {
                         self.notifyWebviewSession()
-                        self.isBiometricUnlocked = true
-                        self.removeBiometricOverlay()
-                        self.isAuthenticating = false
                     } else {
                         NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
                         
-                        // Ao invés de forçar o navegador, chamamos a nossa bela tela de Login nativa!
-                        DispatchQueue.main.async {
-                            let loginVC = LoginViewController()
-                            loginVC.managedObjectContext = CoreData.sharedInstance().mainMOC
-                            loginVC.setCompletionHandler { [weak self] in
-                                self?.notifyWebviewSession()
-                                self?.isBiometricUnlocked = true
-                                self?.removeBiometricOverlay()
+                        if !AuthManager.shared.isAuthorized {
+                            DispatchQueue.main.async {
+                                let loginVC = LoginViewController()
+                                loginVC.managedObjectContext = CoreData.sharedInstance().mainMOC
+                                loginVC.setCompletionHandler { [weak self] in
+                                    self?.notifyWebviewSession()
+                                    self?.isBiometricUnlocked = true
+                                    self?.removeBiometricOverlay()
+                                }
+                                
+                                let nav = UINavigationController(rootViewController: loginVC)
+                                nav.modalPresentationStyle = .fullScreen
+                                self.present(nav, animated: true, completion: nil)
                             }
-                            
-                            let nav = UINavigationController(rootViewController: loginVC)
-                            nav.modalPresentationStyle = .fullScreen
-                            self.present(nav, animated: true, completion: nil)
-                            
-                            self.isAuthenticating = false
                         }
                     }
                 }
@@ -1242,43 +1243,73 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 if url.host == "login" || url.host == "auth" {
                     decisionHandler(.cancel)
                     
-                    // Se o aplicativo já estiver mostrando o LoginViewController (ou qualquer outra modal), 
-                    // ignoramos o redirecionamento da WebView para evitar chamadas duplicadas de login!
-                    if self.presentedViewController != nil {
-                        NSLog("[ViewController] WebView tentou pedir login, mas já há uma tela modal aberta. Ignorando.")
+                    // Se o aplicativo já estiver mostrando o LoginViewController (ou qualquer outra modal),
+                    // ou se já houver fluxo de autenticação rodando, ignora chamadas duplicadas.
+                    if self.presentedViewController != nil || self.isAuthenticating || BiometricAuthManager.shared.isAuthenticating {
+                        NSLog("[ViewController] WebView tentou pedir login, mas já há uma tela modal ou autenticação em andamento. Ignorando.")
                         return
                     }
                     
-                    if self.isAuthenticating { return }
+                    // Se o aplicativo JÁ está desbloqueado ou possui sessão Keycloak válida, apenas entrega as credenciais para a WebView sem pedir Face ID novamente!
+                    if self.isBiometricUnlocked || AuthManager.shared.isAuthorized {
+                        NSLog("[ViewController] WebView pediu login, mas o app já está desbloqueado/autorizado. Notificando sessão...")
+                        self.notifyWebviewSession()
+                        return
+                    }
+
                     self.isAuthenticating = true
                     
                     let handleAuthSuccess: (Bool, Error?) -> Void = { [weak self] success, error in
                         guard let self = self else { return }
                         self.isAuthenticating = false
                         if success {
-                            let token = AuthManager.shared.getAccessToken() ?? ""
-                            let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
-                            let idToken = AuthManager.shared.getIdToken() ?? token
-                            
+                            self.isBiometricUnlocked = true
+                            self.removeBiometricOverlay()
                             self.notifyWebviewSession()
                         } else {
                             NSLog("[ViewController] Falha na autenticação nativa via interceptador: %@", error?.localizedDescription ?? "")
                         }
                     }
                     
-                    if BiometricAuthManager.shared.canLoginWithBiometrics {
-                        BiometricAuthManager.shared.authenticate { success, error in
+                    // Se houver refresh token salvo, tenta primeiro a renovação silenciosa em background sem exibir Face ID
+                    if AuthManager.shared.getRefreshToken() != nil {
+                        AuthManager.shared.loginWithRefreshToken { [weak self] authSuccess, authError in
+                            guard let self = self else { return }
+                            if authSuccess {
+                                handleAuthSuccess(true, nil)
+                            } else {
+                                // Se a renovação silenciosa falhou, chama biometria ou login manual
+                                if BiometricAuthManager.shared.canLoginWithBiometrics {
+                                    BiometricAuthManager.shared.authenticate { success, error in
+                                        if success {
+                                            AuthManager.shared.loginWithRefreshToken(completion: handleAuthSuccess)
+                                        } else {
+                                            DispatchQueue.main.async {
+                                                AuthManager.shared.startLogin(presenting: self, completion: handleAuthSuccess)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    DispatchQueue.main.async {
+                                        AuthManager.shared.startLogin(presenting: self, completion: handleAuthSuccess)
+                                    }
+                                }
+                            }
+                        }
+                    } else if BiometricAuthManager.shared.canLoginWithBiometrics {
+                        BiometricAuthManager.shared.authenticate { [weak self] success, error in
+                            guard let self = self else { return }
                             if success {
                                 AuthManager.shared.loginWithRefreshToken(completion: handleAuthSuccess)
                             } else {
-                                // Se a biometria falhar ou for cancelada, cai pro login manual
                                 DispatchQueue.main.async {
                                     AuthManager.shared.startLogin(presenting: self, completion: handleAuthSuccess)
                                 }
                             }
                         }
                     } else {
-                        DispatchQueue.main.async {
+                        DispatchQueue.main.async { [weak self] in
+                            guard let self = self else { return }
                             AuthManager.shared.startLogin(presenting: self, completion: handleAuthSuccess)
                         }
                     }

@@ -80,17 +80,27 @@ import Security
         return isBiometricsAvailable && isBiometricsEnabled && getStoredRefreshToken() != nil
     }
 
+    private(set) var isAuthenticating = false
+
     // MARK: - Autenticação Biométrica
 
     /// Executa a leitura da biometria (Face ID / Touch ID)
     @objc func authenticate(reason: String? = nil, completion: @escaping (Bool, Error?) -> Void) {
+        if isAuthenticating {
+            NSLog("[BiometricAuthManager] Autenticação biométrica já está em andamento. Ignorando chamada duplicada.")
+            completion(false, NSError(domain: "BiometricAuthManager", code: -2, userInfo: [NSLocalizedDescriptionKey: "Autenticação em andamento"]))
+            return
+        }
+
+        isAuthenticating = true
         let context = LAContext()
         context.localizedCancelTitle = NSLocalizedString("Cancelar", comment: "")
         
         let localizedReason = reason ?? String(format: NSLocalizedString("Autentique-se com %@ para acessar o Bipe.me", comment: ""), biometricName)
 
-        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: localizedReason) { success, error in
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: localizedReason) { [weak self] success, error in
             DispatchQueue.main.async {
+                self?.isAuthenticating = false
                 completion(success, error)
             }
         }
