@@ -1708,10 +1708,10 @@ struct BipeEmergencyIntent: AppIntent {
         if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
             // Alta prioridade: QoS 2 (ExactlyOnce), não retido
             if let qos = MQTTQosLevel(rawValue: UInt8(2)) {
-                delegate.connection?.sendData(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
+                delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
             } else {
                 // Fallback caso enum não mapeie bem
-                delegate.connection?.sendData(data, topic: bipeTopic, topicAlias: nil, qos: MQTTQosLevelExactlyOnce, retain: false)
+                delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: MQTTQosLevelExactlyOnce, retain: false)
             }
         }
         
