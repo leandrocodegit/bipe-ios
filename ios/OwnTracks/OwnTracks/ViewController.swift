@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import MapKit
 import WebKit
+import AppIntents
 
 @objc class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
     @IBOutlet weak var mapView: MKMapView!;
@@ -1673,5 +1674,43 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         
         LocationManager.sharedInstance().resetRegions()
         NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil)
+    }
+}
+
+// MARK: - App Intents (Botão de Ação do iPhone 15 Pro / Siri Shortcuts)
+@available(iOS 16.0, *)
+struct BipeEmergencyIntent: AppIntent {
+    static var title: LocalizedStringResource = "Botão de Emergência"
+    static var description = IntentDescription("Aciona o alerta de emergência do aplicativo.")
+    
+    static var openAppWhenRun: Bool = false // Não precisa abrir o app, roda no background nativamente!
+    
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        let moc = CoreData.sharedInstance().mainMOC
+        let generalTopic = Settings.theGeneralTopic(inMOC: moc)
+        let bipeTopic = "\(generalTopic)/bipe"
+        
+        let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
+        let nickname = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? ""
+        
+        let payload: [String: Any] = [
+            "_type": "bipe",
+            "status": "EMERGENCY",
+            "deviceId": deviceId,
+            "nickname": nickname
+        ]
+        
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
+            // Alta prioridade: QoS 2 (ExactlyOnce), não retido
+            if let qos = MQTTQosLevel(rawValue: UInt8(2)) {
+                Connection.sharedInstance().sendData(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
+            } else {
+                // Fallback caso enum não mapeie bem
+                Connection.sharedInstance().sendData(data, topic: bipeTopic, topicAlias: nil, qos: MQTTQosLevelExactlyOnce, retain: false)
+            }
+        }
+        
+        return .result()
     }
 }
