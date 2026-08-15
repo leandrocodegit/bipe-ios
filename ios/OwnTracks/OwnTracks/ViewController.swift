@@ -1711,7 +1711,7 @@ struct BipeEmergencyIntent: AppIntent {
                 delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
             } else {
                 // Fallback caso enum não mapeie bem
-                delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: MQTTQosLevelExactlyOnce, retain: false)
+                delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: .exactlyOnce, retain: false)
             }
         }
         
