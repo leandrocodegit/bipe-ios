@@ -1235,6 +1235,9 @@ import AppIntents
 extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         notifyWebviewSession()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.notifyWebviewSession()
+        }
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -1475,9 +1478,19 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         switch message.name {
         case "logout":
             DispatchQueue.main.async { [weak self] in
-                _ = self
+                guard let self = self else { return }
+                self.isBiometricUnlocked = false
+                self.isAuthenticating = false
+                self.removeBiometricOverlay()
+                
+                // Limpa completamente os dados armazenados na WKWebView (cookies, localStorage, sessão)
+                let dataStore = WKWebsiteDataStore.default()
+                let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
+                dataStore.removeData(ofTypes: dataTypes, modifiedSince: Date(timeIntervalSince1970: 0)) {}
+                
                 AuthManager.shared.logout()
                 SetupService.shared.resetSetup()
+                
                 if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
                     delegate.presentLoginViewController()
                 }
