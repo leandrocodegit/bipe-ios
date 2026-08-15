@@ -1687,6 +1687,10 @@ struct BipeEmergencyIntent: AppIntent {
     
     @MainActor
     func perform() async throws -> some IntentResult {
+        guard let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else {
+            return .result()
+        }
+        
         let moc = CoreData.sharedInstance().mainMOC
         let generalTopic = Settings.theGeneralTopic(inMOC: moc)
         let bipeTopic = "\(generalTopic)/bipe"
@@ -1704,10 +1708,10 @@ struct BipeEmergencyIntent: AppIntent {
         if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
             // Alta prioridade: QoS 2 (ExactlyOnce), não retido
             if let qos = MQTTQosLevel(rawValue: UInt8(2)) {
-                Connection.sharedInstance().sendData(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
+                delegate.connection?.sendData(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
             } else {
                 // Fallback caso enum não mapeie bem
-                Connection.sharedInstance().sendData(data, topic: bipeTopic, topicAlias: nil, qos: MQTTQosLevelExactlyOnce, retain: false)
+                delegate.connection?.sendData(data, topic: bipeTopic, topicAlias: nil, qos: MQTTQosLevelExactlyOnce, retain: false)
             }
         }
         
