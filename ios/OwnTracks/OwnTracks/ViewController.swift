@@ -1209,13 +1209,13 @@ import WebKit
         view.bringSubviewToFront(topBar)
         view.bringSubviewToFront(webView)
 
-        if let url = URL(string: "https://bipe.simodapp.com/auth") {
+        if let url = URL(string: "https://bipe.simodapp.com/distancia") {
             webView.load(URLRequest(url: url))
         }
     }
 
     @objc func loadAndroidSetupRoute() {
-        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/auth") else { return }
+        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/distancia") else { return }
         DispatchQueue.main.async {
             webView.load(URLRequest(url: url))
         }
