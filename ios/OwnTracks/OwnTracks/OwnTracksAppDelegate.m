@@ -344,6 +344,19 @@
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
     OwnTracksLogDebug("[OwnTracksAppDelegate] willPresentNotification");
+    
+    NSDictionary *userInfo = notification.request.content.userInfo;
+    NSString *type = nil;
+    if (userInfo[@"type"]) {
+        type = [NSString stringWithFormat:@"%@", userInfo[@"type"]];
+    } else if ([userInfo[@"data"] isKindOfClass:[NSDictionary class]] && userInfo[@"data"][@"type"]) {
+        type = [NSString stringWithFormat:@"%@", userInfo[@"data"][@"type"]];
+    }
+    
+    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"]) {
+        [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
+    }
+
     completionHandler(UNNotificationPresentationOptionList |
                       UNNotificationPresentationOptionBanner |
                       UNNotificationPresentationOptionSound);
@@ -371,8 +384,19 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     OwnTracksLogDefault("[OwnTracksAppDelegate] didReceiveRemoteNotification: %@", userInfo);
     
+    NSString *type = nil;
+    if (userInfo[@"type"]) {
+        type = [NSString stringWithFormat:@"%@", userInfo[@"type"]];
+    } else if ([userInfo[@"data"] isKindOfClass:[NSDictionary class]] && userInfo[@"data"][@"type"]) {
+        type = [NSString stringWithFormat:@"%@", userInfo[@"data"][@"type"]];
+    }
+    
+    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"]) {
+        [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
+    }
+    
     // Se o payload conter campos de evento do Bipe, processamos via a mesma função do MQTT
-    if (userInfo[@"event"] != nil || userInfo[@"desc"] != nil || userInfo[@"text"] != nil || userInfo[@"nickname"] != nil) {
+    if (userInfo[@"event"] != nil || userInfo[@"desc"] != nil || userInfo[@"text"] != nil || userInfo[@"nickname"] != nil || type != nil) {
         [self performReceiveEvent:userInfo];
     }
     

@@ -1797,6 +1797,36 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     }
 }
 
+// MARK: - BipeHapticsHelper (Vibração Prolongada de Chamada de Atenção)
+
+@objc class BipeHapticsHelper: NSObject {
+    @objc static func playAttentionVibration() {
+        playAttentionVibration(durationSeconds: 6.0)
+    }
+
+    @objc static func playAttentionVibration(durationSeconds: Double = 6.0) {
+        DispatchQueue.main.async {
+            if #available(iOS 13.0, *) {
+                let generator = UINotificationFeedbackGenerator()
+                generator.prepare()
+                
+                var elapsed = 0.0
+                let interval = 0.35
+                
+                Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { timer in
+                    generator.notificationOccurred(.warning)
+                    elapsed += interval
+                    if elapsed >= durationSeconds {
+                        timer.invalidate()
+                    }
+                }
+            } else {
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            }
+        }
+    }
+}
+
 // MARK: - App Intents & Shortcuts (Botão de Ação do iPhone / Siri Shortcuts)
 @available(iOS 16.0, *)
 struct BipeEmergencyIntent: AppIntent {
