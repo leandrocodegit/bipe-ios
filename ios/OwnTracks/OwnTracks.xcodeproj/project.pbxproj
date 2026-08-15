@@ -31,6 +31,7 @@
 		BIPE00000000000000000012 /* bipe_call.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000011 /* bipe_call.wav */; };
 		BIPE00000000000000000014 /* bipe_exit.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000013 /* bipe_exit.wav */; };
 		BIPE00000000000000000016 /* bipe_sim.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000015 /* bipe_sim.wav */; };
+		BIPE00000000000000000018 /* bipe_digital.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000017 /* bipe_digital.mp3 */; };
 		8411B843189FDB140019D2D6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8411B842189FDB140019D2D6 /* Images.xcassets */; };
 		8411B87F189FE35C0019D2D6 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8411B87D189FE35C0019D2D6 /* Model.xcdatamodeld */; };
 		8411B88B189FE79B0019D2D6 /* CoreData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B889189FE79B0019D2D6 /* CoreData.m */; };
@@ -205,6 +206,7 @@
 		BIPE00000000000000000011 /* bipe_call.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_call.wav"; sourceTree = "<group>"; };
 		BIPE00000000000000000013 /* bipe_exit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_exit.wav"; sourceTree = "<group>"; };
 		BIPE00000000000000000015 /* bipe_sim.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_sim.wav"; sourceTree = "<group>"; };
+		BIPE00000000000000000017 /* bipe_digital.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "bipe_digital.mp3"; sourceTree = "<group>"; };
 		8411B842189FDB140019D2D6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		8411B849189FDB140019D2D6 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		8411B860189FDD200019D2D6 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -549,6 +551,7 @@
 				BIPE00000000000000000011 /* bipe_call.wav */,
 				BIPE00000000000000000013 /* bipe_exit.wav */,
 				BIPE00000000000000000015 /* bipe_sim.wav */,
+				BIPE00000000000000000017 /* bipe_digital.mp3 */,
 				84BDD0CF2F2A815500358CC2 /* OwnTracksLog.h */,
 				84BDD0D02F2A815500358CC2 /* OwnTracksLog.m */,
 				847444381DA4BC9600975BE4 /* ConnType.h */,
@@ -918,6 +921,7 @@
 				BIPE00000000000000000012 /* bipe_call.wav in Resources */,
 				BIPE00000000000000000014 /* bipe_exit.wav in Resources */,
 				BIPE00000000000000000016 /* bipe_sim.wav in Resources */,
+				BIPE00000000000000000018 /* bipe_digital.mp3 in Resources */,
 				8479EEB718E4529900923B24 /* MQTT.plist in Resources */,
 				8400D9731D83825E00DEA134 /* HTTP.plist in Resources */,
 				843B91721C8A14BF00DBD306 /* Storyboard.storyboard in Resources */,

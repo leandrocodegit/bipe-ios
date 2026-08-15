@@ -207,9 +207,11 @@ import WebKit
                 }
             } else {
                 self.isAuthenticating = false
-                // Não mostramos UIAlert para erro de FaceID porque o iOS lança erros como "systemCancel"
-                // ou "interaction required" se o app estiver acordando, o que spamma o usuário.
-                // O usuário pode simplesmente clicar no botão para tentar novamente.
+                if let err = error as? NSError, err.code != -2 { // -2 é userCancel
+                    let alert = UIAlertController(title: "Face ID", message: "Falha na biometria: \(err.localizedDescription)", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(alert, animated: true)
+                }
             }
         }
     }
