@@ -1731,44 +1731,103 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     }
 }
 
-// MARK: - App Intents (Botão de Ação do iPhone 15 Pro / Siri Shortcuts)
+// MARK: - BipeEmergencyHelper (Suporte ao Botão de Ação e Deep Links)
+
+@objc class BipeEmergencyHelper: NSObject {
+    
+    @objc static func sendEmergencyAlert() {
+        sendEmergencyAlert(completion: nil)
+    }
+
+    @objc static func sendEmergencyAlert(completion: ((Bool) -> Void)?) {
+        DispatchQueue.main.async {
+            // Feedback tátil ao pressionar o botão de ação / acionar o atalho
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.warning)
+            
+            guard let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else {
+                NSLog("[BipeEmergencyHelper] Erro: OwnTracksAppDelegate não disponível")
+                completion?(false)
+                return
+            }
+            
+            let moc = CoreData.sharedInstance().mainMOC
+            let baseTopic = Settings.theGeneralTopic(inMOC: moc) ?? ""
+            let bipeTopic = baseTopic.isEmpty ? "bipe" : "\(baseTopic)/bipe"
+            
+            let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
+            let nickname = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? ""
+            let face = Settings.string(forKey: "icon", inMOC: moc) ?? ""
+            let color = Settings.string(forKey: "color", inMOC: moc) ?? ""
+            
+            var payload: [String: Any] = [
+                "_type": "bipe",
+                "status": "EMERGENCY",
+                "deviceId": deviceId,
+                "nickname": nickname,
+                "tst": Int64(Date().timeIntervalSince1970)
+            ]
+            if !face.isEmpty { payload["face"] = face }
+            if !color.isEmpty { payload["color"] = color }
+            
+            // Garante que a conexão MQTT esteja instanciada e conectada
+            if delegate.connection == nil {
+                delegate.connection = Connection()
+                delegate.connection?.delegate = delegate
+                delegate.connection?.start()
+            }
+            delegate.connection?.connectToLast()
+            
+            if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
+                let qos = MQTTQosLevel(rawValue: UInt8(Settings.int(forKey: "qos_preference", inMOC: moc))) ?? .exactlyOnce
+                delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
+                NSLog("[BipeEmergencyHelper] Alerta de emergência enviado via MQTT para o tópico: %@", bipeTopic)
+                
+                // Feedback tátil de confirmação de sucesso
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    let successGen = UINotificationFeedbackGenerator()
+                    successGen.notificationOccurred(.success)
+                }
+                completion?(true)
+            } else {
+                NSLog("[BipeEmergencyHelper] Erro ao serializar o payload JSON de emergência")
+                completion?(false)
+            }
+        }
+    }
+}
+
+// MARK: - App Intents & Shortcuts (Botão de Ação do iPhone / Siri Shortcuts)
 @available(iOS 16.0, *)
 struct BipeEmergencyIntent: AppIntent {
-    static var title: LocalizedStringResource = "Botão de Emergência"
-    static var description = IntentDescription("Aciona o alerta de emergência do aplicativo.")
+    static var title: LocalizedStringResource = "Enviar Bipe de Emergência"
+    static var description = IntentDescription("Envia um alerta de emergência instantâneo pelo Bipe.me.")
     
-    static var openAppWhenRun: Bool = false // Não precisa abrir o app, roda no background nativamente!
+    static var openAppWhenRun: Bool = false
     
     @MainActor
     func perform() async throws -> some IntentResult {
-        guard let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else {
-            return .result()
-        }
-        
-        let moc = CoreData.sharedInstance().mainMOC
-        let generalTopic = Settings.theGeneralTopic(inMOC: moc)
-        let bipeTopic = "\(generalTopic)/bipe"
-        
-        let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
-        let nickname = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? ""
-        
-        let payload: [String: Any] = [
-            "_type": "bipe",
-            "status": "EMERGENCY",
-            "deviceId": deviceId,
-            "nickname": nickname
-        ]
-        
-        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
-            // Alta prioridade: QoS 2 (ExactlyOnce), não retido
-            if let qos = MQTTQosLevel(rawValue: UInt8(2)) {
-                delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
-            } else {
-                // Fallback caso enum não mapeie bem
-                delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: .exactlyOnce, retain: false)
+        await withCheckedContinuation { continuation in
+            BipeEmergencyHelper.sendEmergencyAlert { _ in
+                continuation.resume()
             }
         }
-        
         return .result()
+    }
+}
+
+@available(iOS 16.0, *)
+struct BipeShortcutsProvider: AppShortcutsProvider {
+    static var appShortcuts: [AppShortcut] {
+        AppShortcut(
+            intent: BipeEmergencyIntent(),
+            phrases: [
+                "Enviar emergência no \(.applicationName)",
+                "Alerta de emergência no \(.applicationName)",
+                "Socorro no \(.applicationName)"
+            ],
+            shortTitle: "Bipe de Emergência",
+            systemImageName: "exclamationmark.triangle.fill"
+        )
     }
 }

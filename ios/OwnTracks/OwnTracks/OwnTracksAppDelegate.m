@@ -283,6 +283,16 @@
         return [AuthManager.shared handleRedirectURL:url];
     }
 
+    // Handlers para esquemas de URL do Botão de Ação / Atalhos (ex: bipe.me://emergency, bipe.me://panic, bipe.me://alerta, owntracks://emergency)
+    NSString *host = [url.host lowercaseString];
+    NSString *path = [url.path lowercaseString];
+    if ([host isEqualToString:@"emergency"] || [host isEqualToString:@"panic"] || [host isEqualToString:@"alerta"] ||
+        [path isEqualToString:@"/emergency"] || [path isEqualToString:@"/panic"] || [path isEqualToString:@"/alerta"]) {
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Trigger de emergência via URL: %@", url);
+        [BipeEmergencyHelper sendEmergencyAlert];
+        return TRUE;
+    }
+
     OwnTracksLogDebug("[OwnTracksAppDelegate] URL scheme %@", url.scheme);
 
     if ([url.scheme isEqualToString:@"owntracks"]) {
