@@ -68,7 +68,25 @@ enum SetupError: LocalizedError {
     @objc static let setupCompletedKey = "setupCompleted"
 
     @objc var isSetupCompleted: Bool {
-        return UserDefaults.standard.bool(forKey: SetupService.setupCompletedKey)
+        if UserDefaults.standard.bool(forKey: SetupService.setupCompletedKey) {
+            return true
+        }
+
+        let moc = CoreData.sharedInstance().mainMOC
+        var hasDeviceId = false
+        moc.performAndWait {
+            if let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc),
+               !deviceId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                hasDeviceId = true
+            }
+        }
+
+        if hasDeviceId {
+            markSetupCompleted()
+            return true
+        }
+
+        return false
     }
 
     @objc func markSetupCompleted() {
@@ -118,6 +136,11 @@ enum SetupError: LocalizedError {
         context: NSManagedObjectContext,
         completion: @escaping (Bool, Error?) -> Void
     ) {
+        if isSetupCompleted {
+            NSLog("[SetupService] Setup já realizado e deviceId configurado. Ignorando chamada repetida ao endpoint /bipe/devices/setup.")
+            DispatchQueue.main.async { completion(true, nil) }
+            return
+        }
         AuthManager.shared.getBearerToken { [weak self] bearerToken in
             guard let self = self else { return }
             guard let bearerToken = bearerToken else {

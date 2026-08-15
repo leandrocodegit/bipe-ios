@@ -270,6 +270,16 @@ class LoginViewController: UIViewController {
             return
         }
 
+        if setupService.isSetupCompleted {
+            NSLog("[LoginViewController] DeviceId já configurado e setup concluído. Pulando chamada de setup.")
+            if isStandardLogin && BiometricAuthManager.shared.isBiometricsAvailable && !BiometricAuthManager.shared.isBiometricsEnabled {
+                self.promptEnableBiometricsIfNeeded()
+            } else {
+                self.dismissAndStart()
+            }
+            return
+        }
+
         setupService.performDeviceSetup(context: moc) { [weak self] success, error in
             guard let self = self else { return }
 
