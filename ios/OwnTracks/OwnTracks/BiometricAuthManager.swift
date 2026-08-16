@@ -84,7 +84,7 @@ import Security
 
     // MARK: - Autenticação Biométrica
 
-    /// Executa a leitura da biometria (Face ID / Touch ID)
+    /// Executa a leitura da biometria (Face ID / Touch ID) com fallback automático para a Senha do Dispositivo
     @objc func authenticate(reason: String? = nil, completion: @escaping (Bool, Error?) -> Void) {
         if isAuthenticating {
             NSLog("[BiometricAuthManager] Autenticação biométrica já está em andamento. Ignorando chamada duplicada.")
@@ -95,13 +95,31 @@ import Security
         isAuthenticating = true
         let context = LAContext()
         context.localizedCancelTitle = NSLocalizedString("Cancelar", comment: "")
+        context.localizedFallbackTitle = NSLocalizedString("Digite a Senha", comment: "")
         
         let localizedReason = reason ?? String(format: NSLocalizedString("Autentique-se com %@ para acessar o Bipe.me", comment: ""), biometricName)
 
         context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: localizedReason) { [weak self] success, error in
-            DispatchQueue.main.async {
-                self?.isAuthenticating = false
-                completion(success, error)
+            if success {
+                DispatchQueue.main.async {
+                    self?.isAuthenticating = false
+                    completion(true, nil)
+                }
+            } else if let laError = error as? LAError, laError.code == .userFallback || laError.code == .biometryLockout {
+                // Se o usuário clicou em "Digite a Senha" ou se o Face ID foi bloqueado após tentativas incorretas,
+                // solicita a senha do dispositivo (.deviceOwnerAuthentication)
+                let passcodeContext = LAContext()
+                passcodeContext.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: localizedReason) { passcodeSuccess, passcodeError in
+                    DispatchQueue.main.async {
+                        self?.isAuthenticating = false
+                        completion(passcodeSuccess, passcodeError)
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self?.isAuthenticating = false
+                    completion(false, error)
+                }
             }
         }
     }

@@ -1254,8 +1254,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         return
                     }
                     
-                    // Se o aplicativo JÁ está desbloqueado ou possui sessão Keycloak válida, apenas entrega as credenciais para a WebView sem pedir Face ID novamente!
-                    if self.isBiometricUnlocked || AuthManager.shared.isAuthorized {
+                    // Se a biometria não estiver ativada, ou se o app já foi desbloqueado pelo usuário nesta sessão, entrega as credenciais para a WebView
+                    let isUnlockedOrNoBiometrics = !BiometricAuthManager.shared.isBiometricsEnabled || self.isBiometricUnlocked
+                    if isUnlockedOrNoBiometrics && AuthManager.shared.isAuthorized {
                         NSLog("[ViewController] WebView pediu login, mas o app já está desbloqueado/autorizado. Notificando sessão...")
                         self.notifyWebviewSession()
                         return
