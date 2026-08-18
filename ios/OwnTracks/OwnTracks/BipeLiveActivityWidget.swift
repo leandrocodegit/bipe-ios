@@ -11,6 +11,14 @@ import ActivityKit
 import SwiftUI
 
 @available(iOS 16.1, *)
+@main
+struct BipeWidgetBundle: WidgetBundle {
+    var body: some Widget {
+        BipeLiveActivityWidget()
+    }
+}
+
+@available(iOS 16.1, *)
 struct BipeIconView: View {
     let iconLocalPath: String?
     

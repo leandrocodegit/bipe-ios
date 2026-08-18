@@ -1877,52 +1877,83 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
     private static let appGroupSuite = "group.br.com.bipe.me"
 
     @objc static func processBipePushNotificationPayload(_ userInfo: NSDictionary) {
+        NSLog("[BipeLiveActivityManager] Recebido push payload: %@", userInfo)
+        
+        var dataDict: [String: Any]? = userInfo["data"] as? [String: Any]
+        if dataDict == nil, let dataString = userInfo["data"] as? String, let data = dataString.data(using: .utf8) {
+            dataDict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        }
+        
         let type = (userInfo["type"] as? String)
-            ?? ((userInfo["data"] as? [String: Any])?["type"] as? String)
+            ?? (dataDict?["type"] as? String)
             ?? (userInfo["_type"] as? String)
-            ?? ((userInfo["data"] as? [String: Any])?["_type"] as? String)
+            ?? (dataDict?["_type"] as? String)
+            ?? (userInfo["event"] as? String)
+            ?? (dataDict?["event"] as? String)
         
         let status = (userInfo["status"] as? String)
-            ?? ((userInfo["data"] as? [String: Any])?["status"] as? String)
+            ?? (dataDict?["status"] as? String)
+            ?? (userInfo["_status"] as? String)
+            ?? (dataDict?["_status"] as? String)
         
-        guard let typeStr = type, typeStr.caseInsensitiveCompare("bipe_alert") == .orderedSame,
-              let statusStr = status, statusStr.caseInsensitiveCompare("emergency") == .orderedSame else {
+        let typeLower = type?.lowercased() ?? ""
+        let statusLower = status?.lowercased() ?? ""
+        
+        let isEmergencyType = typeLower.contains("emergency") || typeLower.contains("bipe_alert") || typeLower.contains("vibrate") || typeLower.contains("bipe") || typeLower.contains("alert")
+        let isEmergencyStatus = statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
+        
+        // Dispara se type ou status for emergency / bipe_alert / vibrate
+        guard isEmergencyType || isEmergencyStatus else {
+            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@'). Não corresponde a bipe_alert/emergency.", typeLower, statusLower)
             return
         }
         
         if #available(iOS 16.1, *) {
             let moc = CoreData.sharedInstance().mainMOC
             let nickname = (userInfo["nickname"] as? String)
-                ?? ((userInfo["data"] as? [String: Any])?["nickname"] as? String)
+                ?? (dataDict?["nickname"] as? String)
                 ?? (userInfo["name"] as? String)
+                ?? (dataDict?["name"] as? String)
                 ?? (userInfo["userName"] as? String)
+                ?? (dataDict?["userName"] as? String)
                 ?? Settings.string(forKey: "user_preference", inMOC: moc)
                 ?? "Bipe.me"
             
             var address = (userInfo["address"] as? String)
-                ?? ((userInfo["data"] as? [String: Any])?["address"] as? String)
+                ?? (dataDict?["address"] as? String)
                 ?? (userInfo["endereco"] as? String)
-                ?? ((userInfo["data"] as? [String: Any])?["endereco"] as? String)
+                ?? (dataDict?["endereco"] as? String)
                 ?? (userInfo["locationName"] as? String)
+                ?? (dataDict?["locationName"] as? String)
                 ?? (userInfo["desc"] as? String)
+                ?? (dataDict?["desc"] as? String)
                 ?? (userInfo["text"] as? String)
+                ?? (dataDict?["text"] as? String)
             
             if address == nil || address?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true {
                 address = "Localização atual"
             }
             
             let iconUrl = (userInfo["icon"] as? String)
-                ?? ((userInfo["data"] as? [String: Any])?["icon"] as? String)
+                ?? (dataDict?["icon"] as? String)
                 ?? (userInfo["iconUrl"] as? String)
+                ?? (dataDict?["iconUrl"] as? String)
                 ?? (userInfo["image"] as? String)
+                ?? (dataDict?["image"] as? String)
                 ?? (userInfo["imageUrl"] as? String)
+                ?? (dataDict?["imageUrl"] as? String)
                 ?? (userInfo["avatar"] as? String)
+                ?? (dataDict?["avatar"] as? String)
+            
+            let statusDisplay = statusLower.contains("emergency") || statusLower.contains("emergenc") ? "emergency" : (status ?? "emergency")
+            
+            NSLog("[BipeLiveActivityManager] Iniciando Live Activity para nickname: '%@', address: '%@', iconUrl: '%@'", nickname, address ?? "", iconUrl ?? "nil")
             
             downloadIconAndStartLiveActivity(
                 nickname: nickname,
                 address: address ?? "Localização atual",
                 iconUrl: iconUrl,
-                status: statusStr
+                status: statusDisplay
             )
         } else {
             NSLog("[BipeLiveActivityManager] Live Activities não suportadas nesta versão do iOS.")
