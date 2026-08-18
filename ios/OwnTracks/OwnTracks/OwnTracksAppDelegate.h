@@ -23,6 +23,8 @@
 
 @import FirebaseMessaging;
 
+@class BipeLiveActivityManager;
+
 @interface OwnTracksAppDelegate : UIResponder <UIApplicationDelegate, ConnectionDelegate, LocationManagerDelegate, UNUserNotificationCenterDelegate, FIRMessagingDelegate>
 
 @property (strong, nonatomic) UIWindow * _Nullable window;

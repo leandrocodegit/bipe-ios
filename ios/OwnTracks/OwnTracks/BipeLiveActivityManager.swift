@@ -4,17 +4,22 @@
 //
 
 import Foundation
-import ActivityKit
 import CoreData
 import UIKit
 
-@objc public class BipeLiveActivityManager: NSObject {
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
+
+@objc(BipeLiveActivityManager)
+@objcMembers
+public class BipeLiveActivityManager: NSObject {
     
     private static let tokenEndpoint = "https://dev.simodapp.com:2087/bipe/live-activity/token"
     private static let activityEndpointPrefix = "https://dev.simodapp.com:2087/bipe/live-activity/activity/"
     private static let appGroupSuite = "group.br.com.bipe.me"
 
-    @objc public static func processBipePushNotificationPayload(_ userInfo: [AnyHashable: Any]) {
+    @objc public static func processBipePushNotificationPayload(_ userInfo: NSDictionary) {
         let type = (userInfo["type"] as? String)
             ?? ((userInfo["data"] as? [String: Any])?["type"] as? String)
             ?? (userInfo["_type"] as? String)
@@ -25,6 +30,11 @@ import UIKit
         
         guard let typeStr = type, typeStr.caseInsensitiveCompare("bipe_alert") == .orderedSame,
               let statusStr = status, statusStr.caseInsensitiveCompare("emergency") == .orderedSame else {
+            return
+        }
+        
+        guard #available(iOS 16.1, *) else {
+            NSLog("[BipeLiveActivityManager] Live Activities não suportadas nesta versão do iOS.")
             return
         }
         
@@ -63,6 +73,7 @@ import UIKit
         )
     }
 
+    @available(iOS 16.1, *)
     private static func downloadIconAndStartLiveActivity(
         nickname: String,
         address: String,
@@ -109,6 +120,7 @@ import UIKit
         }
     }
 
+    @available(iOS 16.1, *)
     private static func startLiveActivity(
         nickname: String,
         address: String,
@@ -116,18 +128,13 @@ import UIKit
         iconUrl: String?,
         status: String
     ) {
-        guard #available(iOS 16.1, *) else {
-            NSLog("[BipeLiveActivityManager] Live Activities não suportadas nesta versão do iOS.")
-            return
-        }
-        
+        #if canImport(ActivityKit)
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             NSLog("[BipeLiveActivityManager] Live Activities desabilitadas pelo usuário.")
             return
         }
         
-        // Finaliza atividades de emergência anteriores ativas para evitar acúmulo
-        endEmergencyLiveActivity()
+        endEmergencyLiveActivityInternal()
         
         let attributes = BipeAlertActivityAttributes()
         let state = BipeAlertActivityAttributes.ContentState(
@@ -166,11 +173,18 @@ import UIKit
         } catch {
             NSLog("[BipeLiveActivityManager] Erro ao iniciar Live Activity: %@", error.localizedDescription)
         }
+        #endif
     }
 
     @objc public static func endEmergencyLiveActivity() {
-        guard #available(iOS 16.1, *) else { return }
-        
+        if #available(iOS 16.1, *) {
+            endEmergencyLiveActivityInternal()
+        }
+    }
+
+    @available(iOS 16.1, *)
+    private static func endEmergencyLiveActivityInternal() {
+        #if canImport(ActivityKit)
         for activity in Activity<BipeAlertActivityAttributes>.activities {
             let activityId = activity.id
             Task {
@@ -178,6 +192,7 @@ import UIKit
                 removeLiveActivityTokenFromServer(activityId: activityId)
             }
         }
+        #endif
     }
 
     private static func sendLiveActivityTokenToServer(token: String, activityId: String) {

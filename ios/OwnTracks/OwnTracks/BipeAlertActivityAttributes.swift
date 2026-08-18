@@ -3,8 +3,10 @@
 //  OwnTracks
 //
 
-import ActivityKit
 import Foundation
+
+#if canImport(ActivityKit)
+import ActivityKit
 
 @available(iOS 16.1, *)
 public struct BipeAlertActivityAttributes: ActivityAttributes {
@@ -39,3 +41,4 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         self.alertId = alertId
     }
 }
+#endif

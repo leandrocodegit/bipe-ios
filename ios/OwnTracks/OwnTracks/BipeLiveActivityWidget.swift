@@ -3,8 +3,11 @@
 //  OwnTracks
 //
 
-import ActivityKit
+import Foundation
+
+#if canImport(WidgetKit) && canImport(ActivityKit) && canImport(SwiftUI)
 import WidgetKit
+import ActivityKit
 import SwiftUI
 
 @available(iOS 16.1, *)
@@ -139,3 +142,4 @@ public struct BipeLiveActivityWidget: Widget {
         }
     }
 }
+#endif
