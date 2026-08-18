@@ -89,6 +89,9 @@
 		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
 		84B1BE0012F800001000099 /* BipeConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */; };
 		77B1BE0012F8000010000001 /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B1BE0012F8000010000002 /* BiometricAuthManager.swift */; };
+		84B1BE0012F8000010000101 /* BipeAlertActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F8000010000102 /* BipeAlertActivityAttributes.swift */; };
+		84B1BE0012F8000010000103 /* BipeLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */; };
+		84B1BE0012F8000010000105 /* BipeLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F8000010000106 /* BipeLiveActivityManager.swift */; };
 
 		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
 		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
@@ -329,6 +332,9 @@
 		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeConfirmationViewController.swift; sourceTree = "<group>"; };
 		77B1BE0012F8000010000002 /* BiometricAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthManager.swift; sourceTree = "<group>"; };
+		84B1BE0012F8000010000102 /* BipeAlertActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeAlertActivityAttributes.swift; sourceTree = "<group>"; };
+		84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeLiveActivityWidget.swift; sourceTree = "<group>"; };
+		84B1BE0012F8000010000106 /* BipeLiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeLiveActivityManager.swift; sourceTree = "<group>"; };
 
 		6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
 		84B739781A65629200B103F4 /* LocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationManager.h; sourceTree = "<group>"; };
@@ -580,6 +586,9 @@
 				84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */,
 				77B1BE0012F8000010000002 /* BiometricAuthManager.swift */,
 				6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */,
+				84B1BE0012F8000010000102 /* BipeAlertActivityAttributes.swift */,
+				84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */,
+				84B1BE0012F8000010000106 /* BipeLiveActivityManager.swift */,
 				846FFA491B40A301001482A6 /* UI */,
 				8411B834189FDB140019D2D6 /* Supporting Files */,
 			);
@@ -1049,6 +1058,9 @@
 				84B1BE0012F800001000099 /* BipeConfirmationViewController.swift in Sources */,
 				77B1BE0012F8000010000001 /* BiometricAuthManager.swift in Sources */,
 				6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */,
+				84B1BE0012F8000010000101 /* BipeAlertActivityAttributes.swift in Sources */,
+				84B1BE0012F8000010000103 /* BipeLiveActivityWidget.swift in Sources */,
+				84B1BE0012F8000010000105 /* BipeLiveActivityManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -356,6 +356,8 @@
     if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"]) {
         [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
     }
+    
+    [BipeLiveActivityManager processBipePushNotificationPayload:userInfo];
 
     completionHandler(UNNotificationPresentationOptionList |
                       UNNotificationPresentationOptionBanner |
@@ -394,6 +396,8 @@
     if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"]) {
         [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
     }
+    
+    [BipeLiveActivityManager processBipePushNotificationPayload:userInfo];
     
     // Se o payload conter campos de evento do Bipe, processamos via a mesma função do MQTT
     if (userInfo[@"event"] != nil || userInfo[@"desc"] != nil || userInfo[@"text"] != nil || userInfo[@"nickname"] != nil || type != nil) {
