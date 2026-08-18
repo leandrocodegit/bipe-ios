@@ -11,15 +11,13 @@ import UIKit
 import ActivityKit
 #endif
 
-@objc(BipeLiveActivityManager)
-@objcMembers
-public class BipeLiveActivityManager: NSObject {
+@objc class BipeLiveActivityManager: NSObject {
     
     private static let tokenEndpoint = "https://dev.simodapp.com:2087/bipe/live-activity/token"
     private static let activityEndpointPrefix = "https://dev.simodapp.com:2087/bipe/live-activity/activity/"
     private static let appGroupSuite = "group.br.com.bipe.me"
 
-    @objc public static func processBipePushNotificationPayload(_ userInfo: NSDictionary) {
+    @objc static func processBipePushNotificationPayload(_ userInfo: NSDictionary) {
         let type = (userInfo["type"] as? String)
             ?? ((userInfo["data"] as? [String: Any])?["type"] as? String)
             ?? (userInfo["_type"] as? String)
@@ -33,44 +31,43 @@ public class BipeLiveActivityManager: NSObject {
             return
         }
         
-        guard #available(iOS 16.1, *) else {
+        if #available(iOS 16.1, *) {
+            let moc = CoreData.sharedInstance().mainMOC
+            let nickname = (userInfo["nickname"] as? String)
+                ?? ((userInfo["data"] as? [String: Any])?["nickname"] as? String)
+                ?? (userInfo["name"] as? String)
+                ?? (userInfo["userName"] as? String)
+                ?? Settings.string(forKey: "user_preference", inMOC: moc)
+                ?? "Bipe.me"
+            
+            var address = (userInfo["address"] as? String)
+                ?? ((userInfo["data"] as? [String: Any])?["address"] as? String)
+                ?? (userInfo["endereco"] as? String)
+                ?? ((userInfo["data"] as? [String: Any])?["endereco"] as? String)
+                ?? (userInfo["locationName"] as? String)
+                ?? (userInfo["desc"] as? String)
+                ?? (userInfo["text"] as? String)
+            
+            if address == nil || address?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true {
+                address = "Localização atual"
+            }
+            
+            let iconUrl = (userInfo["icon"] as? String)
+                ?? ((userInfo["data"] as? [String: Any])?["icon"] as? String)
+                ?? (userInfo["iconUrl"] as? String)
+                ?? (userInfo["image"] as? String)
+                ?? (userInfo["imageUrl"] as? String)
+                ?? (userInfo["avatar"] as? String)
+            
+            downloadIconAndStartLiveActivity(
+                nickname: nickname,
+                address: address ?? "Localização atual",
+                iconUrl: iconUrl,
+                status: statusStr
+            )
+        } else {
             NSLog("[BipeLiveActivityManager] Live Activities não suportadas nesta versão do iOS.")
-            return
         }
-        
-        let moc = CoreData.sharedInstance().mainMOC
-        let nickname = (userInfo["nickname"] as? String)
-            ?? ((userInfo["data"] as? [String: Any])?["nickname"] as? String)
-            ?? (userInfo["name"] as? String)
-            ?? (userInfo["userName"] as? String)
-            ?? Settings.string(forKey: "user_preference", inMOC: moc)
-            ?? "Bipe.me"
-        
-        var address = (userInfo["address"] as? String)
-            ?? ((userInfo["data"] as? [String: Any])?["address"] as? String)
-            ?? (userInfo["endereco"] as? String)
-            ?? ((userInfo["data"] as? [String: Any])?["endereco"] as? String)
-            ?? (userInfo["locationName"] as? String)
-            ?? (userInfo["desc"] as? String)
-            ?? (userInfo["text"] as? String)
-        
-        if address == nil || address?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true {
-            address = "Localização atual"
-        }
-        
-        let iconUrl = (userInfo["icon"] as? String)
-            ?? ((userInfo["data"] as? [String: Any])?["icon"] as? String)
-            ?? (userInfo["iconUrl"] as? String)
-            ?? (userInfo["image"] as? String)
-            ?? (userInfo["imageUrl"] as? String)
-            ?? (userInfo["avatar"] as? String)
-        
-        downloadIconAndStartLiveActivity(
-            nickname: nickname,
-            address: address ?? "Localização atual",
-            iconUrl: iconUrl,
-            status: statusStr
-        )
     }
 
     @available(iOS 16.1, *)
@@ -176,7 +173,7 @@ public class BipeLiveActivityManager: NSObject {
         #endif
     }
 
-    @objc public static func endEmergencyLiveActivity() {
+    @objc static func endEmergencyLiveActivity() {
         if #available(iOS 16.1, *) {
             endEmergencyLiveActivityInternal()
         }
