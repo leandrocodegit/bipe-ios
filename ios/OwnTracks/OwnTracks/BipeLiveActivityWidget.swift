@@ -11,7 +11,6 @@ import ActivityKit
 import SwiftUI
 
 @available(iOS 16.1, *)
-@main
 struct BipeWidgetBundle: WidgetBundle {
     var body: some Widget {
         BipeLiveActivityWidget()
