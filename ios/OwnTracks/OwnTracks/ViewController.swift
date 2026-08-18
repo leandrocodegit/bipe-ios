@@ -1876,6 +1876,18 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
     private static let activityEndpointPrefix = "https://dev.simodapp.com:2087/bipe/live-activity/activity/"
     private static let appGroupSuite = "group.br.com.bipe.me"
 
+    private static func extractValue(keys: [String], userInfo: NSDictionary, dataDict: [String: Any]?) -> String? {
+        for key in keys {
+            if let val = userInfo[key] as? String, !val.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
+                return val
+            }
+            if let val = dataDict?[key] as? String, !val.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
+                return val
+            }
+        }
+        return nil
+    }
+
     @objc static func processBipePushNotificationPayload(_ userInfo: NSDictionary) {
         NSLog("[BipeLiveActivityManager] Recebido push payload: %@", userInfo)
         
@@ -1884,17 +1896,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             dataDict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
         }
         
-        let type = (userInfo["type"] as? String)
-            ?? (dataDict?["type"] as? String)
-            ?? (userInfo["_type"] as? String)
-            ?? (dataDict?["_type"] as? String)
-            ?? (userInfo["event"] as? String)
-            ?? (dataDict?["event"] as? String)
-        
-        let status = (userInfo["status"] as? String)
-            ?? (dataDict?["status"] as? String)
-            ?? (userInfo["_status"] as? String)
-            ?? (dataDict?["_status"] as? String)
+        let type = extractValue(keys: ["type", "_type", "event"], userInfo: userInfo, dataDict: dataDict)
+        let status = extractValue(keys: ["status", "_status"], userInfo: userInfo, dataDict: dataDict)
         
         let typeLower = type?.lowercased() ?? ""
         let statusLower = status?.lowercased() ?? ""
@@ -1910,48 +1913,22 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         
         if #available(iOS 16.1, *) {
             let moc = CoreData.sharedInstance().mainMOC
-            let nickname = (userInfo["nickname"] as? String)
-                ?? (dataDict?["nickname"] as? String)
-                ?? (userInfo["name"] as? String)
-                ?? (dataDict?["name"] as? String)
-                ?? (userInfo["userName"] as? String)
-                ?? (dataDict?["userName"] as? String)
+            let nickname = extractValue(keys: ["nickname", "name", "userName"], userInfo: userInfo, dataDict: dataDict)
                 ?? Settings.string(forKey: "user_preference", inMOC: moc)
                 ?? "Bipe.me"
             
-            var address = (userInfo["address"] as? String)
-                ?? (dataDict?["address"] as? String)
-                ?? (userInfo["endereco"] as? String)
-                ?? (dataDict?["endereco"] as? String)
-                ?? (userInfo["locationName"] as? String)
-                ?? (dataDict?["locationName"] as? String)
-                ?? (userInfo["desc"] as? String)
-                ?? (dataDict?["desc"] as? String)
-                ?? (userInfo["text"] as? String)
-                ?? (dataDict?["text"] as? String)
+            let address = extractValue(keys: ["address", "endereco", "locationName", "desc", "text"], userInfo: userInfo, dataDict: dataDict)
+                ?? "Localização atual"
             
-            if address == nil || address?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true {
-                address = "Localização atual"
-            }
-            
-            let iconUrl = (userInfo["icon"] as? String)
-                ?? (dataDict?["icon"] as? String)
-                ?? (userInfo["iconUrl"] as? String)
-                ?? (dataDict?["iconUrl"] as? String)
-                ?? (userInfo["image"] as? String)
-                ?? (dataDict?["image"] as? String)
-                ?? (userInfo["imageUrl"] as? String)
-                ?? (dataDict?["imageUrl"] as? String)
-                ?? (userInfo["avatar"] as? String)
-                ?? (dataDict?["avatar"] as? String)
+            let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict)
             
             let statusDisplay = statusLower.contains("emergency") || statusLower.contains("emergenc") ? "emergency" : (status ?? "emergency")
             
-            NSLog("[BipeLiveActivityManager] Iniciando Live Activity para nickname: '%@', address: '%@', iconUrl: '%@'", nickname, address ?? "", iconUrl ?? "nil")
+            NSLog("[BipeLiveActivityManager] Iniciando Live Activity para nickname: '%@', address: '%@', iconUrl: '%@'", nickname, address, iconUrl ?? "nil")
             
             downloadIconAndStartLiveActivity(
                 nickname: nickname,
-                address: address ?? "Localização atual",
+                address: address,
                 iconUrl: iconUrl,
                 status: statusDisplay
             )
