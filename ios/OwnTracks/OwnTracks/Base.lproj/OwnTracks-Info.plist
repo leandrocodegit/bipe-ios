@@ -356,5 +356,7 @@ No information of your address book will be uploaded to any server.</string>
 
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
 </dict>
 </plist>
