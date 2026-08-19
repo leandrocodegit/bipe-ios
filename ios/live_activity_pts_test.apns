@@ -1,5 +1,5 @@
 {
-  "Simulator Target Bundle": "br.com.bipe.me",
+  "Simulator Target Bundle": "br.com.bipe.me.push-type.liveactivity",
   "aps": {
     "timestamp": 1724000000,
     "event": "start",
