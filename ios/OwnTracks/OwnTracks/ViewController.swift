@@ -2171,11 +2171,13 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 payloadDict["deviceId"] = deviceId
             }
             
+            let authHeader = bearerToken.hasPrefix("Bearer ") ? bearerToken : "Bearer \(bearerToken)"
+            
             // 1. Registra no endpoint /bipe/live-activity/token
             if let url = URL(string: tokenEndpoint) {
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
-                request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                request.setValue(authHeader, forHTTPHeaderField: "Authorization")
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.httpBody = try? JSONSerialization.data(withJSONObject: payloadDict)
                 
@@ -2192,7 +2194,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             if let devId = deviceId, !devId.isEmpty, let patchUrl = URL(string: "https://dev.simodapp.com:2087/bipe/devices/\(devId)/tokens") {
                 var patchReq = URLRequest(url: patchUrl)
                 patchReq.httpMethod = "PATCH"
-                patchReq.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                patchReq.setValue(authHeader, forHTTPHeaderField: "Authorization")
                 patchReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 let patchBody: [String: String] = ["token": token]
                 patchReq.httpBody = try? JSONSerialization.data(withJSONObject: patchBody)
@@ -2211,9 +2213,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             guard let bearerToken = bearerToken else { return }
             guard let url = URL(string: "\(activityEndpointPrefix)\(activityId)") else { return }
             
+            let authHeader = bearerToken.hasPrefix("Bearer ") ? bearerToken : "Bearer \(bearerToken)"
             var request = URLRequest(url: url)
             request.httpMethod = "DELETE"
-            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+            request.setValue(authHeader, forHTTPHeaderField: "Authorization")
             
             URLSession.shared.dataTask(with: request) { _, response, error in
                 if let error = error {
