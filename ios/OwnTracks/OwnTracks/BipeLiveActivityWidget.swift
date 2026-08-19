@@ -10,6 +10,7 @@ import WidgetKit
 import ActivityKit
 import SwiftUI
 
+@main
 @available(iOS 16.1, *)
 struct BipeWidgetBundle: WidgetBundle {
     var body: some Widget {
