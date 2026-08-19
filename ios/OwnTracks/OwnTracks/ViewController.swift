@@ -2153,8 +2153,12 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
             
             let moc = CoreData.sharedInstance().mainMOC
-            let clientId = Settings.string(forKey: "clientid_preference", inMOC: moc)
-            let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc)
+            var clientId: String? = nil
+            var deviceId: String? = nil
+            moc.performAndWait {
+                clientId = Settings.string(forKey: "clientid_preference", inMOC: moc)
+                deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc)
+            }
             
             var payloadDict: [String: Any] = [
                 "token": token,
@@ -2167,26 +2171,38 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 payloadDict["deviceId"] = deviceId
             }
             
-            guard let url = URL(string: tokenEndpoint) else { return }
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            do {
-                request.httpBody = try JSONSerialization.data(withJSONObject: payloadDict)
-            } catch {
-                NSLog("[BipeLiveActivityManager] Erro ao serializar payload do token: %@", error.localizedDescription)
-                return
+            // 1. Registra no endpoint /bipe/live-activity/token
+            if let url = URL(string: tokenEndpoint) {
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.httpBody = try? JSONSerialization.data(withJSONObject: payloadDict)
+                
+                URLSession.shared.dataTask(with: request) { _, response, error in
+                    if let error = error {
+                        NSLog("[BipeLiveActivityManager] Erro ao enviar activityToken para servidor: %@", error.localizedDescription)
+                    } else if let httpResp = response as? HTTPURLResponse {
+                        NSLog("[BipeLiveActivityManager] ActivityToken enviado para /bipe/live-activity/token com sucesso. Status: %d", httpResp.statusCode)
+                    }
+                }.resume()
             }
             
-            URLSession.shared.dataTask(with: request) { _, response, error in
-                if let error = error {
-                    NSLog("[BipeLiveActivityManager] Erro ao enviar token para servidor: %@", error.localizedDescription)
-                } else if let httpResp = response as? HTTPURLResponse {
-                    NSLog("[BipeLiveActivityManager] Token enviado para o servidor. Status HTTP: %d", httpResp.statusCode)
-                }
-            }.resume()
+            // 2. Atualiza no endpoint especifico do dispositivo /bipe/devices/{id}/tokens se o deviceId existir
+            if let devId = deviceId, !devId.isEmpty, let patchUrl = URL(string: "https://dev.simodapp.com:2087/bipe/devices/\(devId)/tokens") {
+                var patchReq = URLRequest(url: patchUrl)
+                patchReq.httpMethod = "PATCH"
+                patchReq.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                patchReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                let patchBody: [String: String] = ["token": token]
+                patchReq.httpBody = try? JSONSerialization.data(withJSONObject: patchBody)
+                
+                URLSession.shared.dataTask(with: patchReq) { _, response, error in
+                    if let httpResp = response as? HTTPURLResponse, (200...299).contains(httpResp.statusCode) {
+                        NSLog("[BipeLiveActivityManager] ActivityToken sincronizado no dispositivo %@ via PATCH. Status: %d", devId, httpResp.statusCode)
+                    }
+                }.resume()
+            }
         }
     }
 
