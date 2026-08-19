@@ -10,6 +10,9 @@
 import Foundation
 import FirebaseMessaging
 import CoreData
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 // MARK: - DTO de resposta
 
@@ -98,6 +101,20 @@ enum SetupError: LocalizedError {
         AuthManager.shared.logout()
     }
 
+    // MARK: - Obtém a versão do app
+
+    private func getAppVersion() -> Double? {
+        if let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+            let components = versionString.split(separator: ".")
+            if components.count >= 2, let doubleVal = Double("\(components[0]).\(components[1])") {
+                return doubleVal
+            } else if let doubleVal = Double(versionString) {
+                return doubleVal
+            }
+        }
+        return nil
+    }
+
     // MARK: - Obtém token FCM do Firebase
 
     private func fetchFCMToken(retries: Int = 3, completion: @escaping (String?) -> Void) {
@@ -126,9 +143,61 @@ enum SetupError: LocalizedError {
         }
     }
 
+    // MARK: - Obtém pushToStartToken de Live Activity (ActivityKit)
+
+    private func fetchPushToStartToken(completion: @escaping (String?) -> Void) {
+        #if canImport(ActivityKit)
+        if #available(iOS 17.2, *) {
+            guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+                NSLog("[SetupService] Live Activities desabilitadas pelo usuário.")
+                completion(nil)
+                return
+            }
+
+            if let tokenData = Activity<BipeAlertActivityAttributes>.pushToStartToken {
+                let hexToken = tokenData.map { String(format: "%02x", $0) }.joined()
+                NSLog("[SetupService] pushToStartToken obtido: %@", hexToken)
+                completion(hexToken)
+                return
+            }
+
+            var completed = false
+            let timer = DispatchSource.makeTimerSource(queue: .main)
+            timer.schedule(deadline: .now() + 1.5)
+            timer.setEventHandler {
+                if !completed {
+                    completed = true
+                    NSLog("[SetupService] Timeout ao aguardar pushToStartToken.")
+                    completion(nil)
+                }
+            }
+            timer.resume()
+
+            Task {
+                for await tokenData in Activity<BipeAlertActivityAttributes>.pushToStartTokenUpdates {
+                    let hexToken = tokenData.map { String(format: "%02x", $0) }.joined()
+                    DispatchQueue.main.async {
+                        if !completed {
+                            completed = true
+                            timer.cancel()
+                            NSLog("[SetupService] pushToStartToken (async) obtido: %@", hexToken)
+                            completion(hexToken)
+                        }
+                    }
+                    break
+                }
+            }
+        } else {
+            completion(nil)
+        }
+        #else
+        completion(nil)
+        #endif
+    }
+
     // MARK: - Fluxo principal
 
-    /// Executa o setup do device: obtém Bearer token + tokenFCM, chama API, persiste configurações.
+    /// Executa o setup do device: obtém Bearer token + tokenFCM + pushToStartToken + version, chama API, persiste configurações.
     /// - Parameters:
     ///   - context: NSManagedObjectContext para persistir via Settings
     ///   - completion: chamado na main thread com `true` em caso de sucesso ou `error` em caso de falha
@@ -148,15 +217,24 @@ enum SetupError: LocalizedError {
                 return
             }
 
-            // Busca o token FCM antes de chamar a API (mesmo comportamento do Android)
+            let appVersion = self.getAppVersion()
+
+            // Busca o token FCM e o pushToStartToken antes de chamar a API
             self.fetchFCMToken { fcmToken in
-                self.callSetupAPI(bearerToken: bearerToken, fcmToken: fcmToken) { result in
-                    switch result {
-                    case .success(let dto):
-                        self.persistSetup(dto: dto, context: context)
-                        DispatchQueue.main.async { completion(true, nil) }
-                    case .failure(let error):
-                        DispatchQueue.main.async { completion(false, error) }
+                self.fetchPushToStartToken { pushToStartToken in
+                    self.callSetupAPI(
+                        bearerToken: bearerToken,
+                        fcmToken: fcmToken,
+                        pushToStartToken: pushToStartToken,
+                        version: appVersion
+                    ) { result in
+                        switch result {
+                        case .success(let dto):
+                            self.persistSetup(dto: dto, context: context)
+                            DispatchQueue.main.async { completion(true, nil) }
+                        case .failure(let error):
+                            DispatchQueue.main.async { completion(false, error) }
+                        }
                     }
                 }
             }
@@ -168,6 +246,8 @@ enum SetupError: LocalizedError {
     private func callSetupAPI(
         bearerToken: String,
         fcmToken: String?,
+        pushToStartToken: String?,
+        version: Double?,
         completion: @escaping (Result<DeviceSetupResponseDto, SetupError>) -> Void
     ) {
         guard let url = URL(string: SetupService.setupURL) else {
@@ -175,11 +255,16 @@ enum SetupError: LocalizedError {
             return
         }
 
-        // Monta payload equivalente ao Android:
-        // val jsonPayload = """{"os": "android", "tokenFCM": "$fcmToken"}"""
+        // Monta payload
         var payloadDict: [String: Any] = ["os": "ios"]
         if let token = fcmToken {
             payloadDict["tokenFCM"] = token
+        }
+        if let ptsToken = pushToStartToken {
+            payloadDict["pushToStartToken"] = ptsToken
+        }
+        if let ver = version {
+            payloadDict["version"] = ver
         }
         let payloadData = (try? JSONSerialization.data(withJSONObject: payloadDict, options: [])) ?? Data()
         let payloadString = String(data: payloadData, encoding: .utf8) ?? "{\"os\":\"ios\"}"
