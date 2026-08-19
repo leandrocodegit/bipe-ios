@@ -9,6 +9,19 @@ import Foundation
 import WidgetKit
 import ActivityKit
 import SwiftUI
+import UIKit
+
+@main
+struct AppMain {
+    static func main() {
+        _ = UIApplicationMain(
+            CommandLine.argc,
+            CommandLine.unsafeArgv,
+            nil,
+            NSStringFromClass(OwnTracksAppDelegate.self)
+        )
+    }
+}
 
 @available(iOS 16.1, *)
 struct BipeWidgetBundle: WidgetBundle {
