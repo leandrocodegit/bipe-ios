@@ -2,7 +2,7 @@
   "Simulator Target Bundle": "br.com.bipe.me",
   "aps": {
     "timestamp": 1724000000,
-    "event": "start",
+    "event": "update",
     "content-available": 1,
     "content-state": {
       "address": "Localização atual",
