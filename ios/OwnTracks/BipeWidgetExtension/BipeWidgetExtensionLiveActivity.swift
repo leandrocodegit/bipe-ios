@@ -246,9 +246,17 @@ struct EmergencyWidgetView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            BipeIconView()
-                .frame(width: 48, height: 48)
-                .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
+            ZStack {
+                Circle()
+                    .fill(Color.red.opacity(0.15))
+                Image(systemName: "exclamationmark.shield.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(8)
+                    .foregroundColor(.red)
+            }
+            .frame(width: 48, height: 48)
+            .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
