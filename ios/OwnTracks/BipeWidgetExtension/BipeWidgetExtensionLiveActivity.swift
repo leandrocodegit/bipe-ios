@@ -71,12 +71,12 @@ struct DeviceBadgeView: View {
     }
     
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 4) {
             if let img = uiImage {
                 Image(uiImage: img)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 26, height: 26)
+                    .frame(width: 24, height: 24)
             } else {
                 ZStack {
                     Circle()
@@ -87,40 +87,15 @@ struct DeviceBadgeView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 24, height: 24)
+                        .frame(width: 22, height: 22)
                     
-                    Image(systemName: isImageFile ? systemIcon : (cleanName.lowercased().contains("car") ? "car.fill" : "iphone"))
-                        .font(.system(size: 11, weight: .bold))
+                    Image(systemName: systemIcon)
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundColor(.white)
                 }
             }
-            
-            if !isImageFile {
-                Text(cleanName)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-            }
         }
-        .padding(.leading, uiImage != nil ? 2 : 4)
-        .padding(.trailing, isImageFile ? (uiImage != nil ? 2 : 6) : 10)
-        .padding(.vertical, uiImage != nil ? 2 : 5)
-        .background(
-            Group {
-                if !isImageFile {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(UIColor.tertiarySystemGroupedBackground))
-                }
-            }
-        )
-        .overlay(
-            Group {
-                if !isImageFile {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-                }
-            }
-        )
+        .padding(2)
     }
 }
 
@@ -521,20 +496,15 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             ZStack {
                                 Circle()
                                     .fill(themeColor.opacity(0.25))
-                                    .frame(width: 32, height: 32)
+                                    .frame(width: 28, height: 28)
                                 Image(systemName: "antenna.radiowaves.left.and.right")
-                                    .font(.system(size: 15, weight: .bold))
+                                    .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(themeColor)
                             }
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(regionName)
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                                Text("Zona Monitorada")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(.secondary)
-                            }
+                            Text(regionName)
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
                         } else {
                             Image(systemName: "exclamationmark.shield.fill")
                                 .resizable()
