@@ -1832,7 +1832,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     }
 }
 
-// MARK: - BipeAlertActivityAttributes & BipeLiveActivityManager (Live Activity de Emergência)
+// MARK: - BipeAlertActivityAttributes & BipeLiveActivityManager (Live Activity de Emergência e Transição)
 
 #if canImport(ActivityKit)
 @available(iOS 16.1, *)
@@ -1845,13 +1845,23 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         public var status: String
         public var timestamp: Date
         
+        // Atributos de Transição de Região:
+        public var way: String?              // Nome da região (ex: "Casa", "Trabalho")
+        public var devices: [String]?       // Lista de nomes de dispositivos na região
+        public var event: String?            // "enter" ou "exit"
+        public var activityType: String?     // "transition" ou "emergency"
+        
         public init(
             address: String,
             iconUrl: String? = nil,
             iconLocalPath: String? = nil,
             nickname: String,
             status: String = "emergency",
-            timestamp: Date = Date()
+            timestamp: Date = Date(),
+            way: String? = nil,
+            devices: [String]? = nil,
+            event: String? = nil,
+            activityType: String? = "emergency"
         ) {
             self.address = address
             self.iconUrl = iconUrl
@@ -1859,6 +1869,10 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.nickname = nickname
             self.status = status
             self.timestamp = timestamp
+            self.way = way
+            self.devices = devices
+            self.event = event
+            self.activityType = activityType
         }
     }
     
@@ -1877,15 +1891,69 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
     private static let appGroupSuite = "group.br.com.bipe.me"
 
     private static func extractValue(keys: [String], userInfo: NSDictionary, dataDict: [String: Any]?) -> String? {
+        let apsDict = userInfo["aps"] as? [String: Any]
+        let contentState = apsDict?["content-state"] as? [String: Any]
+        
         for key in keys {
-            if let val = userInfo[key] as? String, !val.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
-                return val
+            if let val = userInfo[key] {
+                let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
             }
-            if let val = dataDict?[key] as? String, !val.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
-                return val
+            if let dataDict = dataDict, let val = dataDict[key] {
+                let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
+            }
+            if let contentState = contentState, let val = contentState[key] {
+                let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
+            }
+            if let apsDict = apsDict, let val = apsDict[key] {
+                let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
             }
         }
         return nil
+    }
+
+    private static func extractDevicesArray(userInfo: NSDictionary, dataDict: [String: Any]?) -> [String] {
+        let apsDict = userInfo["aps"] as? [String: Any]
+        let contentState = apsDict?["content-state"] as? [String: Any]
+        
+        var rawValue: Any? = userInfo["devices"] ?? userInfo["_devices"]
+        if rawValue == nil {
+            rawValue = dataDict?["devices"] ?? dataDict?["_devices"]
+        }
+        if rawValue == nil {
+            rawValue = contentState?["devices"] ?? contentState?["_devices"]
+        }
+        
+        guard let raw = rawValue else { return [] }
+        
+        if let array = raw as? [String] {
+            return array
+        }
+        if let arrayDict = raw as? [[String: Any]] {
+            return arrayDict.compactMap { dict in
+                dict["name"] as? String ?? dict["nickname"] as? String ?? dict["apelido"] as? String ?? dict["username"] as? String
+            }
+        }
+        if let str = raw as? String {
+            let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.hasPrefix("[") && trimmed.hasSuffix("]") {
+                if let data = trimmed.data(using: .utf8),
+                   let parsedArray = try? JSONSerialization.jsonObject(with: data) as? [String] {
+                    return parsedArray
+                }
+                if let data = trimmed.data(using: .utf8),
+                   let parsedDicts = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                    return parsedDicts.compactMap { dict in
+                        dict["name"] as? String ?? dict["nickname"] as? String ?? dict["apelido"] as? String ?? dict["username"] as? String
+                    }
+                }
+            }
+            return trimmed.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        }
+        return []
     }
 
     @objc static func processBipePushNotificationPayload(_ userInfo: NSDictionary) {
@@ -1896,18 +1964,20 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             dataDict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
         }
         
-        let type = extractValue(keys: ["type", "_type", "event"], userInfo: userInfo, dataDict: dataDict)
+        let type = extractValue(keys: ["type", "_type"], userInfo: userInfo, dataDict: dataDict)
         let status = extractValue(keys: ["status", "_status"], userInfo: userInfo, dataDict: dataDict)
+        let eventVal = extractValue(keys: ["event", "transition", "event_type", "eventType", "action"], userInfo: userInfo, dataDict: dataDict)
         
         let typeLower = type?.lowercased() ?? ""
         let statusLower = status?.lowercased() ?? ""
+        let eventLower = eventVal?.lowercased() ?? ""
         
+        let isTransition = typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition")
         let isEmergencyType = typeLower.contains("emergency") || typeLower.contains("bipe_alert") || typeLower.contains("vibrate") || typeLower.contains("bipe") || typeLower.contains("alert")
         let isEmergencyStatus = statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
         
-        // Dispara se type ou status for emergency / bipe_alert / vibrate
-        guard isEmergencyType || isEmergencyStatus else {
-            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@'). Não corresponde a bipe_alert/emergency.", typeLower, statusLower)
+        guard isTransition || isEmergencyType || isEmergencyStatus else {
+            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a transition ou emergency.", typeLower, statusLower, eventLower)
             return
         }
         
@@ -1922,16 +1992,38 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             
             let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict)
             
-            let statusDisplay = statusLower.contains("emergency") || statusLower.contains("emergenc") ? "emergency" : (status ?? "emergency")
-            
-            NSLog("[BipeLiveActivityManager] Iniciando Live Activity para nickname: '%@', address: '%@', iconUrl: '%@'", nickname, address, iconUrl ?? "nil")
-            
-            downloadIconAndStartLiveActivity(
-                nickname: nickname,
-                address: address,
-                iconUrl: iconUrl,
-                status: statusDisplay
-            )
+            if isTransition {
+                let way = extractValue(keys: ["way", "region", "wayName", "locationName", "desc"], userInfo: userInfo, dataDict: dataDict) ?? "Região Cadastrada"
+                let event = eventLower.contains("exit") || eventLower.contains("saida") || eventLower.contains("saída") ? "exit" : "enter"
+                let devicesList = extractDevicesArray(userInfo: userInfo, dataDict: dataDict)
+                
+                NSLog("[BipeLiveActivityManager] Iniciando Live Activity TRANSITION para way: '%@', event: '%@', devices: %@", way, event, devicesList)
+                
+                downloadIconAndStartLiveActivity(
+                    nickname: nickname,
+                    address: address,
+                    iconUrl: iconUrl,
+                    status: "transition",
+                    way: way,
+                    devices: devicesList,
+                    event: event,
+                    activityType: "transition"
+                )
+            } else {
+                let statusDisplay = statusLower.contains("emergency") || statusLower.contains("emergenc") ? "emergency" : (status ?? "emergency")
+                NSLog("[BipeLiveActivityManager] Iniciando Live Activity EMERGENCY para nickname: '%@', address: '%@'", nickname, address)
+                
+                downloadIconAndStartLiveActivity(
+                    nickname: nickname,
+                    address: address,
+                    iconUrl: iconUrl,
+                    status: statusDisplay,
+                    way: nil,
+                    devices: nil,
+                    event: nil,
+                    activityType: "emergency"
+                )
+            }
         } else {
             NSLog("[BipeLiveActivityManager] Live Activities não suportadas nesta versão do iOS.")
         }
@@ -1942,10 +2034,24 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         nickname: String,
         address: String,
         iconUrl: String?,
-        status: String
+        status: String,
+        way: String? = nil,
+        devices: [String]? = nil,
+        event: String? = nil,
+        activityType: String? = "emergency"
     ) {
         guard let urlString = iconUrl, let url = URL(string: urlString) else {
-            startLiveActivity(nickname: nickname, address: address, iconLocalPath: nil, iconUrl: iconUrl, status: status)
+            startLiveActivity(
+                nickname: nickname,
+                address: address,
+                iconLocalPath: nil,
+                iconUrl: iconUrl,
+                status: status,
+                way: way,
+                devices: devices,
+                event: event,
+                activityType: activityType
+            )
             return
         }
         
@@ -1961,7 +2067,11 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
                     address: address,
                     iconLocalPath: localPath,
                     iconUrl: iconUrl,
-                    status: status
+                    status: status,
+                    way: way,
+                    devices: devices,
+                    event: event,
+                    activityType: activityType
                 )
             }
         }.resume()
@@ -1990,7 +2100,11 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         address: String,
         iconLocalPath: String?,
         iconUrl: String?,
-        status: String
+        status: String,
+        way: String? = nil,
+        devices: [String]? = nil,
+        event: String? = nil,
+        activityType: String? = "emergency"
     ) {
         #if canImport(ActivityKit)
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
@@ -2006,7 +2120,12 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             iconUrl: iconUrl,
             iconLocalPath: iconLocalPath,
             nickname: nickname,
-            status: status
+            status: status,
+            timestamp: Date(),
+            way: way,
+            devices: devices,
+            event: event,
+            activityType: activityType
         )
         let content = ActivityContent(state: state, staleDate: nil)
         

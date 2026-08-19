@@ -408,6 +408,7 @@
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
+    [BipeLiveActivityManager processBipePushNotificationPayload:response.notification.request.content.userInfo];
     
     if ([response.actionIdentifier isEqualToString:@"CONFIRM_BIPE_ACTION"]) {
         OwnTracksLogDefault("[OwnTracksAppDelegate] Ação CONFIRM_BIPE_ACTION disparada pelo usuário");
