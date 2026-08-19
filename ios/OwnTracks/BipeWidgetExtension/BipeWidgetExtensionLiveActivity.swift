@@ -140,7 +140,7 @@ struct TransitionWidgetView: View {
     }
     
     var eventTitle: String {
-        isExit ? "SAIU DA REGIÃO" : "ENTROU NA REGIÃO"
+        isExit ? "SAIU" : "ENTROU"
     }
     
     var eventIcon: String {
@@ -193,7 +193,7 @@ struct TransitionWidgetView: View {
                             .shadow(color: themeColor, radius: 3)
                     }
                     
-                    Text("ZONA DE MONITORAMENTO")
+                    Text("MONITORAMENTO")
                         .font(.system(size: 10, weight: .heavy, design: .rounded))
                         .foregroundColor(.secondary)
                         .tracking(0.5)
