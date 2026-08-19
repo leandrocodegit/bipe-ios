@@ -12,7 +12,12 @@ import SwiftUI
 import UIKit
 
 @main
-struct AppMain {
+@available(iOS 16.1, *)
+struct BipeWidgetBundle: WidgetBundle {
+    var body: some Widget {
+        BipeLiveActivityWidget()
+    }
+    
     static func main() {
         _ = UIApplicationMain(
             CommandLine.argc,
@@ -20,13 +25,6 @@ struct AppMain {
             nil,
             NSStringFromClass(OwnTracksAppDelegate.self)
         )
-    }
-}
-
-@available(iOS 16.1, *)
-struct BipeWidgetBundle: WidgetBundle {
-    var body: some Widget {
-        BipeLiveActivityWidget()
     }
 }
 
