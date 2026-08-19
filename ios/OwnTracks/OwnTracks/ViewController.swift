@@ -1980,21 +1980,21 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             dataDict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
         }
         
-        let type = extractValue(keys: ["type", "_type", "activityType"], userInfo: userInfo, dataDict: dataDict)
-        let status = extractValue(keys: ["status", "_status"], userInfo: userInfo, dataDict: dataDict)
-        let eventVal = extractValue(keys: ["event", "transition", "event_type", "eventType", "action"], userInfo: userInfo, dataDict: dataDict)
-        let wayVal = extractValue(keys: ["way", "region", "wayName", "locationName", "desc"], userInfo: userInfo, dataDict: dataDict)
+        let targetVal = extractValue(keys: ["target", "targetDevice", "dispositivo1"], userInfo: userInfo, dataDict: dataDict)
+        let alvoVal = extractValue(keys: ["alvo", "targetAlvo", "dispositivo2"], userInfo: userInfo, dataDict: dataDict)
+        let distanciaVal = extractValue(keys: ["distancia", "distance"], userInfo: userInfo, dataDict: dataDict)
         
         let typeLower = type?.lowercased() ?? ""
         let statusLower = status?.lowercased() ?? ""
         let eventLower = eventVal?.lowercased() ?? ""
         
+        let isDistance = typeLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil
         let isTransition = typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil
         let isEmergencyType = typeLower.contains("emergency") || typeLower.contains("bipe_alert") || typeLower.contains("vibrate") || typeLower.contains("bipe") || typeLower.contains("alert")
         let isEmergencyStatus = statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
         
-        guard isTransition || isEmergencyType || isEmergencyStatus else {
-            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a transition ou emergency.", typeLower, statusLower, eventLower)
+        guard isDistance || isTransition || isEmergencyType || isEmergencyStatus else {
+            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a distance, transition ou emergency.", typeLower, statusLower, eventLower)
             return
         }
         
@@ -2009,7 +2009,25 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             
             let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict)
             
-            if isTransition {
+            if isDistance {
+                let eventDisplay = eventVal ?? (statusLower.contains("afast") ? "AFASTAR" : "APROXIMAR")
+                NSLog("[BipeLiveActivityManager] Iniciando Live Activity DISTANCE: target='%@', alvo='%@', distancia='%@', event='%@'", targetVal ?? "", alvoVal ?? "", distanciaVal ?? "", eventDisplay)
+                
+                startLiveActivity(
+                    nickname: nickname,
+                    address: address,
+                    iconLocalPath: nil,
+                    iconUrl: nil,
+                    status: "distance",
+                    way: nil,
+                    devices: nil,
+                    event: eventDisplay,
+                    activityType: "distance",
+                    target: targetVal,
+                    alvo: alvoVal,
+                    distancia: distanciaVal
+                )
+            } else if isTransition {
                 let way = extractValue(keys: ["way", "region", "wayName", "locationName", "desc"], userInfo: userInfo, dataDict: dataDict) ?? "Região Cadastrada"
                 let event = eventLower.contains("exit") || eventLower.contains("saida") || eventLower.contains("saída") ? "exit" : "enter"
                 let devicesList = extractDevicesArray(userInfo: userInfo, dataDict: dataDict)
@@ -2047,8 +2065,6 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             NSLog("[BipeLiveActivityManager] Live Activities não suportadas nesta versão do iOS.")
         }
     }
-
-
 
     @objc static func startLiveActivityOnAppLaunch() {
         if #available(iOS 16.1, *) {
@@ -2093,7 +2109,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         way: String? = nil,
         devices: [String]? = nil,
         event: String? = nil,
-        activityType: String? = "emergency"
+        activityType: String? = "emergency",
+        target: String? = nil,
+        alvo: String? = nil,
+        distancia: String? = nil
     ) {
         #if canImport(ActivityKit)
         DispatchQueue.main.async {
@@ -2107,7 +2126,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 status: status,
                 iconUrl: iconUrl,
                 iconLocalPath: iconLocalPath,
-                timestamp: Date().timeIntervalSince1970
+                timestamp: Date().timeIntervalSince1970,
+                target: target,
+                alvo: alvo,
+                distancia: distancia
             )
             let content: ActivityContent<BipeAlertActivityAttributes.ContentState>
             if #available(iOS 16.2, *) {

@@ -369,6 +369,113 @@ struct EmergencyWidgetView: View {
     }
 }
 
+// MARK: - View para Evento de Distância ("distance" / "APROXIMAR" / "AFASTAR") - Compact UI
+
+@available(iOS 16.1, *)
+struct DistanceWidgetView: View {
+    let state: BipeAlertActivityAttributes.ContentState
+    
+    var isApproaching: Bool {
+        let ev = state.event?.lowercased() ?? ""
+        let st = state.status.lowercased()
+        return ev.contains("aproxim") || st.contains("aproxim") || ev == "enter"
+    }
+    
+    var themeColor: Color {
+        isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : Color.orange
+    }
+    
+    var statusTitle: String {
+        isApproaching ? "SE APROXIMOU" : "SE AFASTOU"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // MARK: Header com selo de aproximar/afastar
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(themeColor.opacity(0.18))
+                        .frame(width: 32, height: 32)
+                        .overlay(Circle().stroke(themeColor.opacity(0.4), lineWidth: 1))
+                    
+                    Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(themeColor)
+                }
+                
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(state.nickname)
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    Text("Alerta de Distância")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    Text(statusTitle)
+                        .font(.system(size: 10, weight: .black, design: .rounded))
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(themeColor))
+                .foregroundColor(.black)
+            }
+            
+            // MARK: Linha Compacta: [Target] / [Alvo] e Distância
+            HStack(spacing: 6) {
+                HStack(spacing: 4) {
+                    if let target = state.target, !target.isEmpty {
+                        DeviceBadgeView(item: target, themeColor: themeColor)
+                    }
+                    
+                    Text("/")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.secondary)
+                    
+                    if let alvo = state.alvo, !alvo.isEmpty {
+                        DeviceBadgeView(item: alvo, themeColor: themeColor)
+                    }
+                }
+                
+                Spacer()
+                
+                if let dist = state.distancia, !dist.isEmpty {
+                    HStack(spacing: 3) {
+                        Image(systemName: "location.fill")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(themeColor)
+                        Text(dist)
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(Color(UIColor.tertiarySystemGroupedBackground))
+                    )
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(themeColor.opacity(0.3), lineWidth: 1.5)
+                )
+        )
+        .activityBackgroundTint(Color(UIColor.systemBackground))
+        .activitySystemActionForegroundColor(Color.primary)
+    }
+}
+
 // MARK: - Live Activity Widget Principal
 
 @available(iOS 16.1, *)
@@ -377,22 +484,40 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
     
     public var body: some WidgetConfiguration {
         ActivityConfiguration(for: BipeAlertActivityAttributes.self) { context in
-            if context.state.activityType == "transition" || context.state.way != nil {
+            let isDistance = context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false)
+            if isDistance {
+                DistanceWidgetView(state: context.state)
+            } else if context.state.activityType == "transition" || context.state.way != nil {
                 TransitionWidgetView(state: context.state)
             } else {
                 EmergencyWidgetView(state: context.state)
             }
         } dynamicIsland: { context in
+            let isDistance = context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false)
             let isTransition = context.state.activityType == "transition" || context.state.way != nil
             let isExit = (context.state.event?.lowercased() ?? "").contains("exit") || (context.state.event?.lowercased() ?? "").contains("saida")
-            let themeColor: Color = isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red
+            let isApproaching = (context.state.event?.lowercased() ?? "").contains("aproxim") || context.state.status.lowercased().contains("aproxim")
+            
+            let themeColor: Color = isDistance ? (isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red)
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 8) {
-                        if isTransition {
+                        if isDistance {
+                            HStack(spacing: 4) {
+                                if let target = context.state.target {
+                                    DeviceBadgeView(item: target, themeColor: themeColor)
+                                }
+                                Text("/")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                if let alvo = context.state.alvo {
+                                    DeviceBadgeView(item: alvo, themeColor: themeColor)
+                                }
+                            }
+                        } else if isTransition {
                             ZStack {
                                 Circle()
                                     .fill(themeColor.opacity(0.25))
@@ -426,7 +551,14 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
-                    if isTransition {
+                    if isDistance {
+                        Text(isApproaching ? "APROXIMOU" : "AFASTOU")
+                            .font(.system(size: 11, weight: .black, design: .rounded))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(themeColor))
+                            .foregroundColor(.black)
+                    } else if isTransition {
                         HStack(spacing: 4) {
                             Image(systemName: isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact")
                                 .font(.system(size: 10, weight: .bold))
@@ -449,7 +581,20 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 }
                 
                 DynamicIslandExpandedRegion(.bottom) {
-                    if isTransition {
+                    if isDistance {
+                        if let dist = context.state.distancia {
+                            HStack(spacing: 6) {
+                                Image(systemName: "location.fill")
+                                    .font(.footnote)
+                                    .foregroundColor(themeColor)
+                                Text("Distância: \(dist)")
+                                    .font(.footnote)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.top, 4)
+                        }
+                    } else if isTransition {
                         if !devicesList.isEmpty {
                             HStack(spacing: 8) {
                                 ForEach(devicesList.prefix(3), id: \.self) { dev in
@@ -490,7 +635,10 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                     }
                 }
             } compactLeading: {
-                if isTransition {
+                if isDistance {
+                    Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                        .foregroundColor(themeColor)
+                } else if isTransition {
                     Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
                         .foregroundColor(themeColor)
                 } else {
@@ -498,7 +646,17 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                         .foregroundColor(.red)
                 }
             } compactTrailing: {
-                if isTransition {
+                if isDistance {
+                    if let dist = context.state.distancia {
+                        Text(dist)
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundColor(themeColor)
+                    } else {
+                        Text(isApproaching ? "APROX" : "AFAST")
+                            .font(.system(size: 10, weight: .black))
+                            .foregroundColor(themeColor)
+                    }
+                } else if isTransition {
                     if let firstDev = devicesList.first {
                         DeviceBadgeView(item: firstDev, themeColor: themeColor)
                     } else {
@@ -515,7 +673,10 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                         .lineLimit(1)
                 }
             } minimal: {
-                if isTransition {
+                if isDistance {
+                    Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                        .foregroundColor(themeColor)
+                } else if isTransition {
                     if let firstDev = devicesList.first {
                         DeviceBadgeView(item: firstDev, themeColor: themeColor)
                     } else {
@@ -531,3 +692,4 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
         }
     }
 }
+

@@ -20,6 +20,9 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         public var iconUrl: String?
         public var iconLocalPath: String?
         public var timestamp: Double?
+        public var target: String?
+        public var alvo: String?
+        public var distancia: String?
         
         public init(
             address: String,
@@ -31,7 +34,10 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             status: String = "transition",
             iconUrl: String? = nil,
             iconLocalPath: String? = nil,
-            timestamp: Double? = Date().timeIntervalSince1970
+            timestamp: Double? = Date().timeIntervalSince1970,
+            target: String? = nil,
+            alvo: String? = nil,
+            distancia: String? = nil
         ) {
             self.address = address
             self.way = way
@@ -43,6 +49,9 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.iconUrl = iconUrl
             self.iconLocalPath = iconLocalPath
             self.timestamp = timestamp
+            self.target = target
+            self.alvo = alvo
+            self.distancia = distancia
         }
     }
 
