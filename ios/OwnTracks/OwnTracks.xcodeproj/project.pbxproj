@@ -7,8 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6A7A6AF73035547C00E14C2B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A7A6AF63035547B00E14C2B /* WidgetKit.framework */; };
+		6A7A6AF93035547C00E14C2B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A7A6AF83035547C00E14C2B /* SwiftUI.framework */; };
+		6A7A6B0A3035547D00E14C2B /* BipeWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6A7A6AF53035547B00E14C2B /* BipeWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
+		77B1BE0012F8000010000001 /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B1BE0012F8000010000002 /* BiometricAuthManager.swift */; };
 		84001C141C78982800413E5B /* Queue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 84001C111C78982800413E5B /* Queue+CoreDataProperties.m */; };
 		8400D9731D83825E00DEA134 /* HTTP.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8400D9721D83825E00DEA134 /* HTTP.plist */; };
 		8405CB602F14EBEF008C2580 /* CreateCardTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */; };
@@ -25,13 +30,6 @@
 		8411B832189FDB140019D2D6 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8411B831189FDB140019D2D6 /* CoreData.framework */; };
 		8411B83A189FDB140019D2D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B839189FDB140019D2D6 /* main.m */; };
 		8411B83E189FDB140019D2D6 /* OwnTracksAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */; };
-		BIPE00000000000000000006 /* bipe_enter.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000005 /* bipe_enter.wav */; };
-		BIPE00000000000000000008 /* bipe_routine_error.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000007 /* bipe_routine_error.wav */; };
-		BIPE00000000000000000010 /* bipe_routine_ok.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000009 /* bipe_routine_ok.wav */; };
-		BIPE00000000000000000012 /* bipe_call.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000011 /* bipe_call.wav */; };
-		BIPE00000000000000000014 /* bipe_exit.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000013 /* bipe_exit.wav */; };
-		BIPE00000000000000000016 /* bipe_sim.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000015 /* bipe_sim.wav */; };
-		BIPE00000000000000000018 /* bipe_digital.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000017 /* bipe_digital.mp3 */; };
 		8411B843189FDB140019D2D6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8411B842189FDB140019D2D6 /* Images.xcassets */; };
 		8411B87F189FE35C0019D2D6 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8411B87D189FE35C0019D2D6 /* Model.xcdatamodeld */; };
 		8411B88B189FE79B0019D2D6 /* CoreData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8411B889189FE79B0019D2D6 /* CoreData.m */; };
@@ -87,14 +85,11 @@
 		84B1BE0012F800001000001 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000002 /* AuthManager.swift */; };
 		84B1BE0012F800001000003 /* SetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000004 /* SetupService.swift */; };
 		84B1BE0012F800001000005 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F800001000006 /* LoginViewController.swift */; };
-		84B1BE0012F800001000099 /* BipeConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */; };
-		77B1BE0012F8000010000001 /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B1BE0012F8000010000002 /* BiometricAuthManager.swift */; };
+		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
 		84B1BE0012F8000010000101 /* BipeAlertActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F8000010000102 /* BipeAlertActivityAttributes.swift */; };
 		84B1BE0012F8000010000103 /* BipeLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */; };
 		84B1BE0012F8000010000105 /* BipeLiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F8000010000106 /* BipeLiveActivityManager.swift */; };
-
-		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
-		84B1BE0012F800001000007 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 84B1BE0012F800001000008 /* AppAuth */; };
+		84B1BE0012F800001000099 /* BipeConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */; };
 		84B7397A1A65629200B103F4 /* LocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84B739791A65629200B103F4 /* LocationManager.m */; };
 		84BD03AA25D5301F0077B9B8 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84AE8ADB25C165D600C0B0EE /* MapKit.framework */; };
 		84BDD0D12F2A815500358CC2 /* OwnTracksLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BDD0D02F2A815500358CC2 /* OwnTracksLog.m */; };
@@ -123,9 +118,23 @@
 		84ED67922F1E9A0E0013A265 /* DSJSONSchemaValidation in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */; };
 		84FAEA7225F01DA100DCD479 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84FAEA7125F01DA100DCD479 /* Launch Screen.storyboard */; };
 		99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F800001000002 /* GoogleService-Info.plist */; };
+		BIPE00000000000000000006 /* bipe_enter.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000005 /* bipe_enter.wav */; };
+		BIPE00000000000000000008 /* bipe_routine_error.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000007 /* bipe_routine_error.wav */; };
+		BIPE00000000000000000010 /* bipe_routine_ok.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000009 /* bipe_routine_ok.wav */; };
+		BIPE00000000000000000012 /* bipe_call.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000011 /* bipe_call.wav */; };
+		BIPE00000000000000000014 /* bipe_exit.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000013 /* bipe_exit.wav */; };
+		BIPE00000000000000000016 /* bipe_sim.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000015 /* bipe_sim.wav */; };
+		BIPE00000000000000000018 /* bipe_digital.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000017 /* bipe_digital.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		6A7A6B083035547D00E14C2B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8411B820189FDB140019D2D6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6A7A6AF43035547B00E14C2B;
+			remoteInfo = BipeWidgetExtensionExtension;
+		};
 		8452741424A8EF0B00C44340 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8411B820189FDB140019D2D6 /* Project object */;
@@ -166,6 +175,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				6A7A6B0A3035547D00E14C2B /* BipeWidgetExtensionExtension.appex in Embed Foundation Extensions */,
 				843A57AF24A9A4D700A5441B /* OwnTracksIntents.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -180,6 +190,11 @@
 		6A323FA2302B78930033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "pt-BR"; path = "pt-BR.lproj/OwnTracks-Info.plist"; sourceTree = "<group>"; };
 		6A323FA3302B78960033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		6A323FA4302B78970033B1B4 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		6A7A6AF53035547B00E14C2B /* BipeWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BipeWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A7A6AF63035547B00E14C2B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		6A7A6AF83035547C00E14C2B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
+		77B1BE0012F8000010000002 /* BiometricAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthManager.swift; sourceTree = "<group>"; };
 		84001C0D1C78729200413E5B /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		84001C0F1C78976100413E5B /* Model 9.0.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.0.2.xcdatamodel"; sourceTree = "<group>"; };
 		84001C101C78982800413E5B /* Queue+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Queue+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -203,13 +218,6 @@
 		8411B83B189FDB140019D2D6 /* OwnTracks-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OwnTracks-Prefix.pch"; sourceTree = "<group>"; };
 		8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OwnTracksAppDelegate.h; sourceTree = "<group>"; };
 		8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OwnTracksAppDelegate.m; sourceTree = "<group>"; };
-		BIPE00000000000000000005 /* bipe_enter.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_enter.wav"; sourceTree = "<group>"; };
-		BIPE00000000000000000007 /* bipe_routine_error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_routine_error.wav"; sourceTree = "<group>"; };
-		BIPE00000000000000000009 /* bipe_routine_ok.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_routine_ok.wav"; sourceTree = "<group>"; };
-		BIPE00000000000000000011 /* bipe_call.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_call.wav"; sourceTree = "<group>"; };
-		BIPE00000000000000000013 /* bipe_exit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_exit.wav"; sourceTree = "<group>"; };
-		BIPE00000000000000000015 /* bipe_sim.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "bipe_sim.wav"; sourceTree = "<group>"; };
-		BIPE00000000000000000017 /* bipe_digital.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "bipe_digital.mp3"; sourceTree = "<group>"; };
 		8411B842189FDB140019D2D6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		8411B849189FDB140019D2D6 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		8411B860189FDD200019D2D6 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -330,13 +338,10 @@
 		84B1BE0012F800001000002 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		84B1BE0012F800001000004 /* SetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupService.swift; sourceTree = "<group>"; };
 		84B1BE0012F800001000006 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeConfirmationViewController.swift; sourceTree = "<group>"; };
-		77B1BE0012F8000010000002 /* BiometricAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthManager.swift; sourceTree = "<group>"; };
 		84B1BE0012F8000010000102 /* BipeAlertActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeAlertActivityAttributes.swift; sourceTree = "<group>"; };
 		84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeLiveActivityWidget.swift; sourceTree = "<group>"; };
 		84B1BE0012F8000010000106 /* BipeLiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeLiveActivityManager.swift; sourceTree = "<group>"; };
-
-		6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
+		84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BipeConfirmationViewController.swift; sourceTree = "<group>"; };
 		84B739781A65629200B103F4 /* LocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationManager.h; sourceTree = "<group>"; };
 		84B739791A65629200B103F4 /* LocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationManager.m; sourceTree = "<group>"; };
 		84BA0A0F2DE6F24B00AFACA9 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Storyboard.strings; sourceTree = "<group>"; };
@@ -422,13 +427,40 @@
 		B1AC89FB2E2FDF3700E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		B1AC89FD2E2FDF3900E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		B1AC89FE2E2FDF3900E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		BIPE00000000000000000005 /* bipe_enter.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_enter.wav; sourceTree = "<group>"; };
+		BIPE00000000000000000007 /* bipe_routine_error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_routine_error.wav; sourceTree = "<group>"; };
+		BIPE00000000000000000009 /* bipe_routine_ok.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_routine_ok.wav; sourceTree = "<group>"; };
+		BIPE00000000000000000011 /* bipe_call.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_call.wav; sourceTree = "<group>"; };
+		BIPE00000000000000000013 /* bipe_exit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_exit.wav; sourceTree = "<group>"; };
+		BIPE00000000000000000015 /* bipe_sim.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_sim.wav; sourceTree = "<group>"; };
+		BIPE00000000000000000017 /* bipe_digital.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = bipe_digital.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6A7A6B0D3035547D00E14C2B /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6A7A6AF43035547B00E14C2B /* BipeWidgetExtensionExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6A7A6AFA3035547C00E14C2B /* BipeWidgetExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (6A7A6B0D3035547D00E14C2B /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BipeWidgetExtension; sourceTree = "<group>"; };
 		84BC863A2F5EAD0900F26105 /* OwnTracksUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = OwnTracksUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6A7A6AF23035547B00E14C2B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6A7A6AF93035547C00E14C2B /* SwiftUI.framework in Frameworks */,
+				6A7A6AF73035547C00E14C2B /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8411B825189FDB140019D2D6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -491,6 +523,7 @@
 				843A57A824A9A4D600A5441B /* OwnTracksIntents */,
 				8456D0A32B55749E003A45D4 /* OwnTracksTests */,
 				84BC863A2F5EAD0900F26105 /* OwnTracksUITests */,
+				6A7A6AFA3035547C00E14C2B /* BipeWidgetExtension */,
 				8411B82A189FDB140019D2D6 /* Frameworks */,
 				8411B829189FDB140019D2D6 /* Products */,
 				845451913002346E00AF9FCE /* OwnTracksTests-Bridging-Header.h */,
@@ -504,6 +537,7 @@
 				843A57A724A9A4D600A5441B /* OwnTracksIntents.appex */,
 				8456D0A22B55749E003A45D4 /* OwnTracksTests.xctest */,
 				84BC86392F5EAD0900F26105 /* OwnTracksUITests.xctest */,
+				6A7A6AF53035547B00E14C2B /* BipeWidgetExtensionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -540,6 +574,8 @@
 				8411B831189FDB140019D2D6 /* CoreData.framework */,
 				8411B849189FDB140019D2D6 /* XCTest.framework */,
 				84D3072E1ACD644500FACB9E /* NotificationCenter.framework */,
+				6A7A6AF63035547B00E14C2B /* WidgetKit.framework */,
+				6A7A6AF83035547C00E14C2B /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -742,6 +778,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6A7A6AF43035547B00E14C2B /* BipeWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6A7A6B0E3035547D00E14C2B /* Build configuration list for PBXNativeTarget "BipeWidgetExtensionExtension" */;
+			buildPhases = (
+				6A7A6AF13035547B00E14C2B /* Sources */,
+				6A7A6AF23035547B00E14C2B /* Frameworks */,
+				6A7A6AF33035547B00E14C2B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				6A7A6AFA3035547C00E14C2B /* BipeWidgetExtension */,
+			);
+			name = BipeWidgetExtensionExtension;
+			packageProductDependencies = (
+			);
+			productName = BipeWidgetExtensionExtension;
+			productReference = 6A7A6AF53035547B00E14C2B /* BipeWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		8411B827189FDB140019D2D6 /* OwnTracks */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8411B85A189FDB140019D2D6 /* Build configuration list for PBXNativeTarget "OwnTracks" */;
@@ -757,6 +815,7 @@
 			);
 			dependencies = (
 				8452741524A8EF0B00C44340 /* PBXTargetDependency */,
+				6A7A6B093035547D00E14C2B /* PBXTargetDependency */,
 			);
 			name = OwnTracks;
 			packageProductDependencies = (
@@ -837,10 +896,13 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				CLASSPREFIX = OwnTracks;
-				LastSwiftUpdateCheck = 1150;
+				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2610;
 				ORGANIZATIONNAME = OwnTracks;
 				TargetAttributes = {
+					6A7A6AF43035547B00E14C2B = {
+						CreatedOnToolsVersion = 26.3;
+					};
 					8411B827189FDB140019D2D6 = {
 						LastSwiftMigration = 2620;
 						SystemCapabilities = {
@@ -914,11 +976,19 @@
 				843A57A624A9A4D600A5441B /* OwnTracksIntents */,
 				8456D0A12B55749E003A45D4 /* OwnTracksTests */,
 				84BC86382F5EAD0900F26105 /* OwnTracksUITests */,
+				6A7A6AF43035547B00E14C2B /* BipeWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6A7A6AF33035547B00E14C2B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8411B826189FDB140019D2D6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -998,6 +1068,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6A7A6AF13035547B00E14C2B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8411B824189FDB140019D2D6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1093,6 +1170,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		6A7A6B093035547D00E14C2B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6A7A6AF43035547B00E14C2B /* BipeWidgetExtensionExtension */;
+			targetProxy = 6A7A6B083035547D00E14C2B /* PBXContainerItemProxy */;
+		};
 		8452741524A8EF0B00C44340 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
@@ -1227,6 +1309,99 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		6A7A6B0B3035547D00E14C2B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = M8783MM36P;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BipeWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BipeWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 OwnTracks. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.bipe.me.BipeWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6A7A6B0C3035547D00E14C2B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = M8783MM36P;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BipeWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BipeWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 OwnTracks. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.bipe.me.BipeWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		8411B858189FDB140019D2D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1677,6 +1852,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6A7A6B0E3035547D00E14C2B /* Build configuration list for PBXNativeTarget "BipeWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6A7A6B0B3035547D00E14C2B /* Debug */,
+				6A7A6B0C3035547D00E14C2B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		8411B823189FDB140019D2D6 /* Build configuration list for PBXProject "OwnTracks" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
