@@ -203,25 +203,55 @@ enum SetupError: LocalizedError {
         #endif
     }
 
-    /// Sincroniza o Push-To-Start Token diretamente com o servidor mesmo se o setup já foi concluído
+    /// Sincroniza o Push-To-Start Token e o FCM Token diretamente com o dispositivo via endpoint PATCH /bipe/devices/{id}/tokens
     @objc func syncPushToStartTokenWithServer(_ pushToStartToken: String) {
-        AuthManager.shared.getBearerToken { [weak self] bearerToken in
-            guard let self = self, let bearerToken = bearerToken else { return }
-            let appVersion = self.getAppVersion()
-            self.fetchFCMToken { fcmToken in
-                self.callSetupAPI(
-                    bearerToken: bearerToken,
-                    fcmToken: fcmToken,
-                    pushToStartToken: pushToStartToken,
-                    version: appVersion
-                ) { result in
-                    switch result {
-                    case .success:
-                        NSLog("[SetupService] pushToStartToken sincronizado com o servidor com sucesso.")
-                    case .failure(let err):
-                        NSLog("[SetupService] Erro ao sincronizar pushToStartToken: %@", err.localizedDescription)
-                    }
+        let moc = CoreData.sharedInstance().mainMOC
+        var deviceId: String? = nil
+        moc.performAndWait {
+            deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc)
+        }
+        
+        guard let devId = deviceId, !devId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            // Fallback: se ainda não houver deviceId configurado localmente, roda o setup completo
+            AuthManager.shared.getBearerToken { [weak self] bearerToken in
+                guard let self = self, let bearerToken = bearerToken else { return }
+                let appVersion = self.getAppVersion()
+                self.fetchFCMToken { fcmToken in
+                    self.callSetupAPI(
+                        bearerToken: bearerToken,
+                        fcmToken: fcmToken,
+                        pushToStartToken: pushToStartToken,
+                        version: appVersion
+                    ) { _ in }
                 }
+            }
+            return
+        }
+        
+        self.fetchFCMToken { fcmToken in
+            AuthManager.shared.getBearerToken { bearerToken in
+                guard let bearerToken = bearerToken else { return }
+                let urlString = "https://dev.simodapp.com:2087/bipe/devices/\(devId)/tokens"
+                guard let url = URL(string: urlString) else { return }
+                
+                var request = URLRequest(url: url)
+                request.httpMethod = "PATCH"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue(bearerToken, forHTTPHeaderField: "Authorization")
+                
+                var bodyDict: [String: String] = ["pushToStartToken": pushToStartToken]
+                if let fcm = fcmToken, !fcm.isEmpty {
+                    bodyDict["fcmToken"] = fcm
+                }
+                request.httpBody = try? JSONSerialization.data(withJSONObject: bodyDict, options: [])
+                
+                URLSession.shared.dataTask(with: request) { _, response, error in
+                    if let httpRes = response as? HTTPURLResponse, (200...299).contains(httpRes.statusCode) {
+                        NSLog("[SetupService] Tokens (PushToStart + FCM) atualizados com sucesso no endpoint especifico /bipe/devices/%@/tokens", devId)
+                    } else {
+                        NSLog("[SetupService] Falha ao atualizar tokens via endpoint especifico. Status: %ld", (response as? HTTPURLResponse)?.statusCode ?? 0)
+                    }
+                }.resume()
             }
         }
     }
