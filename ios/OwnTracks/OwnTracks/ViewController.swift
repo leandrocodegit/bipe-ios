@@ -2064,11 +2064,6 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     ) {
         #if canImport(ActivityKit)
         DispatchQueue.main.async {
-            guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-                NSLog("[BipeLiveActivityManager] Live Activities desabilitadas pelo usuário.")
-                return
-            }
-            
             let state = BipeAlertActivityAttributes.ContentState(
                 address: address,
                 way: way,
@@ -2081,61 +2076,50 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 iconLocalPath: iconLocalPath,
                 timestamp: Date()
             )
-            let content = ActivityContent(state: state, staleDate: nil)
-            
-            // Se já existe uma Live Activity ativa, atualiza o seu conteúdo em vez de criar outra duplicada
-            if let activeActivity = Activity<BipeAlertActivityAttributes>.activities.first(where: { $0.activityState == .active }) {
-                NSLog("[BipeLiveActivityManager] Atualizando Live Activity existente (ID: %@)", activeActivity.id)
-                Task {
-                    await activeActivity.update(content)
-                }
-                return
+            let content: ActivityContent<BipeAlertActivityAttributes.ContentState>
+            if #available(iOS 16.2, *) {
+                content = ActivityContent(state: state, staleDate: Date().addingTimeInterval(3600), relevanceScore: 100.0)
+            } else {
+                content = ActivityContent(state: state, staleDate: Date().addingTimeInterval(3600))
             }
             
-            do {
-                let attributes = BipeAlertActivityAttributes()
-                #if targetEnvironment(simulator)
-                let isSimulator = true
-                #else
-                let isSimulator = false
-                #endif
+            Task { @MainActor in
+                let activeActivities = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
                 
-                let isBackground = UIApplication.shared.applicationState == .background
-                let activity = try Activity<BipeAlertActivityAttributes>.request(
-                    attributes: attributes,
-                    content: content,
-                    pushType: (isSimulator || isBackground) ? nil : .token
-                )
-                NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
-                
-                Task {
-                    for await pushTokenData in activity.pushTokenUpdates {
-                        let pushTokenHex = pushTokenData.map { String(format: "%02x", $0) }.joined()
-                        NSLog("[BipeLiveActivityManager] Push Token recebido para Live Activity %@: %@", activity.id, pushTokenHex)
-                        sendLiveActivityTokenToServer(token: pushTokenHex, activityId: activity.id)
-                    }
-                }
-                
-                Task {
-                    for await state in activity.activityStateUpdates {
-                        if state == .ended || state == .dismissed {
-                            NSLog("[BipeLiveActivityManager] Live Activity %@ finalizada. Removendo token do servidor.", activity.id)
-                            removeLiveActivityTokenFromServer(activityId: activity.id)
+                if let activeActivity = activeActivities.first {
+                    NSLog("[BipeLiveActivityManager] Atualizando Live Activity existente em tempo real (ID: %@)", activeActivity.id)
+                    await activeActivity.update(content)
+                    NSLog("[BipeLiveActivityManager] Live Activity %@ atualizada com sucesso em tempo real!", activeActivity.id)
+                } else {
+                    NSLog("[BipeLiveActivityManager] Nenhuma Live Activity ativa. Criando nova...")
+                    do {
+                        let attributes = BipeAlertActivityAttributes()
+                        let activity = try Activity<BipeAlertActivityAttributes>.request(
+                            attributes: attributes,
+                            content: content,
+                            pushType: nil
+                        )
+                        NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
+                        
+                        Task {
+                            for await pushTokenData in activity.pushTokenUpdates {
+                                let pushTokenHex = pushTokenData.map { String(format: "%02x", $0) }.joined()
+                                NSLog("[BipeLiveActivityManager] Push Token recebido para Live Activity %@: %@", activity.id, pushTokenHex)
+                                sendLiveActivityTokenToServer(token: pushTokenHex, activityId: activity.id)
+                            }
                         }
+                        
+                        Task {
+                            for await state in activity.activityStateUpdates {
+                                if state == .ended || state == .dismissed {
+                                    NSLog("[BipeLiveActivityManager] Live Activity %@ finalizada. Removendo token do servidor.", activity.id)
+                                    removeLiveActivityTokenFromServer(activityId: activity.id)
+                                }
+                            }
+                        }
+                    } catch {
+                        NSLog("[BipeLiveActivityManager] Erro ao iniciar Live Activity: %@ (detalhes: %@)", error.localizedDescription, String(describing: error))
                     }
-                }
-            } catch {
-                NSLog("[BipeLiveActivityManager] Erro ao iniciar Live Activity com token: %@. Tentando com pushType nil...", error.localizedDescription)
-                do {
-                    let attributes = BipeAlertActivityAttributes()
-                    let activity = try Activity<BipeAlertActivityAttributes>.request(
-                        attributes: attributes,
-                        content: content,
-                        pushType: nil
-                    )
-                    NSLog("[BipeLiveActivityManager] Live Activity iniciada com sucesso (fallback local). ID: %@", activity.id)
-                } catch {
-                    NSLog("[BipeLiveActivityManager] Erro fatal ao iniciar Live Activity: %@", error.localizedDescription)
                 }
             }
         }
