@@ -2096,15 +2096,15 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         
         let state = BipeAlertActivityAttributes.ContentState(
             address: address,
-            iconUrl: iconUrl,
-            iconLocalPath: iconLocalPath,
+            way: way,
+            event: event,
+            devices: devices,
+            activityType: activityType,
             nickname: nickname,
             status: status,
-            timestamp: Date(),
-            way: way,
-            devices: devices,
-            event: event,
-            activityType: activityType
+            iconUrl: iconUrl,
+            iconLocalPath: iconLocalPath,
+            timestamp: Date()
         )
         let content = ActivityContent(state: state, staleDate: nil)
         
@@ -2177,7 +2177,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         for activity in Activity<BipeAlertActivityAttributes>.activities {
             let activityId = activity.id
             Task {
-                await activity.end(dismissalPolicy: .immediate)
+                await activity.end(nil, dismissalPolicy: .immediate)
                 removeLiveActivityTokenFromServer(activityId: activityId)
             }
         }
