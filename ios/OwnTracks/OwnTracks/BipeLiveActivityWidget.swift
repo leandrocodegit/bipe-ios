@@ -9,9 +9,7 @@ import Foundation
 import WidgetKit
 import ActivityKit
 import SwiftUI
-import UIKit
 
-@main
 @available(iOS 16.1, *)
 struct BipeWidgetBundle: WidgetBundle {
     var body: some Widget {
