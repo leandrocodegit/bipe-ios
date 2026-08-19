@@ -10,6 +10,8 @@
 		6A7A6AF73035547C00E14C2B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A7A6AF63035547B00E14C2B /* WidgetKit.framework */; };
 		6A7A6AF93035547C00E14C2B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A7A6AF83035547C00E14C2B /* SwiftUI.framework */; };
 		6A7A6B0A3035547D00E14C2B /* BipeWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6A7A6AF53035547B00E14C2B /* BipeWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BIPE00000000000000000099 /* drawable in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000098 /* drawable */; };
+		BIPE00000000000000000100 /* drawable in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000098 /* drawable */; };
 		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
@@ -202,6 +204,7 @@
 		8400D9721D83825E00DEA134 /* HTTP.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = HTTP.plist; sourceTree = "<group>"; };
 		8400D9741D84946E00DEA134 /* Model 9.1.7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.1.7.xcdatamodel"; sourceTree = "<group>"; };
 		8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCardTVC.swift; sourceTree = "<group>"; };
+		BIPE00000000000000000098 /* drawable */ = {isa = PBXFileReference; lastKnownFileType = folder; name = drawable; path = OwnTracks/drawable; sourceTree = "<group>"; };
 		8405CB612F153DD9008C2580 /* ModesTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModesTVC.swift; sourceTree = "<group>"; };
 		840BBDD318E4274200DC113C /* Model 6.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 6.2.xcdatamodel"; sourceTree = "<group>"; };
 		840CA94E2F4DF83C00FD30C1 /* SettingsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTVC.swift; sourceTree = "<group>"; };
@@ -625,6 +628,7 @@
 				84B1BE0012F8000010000102 /* BipeAlertActivityAttributes.swift */,
 				84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */,
 				84B1BE0012F8000010000106 /* BipeLiveActivityManager.swift */,
+				BIPE00000000000000000098 /* drawable */,
 				846FFA491B40A301001482A6 /* UI */,
 				8411B834189FDB140019D2D6 /* Supporting Files */,
 			);
@@ -986,6 +990,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BIPE00000000000000000100 /* drawable in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1017,6 +1022,7 @@
 				8408CA4425F00FB400354FF3 /* InfoPlist.strings in Resources */,
 				846B38E92785B50B003E4852 /* elgolfo1.gpx in Resources */,
 				8411B8E1189FEB790019D2D6 /* Location.gpx in Resources */,
+				BIPE00000000000000000099 /* drawable in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
