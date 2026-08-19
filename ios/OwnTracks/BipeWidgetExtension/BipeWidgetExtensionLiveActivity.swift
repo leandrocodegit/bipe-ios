@@ -225,10 +225,6 @@ struct TransitionWidgetView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     HStack(spacing: 5) {
-                        Image(systemName: "shield.checkerboard")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(themeColor)
-                        
                         Text(devicesList.isEmpty ? "PERÍMETRO ATIVO" : "DISPOSITIVOS NA ZONA")
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(.secondary)
@@ -456,10 +452,6 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                     if isTransition {
                         if !devicesList.isEmpty {
                             HStack(spacing: 8) {
-                                Image(systemName: "shield.checkerboard")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(themeColor)
-                                
                                 ForEach(devicesList.prefix(3), id: \.self) { dev in
                                     DeviceBadgeView(item: dev, themeColor: themeColor)
                                 }
