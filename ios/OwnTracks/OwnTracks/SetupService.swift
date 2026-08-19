@@ -180,15 +180,18 @@ enum SetupError: LocalizedError {
             Task {
                 for await tokenData in Activity<BipeAlertActivityAttributes>.pushToStartTokenUpdates {
                     let hexToken = tokenData.map { String(format: "%02x", $0) }.joined()
+                    NSLog("[SetupService] pushToStartToken (async) obtido: %@", hexToken)
+                    
+                    // Sincroniza o token com o backend para permitir Push-To-Start com app fechado
+                    SetupService.shared.syncPushToStartTokenWithServer(hexToken)
+                    
                     DispatchQueue.main.async {
                         if !completed {
                             completed = true
                             timer.cancel()
-                            NSLog("[SetupService] pushToStartToken (async) obtido: %@", hexToken)
                             completion(hexToken)
                         }
                     }
-                    break
                 }
             }
         } else {
@@ -198,6 +201,29 @@ enum SetupError: LocalizedError {
         completion(nil)
         #endif
         #endif
+    }
+
+    /// Sincroniza o Push-To-Start Token diretamente com o servidor mesmo se o setup já foi concluído
+    @objc func syncPushToStartTokenWithServer(_ pushToStartToken: String) {
+        AuthManager.shared.getBearerToken { [weak self] bearerToken in
+            guard let self = self, let bearerToken = bearerToken else { return }
+            let appVersion = self.getAppVersion()
+            self.fetchFCMToken { fcmToken in
+                self.callSetupAPI(
+                    bearerToken: bearerToken,
+                    fcmToken: fcmToken,
+                    pushToStartToken: pushToStartToken,
+                    version: appVersion
+                ) { result in
+                    switch result {
+                    case .success:
+                        NSLog("[SetupService] pushToStartToken sincronizado com o servidor com sucesso.")
+                    case .failure(let err):
+                        NSLog("[SetupService] Erro ao sincronizar pushToStartToken: %@", err.localizedDescription)
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Fluxo principal
