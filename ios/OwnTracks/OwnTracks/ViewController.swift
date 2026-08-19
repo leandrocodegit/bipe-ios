@@ -2050,6 +2050,39 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
 
 
+    @objc static func startLiveActivityOnAppLaunch() {
+        if #available(iOS 16.1, *) {
+            #if canImport(ActivityKit)
+            Task { @MainActor in
+                let activeActivities = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
+                if activeActivities.isEmpty {
+                    NSLog("[BipeLiveActivityManager] Criando Live Activity inicial ao abrir o app...")
+                    let moc = CoreData.sharedInstance().mainMOC
+                    var nickname: String = "Bipe.me"
+                    moc.performAndWait {
+                        if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
+                            nickname = name
+                        }
+                    }
+                    startLiveActivity(
+                        nickname: nickname,
+                        address: "Monitorando em tempo real",
+                        iconLocalPath: nil,
+                        iconUrl: nil,
+                        status: "transition",
+                        way: "Monitoramento Ativo",
+                        devices: nil,
+                        event: "enter",
+                        activityType: "transition"
+                    )
+                } else {
+                    NSLog("[BipeLiveActivityManager] Live Activity já ativa na tela. Nenhuma nova criação necessária.")
+                }
+            }
+            #endif
+        }
+    }
+
     @available(iOS 16.1, *)
     private static func startLiveActivity(
         nickname: String,

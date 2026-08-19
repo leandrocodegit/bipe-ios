@@ -221,6 +221,9 @@
 - (void)startOwnTracksMonitoring {
     OwnTracksLogDefault("[OwnTracksAppDelegate] startOwnTracksMonitoring");
     
+    // Inicia a Live Activity nativa se o usuario ainda nao possuir uma ativa no dispositivo
+    [BipeLiveActivityManager startLiveActivityOnAppLaunch];
+    
     self.connection = [[Connection alloc] init];
     self.connection.delegate = self;
     [self.connection start];
