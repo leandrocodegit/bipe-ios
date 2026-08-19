@@ -452,18 +452,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     .foregroundColor(themeColor)
                                 
                                 ForEach(devicesList.prefix(3), id: \.self) { dev in
-                                    HStack(spacing: 4) {
-                                        Circle()
-                                            .fill(themeColor)
-                                            .frame(width: 5, height: 5)
-                                        Text(dev)
-                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                            .foregroundColor(.white)
-                                            .lineLimit(1)
-                                    }
-                                    .padding(.horizontal, 7)
-                                    .padding(.vertical, 3)
-                                    .background(Capsule().fill(Color.white.opacity(0.12)))
+                                    DeviceBadgeView(item: dev, themeColor: themeColor)
                                 }
                                 
                                 if devicesList.count > 3 {
@@ -509,10 +498,14 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 }
             } compactTrailing: {
                 if isTransition {
-                    Text(regionName)
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundColor(themeColor)
-                        .lineLimit(1)
+                    if let firstDev = devicesList.first {
+                        DeviceBadgeView(item: firstDev, themeColor: themeColor)
+                    } else {
+                        Text(regionName)
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundColor(themeColor)
+                            .lineLimit(1)
+                    }
                 } else {
                     Text(context.state.nickname)
                         .font(.caption2)
@@ -522,8 +515,12 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 }
             } minimal: {
                 if isTransition {
-                    Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
-                        .foregroundColor(themeColor)
+                    if let firstDev = devicesList.first {
+                        DeviceBadgeView(item: firstDev, themeColor: themeColor)
+                    } else {
+                        Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
+                            .foregroundColor(themeColor)
+                    }
                 } else {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(.red)
