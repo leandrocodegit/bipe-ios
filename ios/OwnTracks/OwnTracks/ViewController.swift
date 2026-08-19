@@ -2123,10 +2123,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             let isSimulator = false
             #endif
             
+            let isBackground = UIApplication.shared.applicationState == .background
             let activity = try Activity<BipeAlertActivityAttributes>.request(
                 attributes: attributes,
                 content: content,
-                pushType: isSimulator ? nil : .token
+                pushType: (isSimulator || isBackground) ? nil : .token
             )
             NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
             
