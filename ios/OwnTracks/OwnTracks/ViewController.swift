@@ -1924,9 +1924,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
     @objc static func testTransitionLiveActivity() {
         if #available(iOS 16.1, *) {
-            downloadIconAndStartLiveActivity(
+            startLiveActivity(
                 nickname: "Bipe.me",
                 address: "Região Monitorada",
+                iconLocalPath: nil,
                 iconUrl: nil,
                 status: "transition",
                 way: "Casa da Vovó",
