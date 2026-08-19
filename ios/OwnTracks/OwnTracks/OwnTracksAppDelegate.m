@@ -200,6 +200,10 @@
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:TRUE];
     
+    // Inicia listener continuo e forca a sincronizacao imediata dos tokens com o backend
+    [SetupService.shared startPushToStartTokenSyncListener];
+    [SetupService.shared triggerTokenSyncImmediately];
+    
     // Verificar se o setup BIPE já foi concluído
     BOOL setupCompleted = [SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized];
     

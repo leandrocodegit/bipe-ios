@@ -203,6 +203,33 @@ enum SetupError: LocalizedError {
         #endif
     }
 
+    /// Inicia o listener continuo de Push-To-Start Token que sincroniza automaticamente com o servidor backend
+    @objc func startPushToStartTokenSyncListener() {
+        #if canImport(ActivityKit)
+        if #available(iOS 17.2, *) {
+            Task {
+                for await tokenData in Activity<BipeAlertActivityAttributes>.pushToStartTokenUpdates {
+                    let hexToken = tokenData.map { String(format: "%02x", $0) }.joined()
+                    NSLog("[SetupService] pushToStartToken (listener ativo) obtido: %@", hexToken)
+                    SetupService.shared.syncPushToStartTokenWithServer(hexToken)
+                }
+            }
+        }
+        #endif
+    }
+
+    /// Força a sincronização imediata dos tokens (Push-To-Start + FCM) com o backend no momento da inicialização do app
+    @objc func triggerTokenSyncImmediately() {
+        fetchPushToStartToken { ptsToken in
+            if let ptsToken = ptsToken, !ptsToken.isEmpty {
+                NSLog("[SetupService] triggerTokenSyncImmediately sincronizando pushToStartToken: %@", ptsToken)
+                SetupService.shared.syncPushToStartTokenWithServer(ptsToken)
+            } else {
+                NSLog("[SetupService] triggerTokenSyncImmediately: PushToStartToken ainda nao disponivel no momento.")
+            }
+        }
+    }
+
     /// Sincroniza o Push-To-Start Token e o FCM Token diretamente com o dispositivo via endpoint PATCH /bipe/devices/{id}/tokens
     @objc func syncPushToStartTokenWithServer(_ pushToStartToken: String) {
         let moc = CoreData.sharedInstance().mainMOC
