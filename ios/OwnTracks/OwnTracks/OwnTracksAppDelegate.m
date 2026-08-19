@@ -407,6 +407,15 @@
     }
     
     completionHandler(UIBackgroundFetchResultNewData);
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSDictionary *userInfo = notification.request.content.userInfo;
+    OwnTracksLogDefault("[OwnTracksAppDelegate] willPresentNotification recebido em foreground: %@", userInfo);
+    
+    [BipeLiveActivityManager processBipePushNotificationPayload:userInfo];
+    
+    completionHandler(UNNotificationPresentationOptionList |
+                      UNNotificationPresentationOptionBanner |
+                      UNNotificationPresentationOptionSound);
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {

@@ -2022,39 +2022,37 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         event: String? = nil,
         activityType: String? = "emergency"
     ) {
-        guard let urlString = iconUrl, let url = URL(string: urlString) else {
-            startLiveActivity(
-                nickname: nickname,
-                address: address,
-                iconLocalPath: nil,
-                iconUrl: iconUrl,
-                status: status,
-                way: way,
-                devices: devices,
-                event: event,
-                activityType: activityType
-            )
-            return
-        }
+        // 1. Inicia a Live Activity INSTANTANEAMENTE na hora da recepção (0ms de atraso de rede)
+        startLiveActivity(
+            nickname: nickname,
+            address: address,
+            iconLocalPath: nil,
+            iconUrl: iconUrl,
+            status: status,
+            way: way,
+            devices: devices,
+            event: event,
+            activityType: activityType
+        )
+        
+        // 2. Se houver URL de ícone, baixa em background e atualiza a Live Activity existente
+        guard let urlString = iconUrl, let url = URL(string: urlString) else { return }
         
         URLSession.shared.dataTask(with: url) { data, response, error in
-            var localPath: String? = nil
-            if let data = data, error == nil {
-                localPath = saveImageDataToContainer(data: data)
-            }
-            
-            DispatchQueue.main.async {
-                startLiveActivity(
-                    nickname: nickname,
-                    address: address,
-                    iconLocalPath: localPath,
-                    iconUrl: iconUrl,
-                    status: status,
-                    way: way,
-                    devices: devices,
-                    event: event,
-                    activityType: activityType
-                )
+            if let data = data, error == nil, let localPath = saveImageDataToContainer(data: data) {
+                DispatchQueue.main.async {
+                    startLiveActivity(
+                        nickname: nickname,
+                        address: address,
+                        iconLocalPath: localPath,
+                        iconUrl: iconUrl,
+                        status: status,
+                        way: way,
+                        devices: devices,
+                        event: event,
+                        activityType: activityType
+                    )
+                }
             }
         }.resume()
     }
