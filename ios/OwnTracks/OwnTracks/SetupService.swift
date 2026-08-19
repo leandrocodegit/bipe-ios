@@ -143,21 +143,11 @@ enum SetupError: LocalizedError {
         }
     }
 
-    // MARK: - Obtém pushToStartToken de Live Activity (ActivityKit)
+    // MARK: - Obtém pushToStartToken de Live Activity
 
     private func fetchPushToStartToken(completion: @escaping (String?) -> Void) {
-        #if targetEnvironment(simulator)
-        NSLog("[SetupService] Fallback no simulador. Retornando pushToStartToken mockado para testes.")
-        completion("mock-pts-token-simulator-12345")
-        #else
         #if canImport(ActivityKit)
         if #available(iOS 17.2, *) {
-            guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-                NSLog("[SetupService] Live Activities desabilitadas pelo usuário.")
-                completion(nil)
-                return
-            }
-
             if let tokenData = Activity<BipeAlertActivityAttributes>.pushToStartToken {
                 let hexToken = tokenData.map { String(format: "%02x", $0) }.joined()
                 NSLog("[SetupService] pushToStartToken obtido: %@", hexToken)
@@ -180,18 +170,15 @@ enum SetupError: LocalizedError {
             Task {
                 for await tokenData in Activity<BipeAlertActivityAttributes>.pushToStartTokenUpdates {
                     let hexToken = tokenData.map { String(format: "%02x", $0) }.joined()
-                    NSLog("[SetupService] pushToStartToken (async) obtido: %@", hexToken)
-                    
-                    // Sincroniza o token com o backend para permitir Push-To-Start com app fechado
-                    SetupService.shared.syncPushToStartTokenWithServer(hexToken)
-                    
                     DispatchQueue.main.async {
                         if !completed {
                             completed = true
                             timer.cancel()
+                            NSLog("[SetupService] pushToStartToken (async) obtido: %@", hexToken)
                             completion(hexToken)
                         }
                     }
+                    break
                 }
             }
         } else {
@@ -199,7 +186,6 @@ enum SetupError: LocalizedError {
         }
         #else
         completion(nil)
-        #endif
         #endif
     }
 
@@ -232,6 +218,11 @@ enum SetupError: LocalizedError {
 
     /// Sincroniza o Push-To-Start Token e o FCM Token diretamente com o dispositivo via endpoint PATCH /bipe/devices/{id}/tokens
     @objc func syncPushToStartTokenWithServer(_ pushToStartToken: String) {
+        guard !pushToStartToken.contains("mock"), !pushToStartToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            NSLog("[SetupService] syncPushToStartTokenWithServer: Token mockado ou vazio ignorado.")
+            return
+        }
+        
         let moc = CoreData.sharedInstance().mainMOC
         var deviceId: String? = nil
         moc.performAndWait {
