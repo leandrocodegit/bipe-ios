@@ -72,24 +72,23 @@ struct DeviceBadgeView: View {
     
     var body: some View {
         HStack(spacing: 6) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [themeColor, themeColor.opacity(0.7)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+            if let img = uiImage {
+                Image(uiImage: img)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 26, height: 26)
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [themeColor, themeColor.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 24, height: 24)
-                
-                if let img = uiImage {
-                    Image(uiImage: img)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 16, height: 16)
-                        .clipShape(Circle())
-                } else {
+                        .frame(width: 24, height: 24)
+                    
                     Image(systemName: isImageFile ? systemIcon : (cleanName.lowercased().contains("car") ? "car.fill" : "iphone"))
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.white)
@@ -103,16 +102,24 @@ struct DeviceBadgeView: View {
                     .lineLimit(1)
             }
         }
-        .padding(.leading, 4)
-        .padding(.trailing, isImageFile ? 6 : 10)
-        .padding(.vertical, 5)
+        .padding(.leading, uiImage != nil ? 2 : 4)
+        .padding(.trailing, isImageFile ? (uiImage != nil ? 2 : 6) : 10)
+        .padding(.vertical, uiImage != nil ? 2 : 5)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(UIColor.tertiarySystemGroupedBackground))
+            Group {
+                if !isImageFile {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color(UIColor.tertiarySystemGroupedBackground))
+                }
+            }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+            Group {
+                if !isImageFile {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                }
+            }
         )
     }
 }
