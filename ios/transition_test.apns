@@ -3,7 +3,7 @@
   "type": "transition",
   "way": "Casa da Vovó",
   "event": "enter",
-  "devices": ["abacaxi.png", "car.svg"],
+   "devices": [["abacaxi.png", "bus.svg"]],
   "activityType": "transition",
   "aps": {
     "content-available": 1,
