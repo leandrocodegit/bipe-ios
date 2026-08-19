@@ -27,21 +27,30 @@ struct DeviceBadgeView: View {
     }
     
     var uiImage: UIImage? {
-        if let img = UIImage(named: cleanName) ?? UIImage(named: item) {
+        if let img = UIImage(named: cleanName) ?? UIImage(named: item) ?? UIImage(named: "drawable/\(cleanName)") ?? UIImage(named: "drawable/\(item)") {
             return img
         }
         
         let ext = (item as NSString).pathExtension
-        let type = ext.isEmpty ? "png" : ext
-        
+        let possibleTypes = Array(Set([ext, "png", "PNG", "jpg", "JPG", "jpeg"])).filter { !$0.isEmpty }
         let bundles = [Bundle.main, Bundle(for: WidgetBundleClass.self)]
+        
         for bundle in bundles {
-            if let path = bundle.path(forResource: cleanName, ofType: type, inDirectory: "drawable") ??
-                          bundle.path(forResource: cleanName, ofType: "png", inDirectory: "drawable") ??
-                          bundle.path(forResource: cleanName, ofType: type) ??
-                          bundle.path(forResource: cleanName, ofType: "png"),
-               let img = UIImage(contentsOfFile: path) {
-                return img
+            for type in possibleTypes {
+                // 1. Busca na raiz do bundle (Yellow Group no Xcode)
+                if let path = bundle.path(forResource: cleanName, ofType: type), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
+                if let path = bundle.path(forResource: item, ofType: type), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
+                // 2. Busca na pasta drawable (Blue Folder Reference no Xcode)
+                if let path = bundle.path(forResource: cleanName, ofType: type, inDirectory: "drawable"), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
+                if let path = bundle.path(forResource: item, ofType: type, inDirectory: "drawable"), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
             }
         }
         
@@ -58,13 +67,6 @@ struct DeviceBadgeView: View {
         if n.contains("motorcycle") || n.contains("scooter") { return "motorcycle" }
         if n.contains("truck") || n.contains("caminhao") { return "truck.box.fill" }
         if n.contains("train") || n.contains("tram") { return "tram.fill" }
-        if n.contains("abacaxi") { return "leaf.fill" }
-        if n.contains("apple") { return "apple.logo" }
-        if n.contains("heart") { return "heart.fill" }
-        if n.contains("star") { return "star.fill" }
-        if n.contains("sun") || n.contains("sol") { return "sun.max.fill" }
-        if n.contains("moon") || n.contains("lua") { return "moon.stars.fill" }
-        if n.contains("panda") || n.contains("urso") || n.contains("animal") { return "pawprint.fill" }
         return "mappin.circle.fill"
     }
     
