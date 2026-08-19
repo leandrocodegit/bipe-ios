@@ -2074,7 +2074,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 status: status,
                 iconUrl: iconUrl,
                 iconLocalPath: iconLocalPath,
-                timestamp: Date()
+                timestamp: Date().timeIntervalSince1970
             )
             let content: ActivityContent<BipeAlertActivityAttributes.ContentState>
             if #available(iOS 16.2, *) {
