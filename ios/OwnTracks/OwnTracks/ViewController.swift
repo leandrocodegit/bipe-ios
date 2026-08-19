@@ -1981,10 +1981,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 
                 NSLog("[BipeLiveActivityManager] Iniciando Live Activity TRANSITION para way: '%@', event: '%@', devices: %@", way, event, devicesList)
                 
-                downloadIconAndStartLiveActivity(
+                startLiveActivity(
                     nickname: nickname,
                     address: address,
-                    iconUrl: iconUrl,
+                    iconLocalPath: nil,
+                    iconUrl: nil,
                     status: "transition",
                     way: way,
                     devices: devicesList,
@@ -1995,10 +1996,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 let statusDisplay = statusLower.contains("emergency") || statusLower.contains("emergenc") ? "emergency" : (status ?? "emergency")
                 NSLog("[BipeLiveActivityManager] Iniciando Live Activity EMERGENCY para nickname: '%@', address: '%@'", nickname, address)
                 
-                downloadIconAndStartLiveActivity(
+                startLiveActivity(
                     nickname: nickname,
                     address: address,
-                    iconUrl: iconUrl,
+                    iconLocalPath: nil,
+                    iconUrl: nil,
                     status: statusDisplay,
                     way: nil,
                     devices: nil,
@@ -2011,68 +2013,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         }
     }
 
-    @available(iOS 16.1, *)
-    private static func downloadIconAndStartLiveActivity(
-        nickname: String,
-        address: String,
-        iconUrl: String?,
-        status: String,
-        way: String? = nil,
-        devices: [String]? = nil,
-        event: String? = nil,
-        activityType: String? = "emergency"
-    ) {
-        // 1. Inicia a Live Activity INSTANTANEAMENTE na hora da recepção (0ms de atraso de rede)
-        startLiveActivity(
-            nickname: nickname,
-            address: address,
-            iconLocalPath: nil,
-            iconUrl: iconUrl,
-            status: status,
-            way: way,
-            devices: devices,
-            event: event,
-            activityType: activityType
-        )
-        
-        // 2. Se houver URL de ícone, baixa em background e atualiza a Live Activity existente
-        guard let urlString = iconUrl, let url = URL(string: urlString) else { return }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data, error == nil, let localPath = saveImageDataToContainer(data: data) {
-                DispatchQueue.main.async {
-                    startLiveActivity(
-                        nickname: nickname,
-                        address: address,
-                        iconLocalPath: localPath,
-                        iconUrl: iconUrl,
-                        status: status,
-                        way: way,
-                        devices: devices,
-                        event: event,
-                        activityType: activityType
-                    )
-                }
-            }
-        }.resume()
-    }
-    
-    private static func saveImageDataToContainer(data: Data) -> String? {
-        let fileManager = FileManager.default
-        let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupSuite)
-            ?? fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
-        
-        guard let targetFolder = containerURL else { return nil }
-        let fileURL = targetFolder.appendingPathComponent("bipe_alert_icon.png")
-        
-        do {
-            try data.write(to: fileURL, options: .atomic)
-            return fileURL.path
-        } catch {
-            NSLog("[BipeLiveActivityManager] Erro ao salvar imagem no App Group container: %@", error.localizedDescription)
-            return nil
-        }
-    }
+
 
     @available(iOS 16.1, *)
     private static func startLiveActivity(
