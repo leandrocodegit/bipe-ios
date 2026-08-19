@@ -1945,7 +1945,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             dataDict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
         }
         
-        let type = extractValue(keys: ["type", "_type"], userInfo: userInfo, dataDict: dataDict)
+        let type = extractValue(keys: ["type", "_type", "activityType"], userInfo: userInfo, dataDict: dataDict)
         let status = extractValue(keys: ["status", "_status"], userInfo: userInfo, dataDict: dataDict)
         let eventVal = extractValue(keys: ["event", "transition", "event_type", "eventType", "action"], userInfo: userInfo, dataDict: dataDict)
         let wayVal = extractValue(keys: ["way", "region", "wayName", "locationName", "desc"], userInfo: userInfo, dataDict: dataDict)

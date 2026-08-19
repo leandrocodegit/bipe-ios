@@ -4,6 +4,7 @@
   "way": "Casa da Vovó",
   "event": "enter",
   "devices": ["iPhone do João", "Carro da Maria"],
+  "activityType": "transition",
   "aps": {
     "content-available": 1,
     "alert": {
