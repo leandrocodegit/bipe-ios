@@ -1891,8 +1891,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
     private static let appGroupSuite = "group.br.com.bipe.me"
 
     private static func extractValue(keys: [String], userInfo: NSDictionary, dataDict: [String: Any]?) -> String? {
-        let apsDict = userInfo["aps"] as? [String: Any]
-        let contentState = apsDict?["content-state"] as? [String: Any]
+        let apsDict = (userInfo["aps"] as? NSDictionary) ?? (userInfo["aps"] as? [String: Any]) as NSDictionary?
+        let contentState = (apsDict?["content-state"] as? NSDictionary) ?? (apsDict?["content-state"] as? [String: Any]) as NSDictionary?
         
         for key in keys {
             if let val = userInfo[key] {
@@ -1916,8 +1916,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
     }
 
     private static func extractDevicesArray(userInfo: NSDictionary, dataDict: [String: Any]?) -> [String] {
-        let apsDict = userInfo["aps"] as? [String: Any]
-        let contentState = apsDict?["content-state"] as? [String: Any]
+        let apsDict = (userInfo["aps"] as? NSDictionary) ?? (userInfo["aps"] as? [String: Any]) as NSDictionary?
+        let contentState = (apsDict?["content-state"] as? NSDictionary) ?? (apsDict?["content-state"] as? [String: Any]) as NSDictionary?
         
         var rawValue: Any? = userInfo["devices"] ?? userInfo["_devices"]
         if rawValue == nil {
@@ -1931,6 +1931,9 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         
         if let array = raw as? [String] {
             return array
+        }
+        if let nsArray = raw as? NSArray {
+            return nsArray.compactMap { String(describing: $0) }
         }
         if let arrayDict = raw as? [[String: Any]] {
             return arrayDict.compactMap { dict in
@@ -1956,6 +1959,21 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         return []
     }
 
+    @objc static func testTransitionLiveActivity() {
+        if #available(iOS 16.1, *) {
+            downloadIconAndStartLiveActivity(
+                nickname: "Bipe.me",
+                address: "Região Monitorada",
+                iconUrl: nil,
+                status: "transition",
+                way: "Casa da Vovó",
+                devices: ["iPhone do João", "Carro da Maria"],
+                event: "enter",
+                activityType: "transition"
+            )
+        }
+    }
+
     @objc static func processBipePushNotificationPayload(_ userInfo: NSDictionary) {
         NSLog("[BipeLiveActivityManager] Recebido push payload: %@", userInfo)
         
@@ -1967,12 +1985,13 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         let type = extractValue(keys: ["type", "_type"], userInfo: userInfo, dataDict: dataDict)
         let status = extractValue(keys: ["status", "_status"], userInfo: userInfo, dataDict: dataDict)
         let eventVal = extractValue(keys: ["event", "transition", "event_type", "eventType", "action"], userInfo: userInfo, dataDict: dataDict)
+        let wayVal = extractValue(keys: ["way", "region", "wayName", "locationName", "desc"], userInfo: userInfo, dataDict: dataDict)
         
         let typeLower = type?.lowercased() ?? ""
         let statusLower = status?.lowercased() ?? ""
         let eventLower = eventVal?.lowercased() ?? ""
         
-        let isTransition = typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition")
+        let isTransition = typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil
         let isEmergencyType = typeLower.contains("emergency") || typeLower.contains("bipe_alert") || typeLower.contains("vibrate") || typeLower.contains("bipe") || typeLower.contains("alert")
         let isEmergencyStatus = statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
         
