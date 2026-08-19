@@ -2097,7 +2097,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         let activity = try Activity<BipeAlertActivityAttributes>.request(
                             attributes: attributes,
                             content: content,
-                            pushType: nil
+                            pushType: .token
                         )
                         NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
                         
