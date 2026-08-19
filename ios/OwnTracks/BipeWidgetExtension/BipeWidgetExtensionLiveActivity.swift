@@ -7,6 +7,8 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+private class WidgetBundleClass {}
+
 @available(iOS 16.1, *)
 struct DeviceBadgeView: View {
     let item: String
@@ -32,7 +34,7 @@ struct DeviceBadgeView: View {
         let ext = (item as NSString).pathExtension
         let type = ext.isEmpty ? "png" : ext
         
-        let bundles = [Bundle.main, Bundle(for: BipeAlertActivityAttributes.self)]
+        let bundles = [Bundle.main, Bundle(for: WidgetBundleClass.self)]
         for bundle in bundles {
             if let path = bundle.path(forResource: cleanName, ofType: type, inDirectory: "drawable") ??
                           bundle.path(forResource: cleanName, ofType: "png", inDirectory: "drawable") ??
