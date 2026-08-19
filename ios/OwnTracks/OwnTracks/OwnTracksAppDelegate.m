@@ -142,6 +142,8 @@
                             granted, error);
     }];
     center.delegate = self;
+    
+    [BipeLiveActivityManager registerPushToStartListener];
         
     return YES;
 }

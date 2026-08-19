@@ -1832,63 +1832,26 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     }
 }
 
-// MARK: - BipeAlertActivityAttributes & BipeLiveActivityManager (Live Activity de Emergência e Transição)
-
-#if canImport(ActivityKit)
-@available(iOS 16.1, *)
-public struct BipeAlertActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        public var address: String
-        public var iconUrl: String?
-        public var iconLocalPath: String?
-        public var nickname: String
-        public var status: String
-        public var timestamp: Date
-        
-        // Atributos de Transição de Região:
-        public var way: String?              // Nome da região (ex: "Casa", "Trabalho")
-        public var devices: [String]?       // Lista de nomes de dispositivos na região
-        public var event: String?            // "enter" ou "exit"
-        public var activityType: String?     // "transition" ou "emergency"
-        
-        public init(
-            address: String,
-            iconUrl: String? = nil,
-            iconLocalPath: String? = nil,
-            nickname: String,
-            status: String = "emergency",
-            timestamp: Date = Date(),
-            way: String? = nil,
-            devices: [String]? = nil,
-            event: String? = nil,
-            activityType: String? = "emergency"
-        ) {
-            self.address = address
-            self.iconUrl = iconUrl
-            self.iconLocalPath = iconLocalPath
-            self.nickname = nickname
-            self.status = status
-            self.timestamp = timestamp
-            self.way = way
-            self.devices = devices
-            self.event = event
-            self.activityType = activityType
-        }
-    }
-    
-    public var alertId: String
-    
-    public init(alertId: String = UUID().uuidString) {
-        self.alertId = alertId
-    }
-}
-#endif
+// MARK: - BipeLiveActivityManager (Live Activity de Emergência e Transição)
 
 @objc class BipeLiveActivityManager: NSObject {
     
     private static let tokenEndpoint = "https://dev.simodapp.com:2087/bipe/live-activity/token"
     private static let activityEndpointPrefix = "https://dev.simodapp.com:2087/bipe/live-activity/activity/"
     private static let appGroupSuite = "group.br.com.bipe.me"
+
+    @objc static func registerPushToStartListener() {
+        #if canImport(ActivityKit)
+        if #available(iOS 17.2, *) {
+            Task {
+                for await tokenData in Activity<BipeAlertActivityAttributes>.pushToStartTokenUpdates {
+                    let tokenHex = tokenData.map { String(format: "%02x", $0) }.joined()
+                    NSLog("[BipeLiveActivityManager] Push-to-Start Token registrado/atualizado: %@", tokenHex)
+                }
+            }
+        }
+        #endif
+    }
 
     private static func extractValue(keys: [String], userInfo: NSDictionary, dataDict: [String: Any]?) -> String? {
         let apsDict = (userInfo["aps"] as? NSDictionary) ?? (userInfo["aps"] as? [String: Any]) as NSDictionary?
