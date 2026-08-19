@@ -3,6 +3,7 @@
   "aps": {
     "timestamp": 1724000000,
     "event": "start",
+    "content-available": 1,
     "content-state": {
       "address": "Localização atual",
       "way": "Casa da Vovó",
