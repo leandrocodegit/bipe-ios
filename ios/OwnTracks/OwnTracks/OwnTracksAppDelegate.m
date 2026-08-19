@@ -47,6 +47,12 @@
 
 @property (strong, nonatomic) ConnType *connType;
 
+- (void)connectForcingCleanSession:(BOOL)cleanSession;
+- (BOOL)processURIBeacon:(NSURL *)url;
+- (BOOL)processURIConfig:(NSURL *)url;
+- (BOOL)processFile:(NSURL *)url;
+- (void)performReceiveEvent:(NSDictionary *)userInfo;
+
 @end
 
 @implementation OwnTracksAppDelegate
@@ -407,6 +413,8 @@
     }
     
     completionHandler(UIBackgroundFetchResultNewData);
+}
+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
     NSDictionary *userInfo = notification.request.content.userInfo;
     OwnTracksLogDefault("[OwnTracksAppDelegate] willPresentNotification recebido em foreground: %@", userInfo);
