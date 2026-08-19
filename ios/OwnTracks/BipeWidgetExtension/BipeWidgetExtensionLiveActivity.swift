@@ -338,7 +338,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     .foregroundColor(.secondary)
                             }
                         } else {
-                            BipeIconView(iconLocalPath: context.state.iconLocalPath)
+                            BipeIconView()
                                 .frame(width: 28, height: 28)
                             Text(context.state.nickname)
                                 .font(.subheadline)

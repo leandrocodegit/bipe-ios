@@ -19,19 +19,14 @@ struct BipeWidgetBundle: WidgetBundle {
 
 @available(iOS 16.1, *)
 struct BipeIconView: View {
-    let iconLocalPath: String?
-    
     var body: some View {
-        if let path = iconLocalPath,
-           let uiImage = UIImage(contentsOfFile: path) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFit()
-                .clipShape(Circle())
-        } else {
+        ZStack {
+            Circle()
+                .fill(Color.red.opacity(0.15))
             Image(systemName: "exclamationmark.shield.fill")
                 .resizable()
                 .scaledToFit()
+                .padding(8)
                 .foregroundColor(.red)
         }
     }
@@ -261,7 +256,7 @@ struct EmergencyWidgetView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            BipeIconView(iconLocalPath: state.iconLocalPath)
+            BipeIconView()
                 .frame(width: 48, height: 48)
                 .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
             
@@ -353,7 +348,7 @@ public struct BipeLiveActivityWidget: Widget {
                                     .foregroundColor(.secondary)
                             }
                         } else {
-                            BipeIconView(iconLocalPath: context.state.iconLocalPath)
+                            BipeIconView()
                                 .frame(width: 28, height: 28)
                             Text(context.state.nickname)
                                 .font(.subheadline)
