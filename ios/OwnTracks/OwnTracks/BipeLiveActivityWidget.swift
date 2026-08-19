@@ -17,21 +17,6 @@ struct BipeWidgetBundle: WidgetBundle {
     }
 }
 
-@available(iOS 16.1, *)
-struct BipeIconView: View {
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.red.opacity(0.15))
-            Image(systemName: "exclamationmark.shield.fill")
-                .resizable()
-                .scaledToFit()
-                .padding(8)
-                .foregroundColor(.red)
-        }
-    }
-}
-
 // MARK: - View para Transições de Região ("transition") - Premium UI
 
 @available(iOS 16.1, *)
