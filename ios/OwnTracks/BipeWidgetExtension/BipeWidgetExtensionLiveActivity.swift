@@ -7,6 +7,94 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+@available(iOS 16.1, *)
+struct DeviceBadgeView: View {
+    let item: String
+    let themeColor: Color
+    
+    var cleanName: String {
+        let name = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.hasSuffix(".png") || name.hasSuffix(".svg") || name.hasSuffix(".jpg") {
+            return (name as NSString).deletingPathExtension
+        }
+        return name
+    }
+    
+    var isImageFile: Bool {
+        item.contains(".") || UIImage(named: cleanName) != nil || UIImage(named: item) != nil
+    }
+    
+    var uiImage: UIImage? {
+        UIImage(named: cleanName) ?? UIImage(named: item)
+    }
+    
+    var systemIcon: String {
+        let n = cleanName.lowercased()
+        if n.contains("bus") || n.contains("onibus") { return "bus.fill" }
+        if n.contains("car") || n.contains("fiat") { return "car.fill" }
+        if n.contains("bicycle") || n.contains("bike") { return "bicycle" }
+        if n.contains("boat") || n.contains("ship") { return "ferry.fill" }
+        if n.contains("plane") || n.contains("aviao") { return "airplane" }
+        if n.contains("motorcycle") || n.contains("scooter") { return "motorcycle" }
+        if n.contains("truck") || n.contains("caminhao") { return "truck.box.fill" }
+        if n.contains("train") || n.contains("tram") { return "tram.fill" }
+        if n.contains("abacaxi") { return "leaf.fill" }
+        if n.contains("apple") { return "apple.logo" }
+        if n.contains("heart") { return "heart.fill" }
+        if n.contains("star") { return "star.fill" }
+        if n.contains("sun") || n.contains("sol") { return "sun.max.fill" }
+        if n.contains("moon") || n.contains("lua") { return "moon.stars.fill" }
+        if n.contains("panda") || n.contains("urso") || n.contains("animal") { return "pawprint.fill" }
+        return "mappin.circle.fill"
+    }
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [themeColor, themeColor.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 24, height: 24)
+                
+                if let img = uiImage {
+                    Image(uiImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 16, height: 16)
+                        .clipShape(Circle())
+                } else {
+                    Image(systemName: isImageFile ? systemIcon : (cleanName.lowercased().contains("car") ? "car.fill" : "iphone"))
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+            
+            if !isImageFile {
+                Text(cleanName)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(.leading, 4)
+        .padding(.trailing, isImageFile ? 6 : 10)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(UIColor.tertiarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
+    }
+}
+
 // MARK: - View para Transições de Região ("transition") - Premium UI
 
 @available(iOS 16.1, *)
@@ -132,49 +220,16 @@ struct TransitionWidgetView: View {
                 
                 if !devicesList.isEmpty {
                     HStack(spacing: 8) {
-                        ForEach(devicesList.prefix(3), id: \.self) { devName in
-                            HStack(spacing: 6) {
-                                // Avatar circular do dispositivo
-                                ZStack {
-                                    Circle()
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [themeColor, themeColor.opacity(0.7)],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-                                        .frame(width: 22, height: 22)
-                                    
-                                    Image(systemName: devName.lowercased().contains("car") ? "car.fill" : "iphone")
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
-                                
-                                Text(devName)
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
-                                    .lineLimit(1)
-                            }
-                            .padding(.leading, 4)
-                            .padding(.trailing, 10)
-                            .padding(.vertical, 5)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(Color(UIColor.tertiarySystemGroupedBackground))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-                            )
+                        ForEach(devicesList.prefix(4), id: \.self) { devName in
+                            DeviceBadgeView(item: devName, themeColor: themeColor)
                         }
                         
-                        if devicesList.count > 3 {
+                        if devicesList.count > 4 {
                             ZStack {
                                 Circle()
                                     .fill(themeColor.opacity(0.2))
                                     .frame(width: 28, height: 28)
-                                Text("+\(devicesList.count - 3)")
+                                Text("+\(devicesList.count - 4)")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(themeColor)
                             }

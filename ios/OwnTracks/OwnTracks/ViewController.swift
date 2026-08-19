@@ -1448,6 +1448,15 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         } else if prompt == "get_biometric_name" {
             completionHandler(BiometricAuthManager.shared.biometricName)
             return
+        } else if prompt == "start_live_activity" || prompt == "trigger_live_activity" || prompt == "live_activity" {
+            if let text = defaultText, let data = text.data(using: .utf8),
+               let jsonDict = (try? JSONSerialization.jsonObject(with: data)) as? NSDictionary {
+                BipeLiveActivityManager.processBipePushNotificationPayload(jsonDict)
+                completionHandler("{\"success\": true}")
+                return
+            }
+            completionHandler("{\"error\": \"invalid_payload\"}")
+            return
         }
 
         completionHandler(nil)
@@ -1880,7 +1889,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
     private static func extractDevicesArray(userInfo: NSDictionary, dataDict: [String: Any]?) -> [String] {
         let apsDict = (userInfo["aps"] as? NSDictionary) ?? (userInfo["aps"] as? [String: Any]) as NSDictionary?
-        let contentState = (apsDict?["content-state"] as? NSDictionary) ?? (apsDict?["content-state"] as? [String: Any]) as NSDictionary?
+        let contentState = (apsDict?["content-state"] as? NSDictionary)
+            ?? (apsDict?["content-state"] as? [String: Any]) as NSDictionary?
+            ?? (apsDict?["contentState"] as? NSDictionary)
+            ?? (apsDict?["content_state"] as? NSDictionary)
         
         var rawValue: Any? = userInfo["devices"] ?? userInfo["_devices"]
         if rawValue == nil {
@@ -1895,29 +1907,51 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         if let array = raw as? [String] {
             return array
         }
+        if let nestedArray = raw as? [[String]] {
+            return nestedArray.flatMap { $0 }
+        }
         if let nsArray = raw as? NSArray {
-            return nsArray.compactMap { String(describing: $0) }
+            var result: [String] = []
+            for item in nsArray {
+                if let subArray = item as? NSArray {
+                    for sub in subArray {
+                        result.append(String(describing: sub))
+                    }
+                } else if let subStringArray = item as? [String] {
+                    result.append(contentsOf: subStringArray)
+                } else {
+                    result.append(String(describing: item))
+                }
+            }
+            return result
         }
         if let arrayDict = raw as? [[String: Any]] {
             return arrayDict.compactMap { dict in
-                dict["name"] as? String ?? dict["nickname"] as? String ?? dict["apelido"] as? String ?? dict["username"] as? String
+                dict["name"] as? String ?? dict["nickname"] as? String ?? dict["apelido"] as? String ?? dict["username"] as? String ?? dict["icon"] as? String
             }
         }
         if let str = raw as? String {
             let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.hasPrefix("[") && trimmed.hasSuffix("]") {
-                if let data = trimmed.data(using: .utf8),
-                   let parsedArray = try? JSONSerialization.jsonObject(with: data) as? [String] {
-                    return parsedArray
-                }
-                if let data = trimmed.data(using: .utf8),
-                   let parsedDicts = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-                    return parsedDicts.compactMap { dict in
-                        dict["name"] as? String ?? dict["nickname"] as? String ?? dict["apelido"] as? String ?? dict["username"] as? String
+                if let data = trimmed.data(using: .utf8) {
+                    if let parsedArray = try? JSONSerialization.jsonObject(with: data) as? [String] {
+                        return parsedArray
+                    }
+                    if let parsedNested = try? JSONSerialization.jsonObject(with: data) as? [[String]] {
+                        return parsedNested.flatMap { $0 }
+                    }
+                    if let parsedDicts = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                        return parsedDicts.compactMap { dict in
+                            dict["name"] as? String ?? dict["nickname"] as? String ?? dict["apelido"] as? String ?? dict["username"] as? String ?? dict["icon"] as? String
+                        }
                     }
                 }
             }
-            return trimmed.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            let cleaned = trimmed.replacingOccurrences(of: "[", with: "")
+                                 .replacingOccurrences(of: "]", with: "")
+                                 .replacingOccurrences(of: "\"", with: "")
+                                 .replacingOccurrences(of: "'", with: "")
+            return cleaned.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
         }
         return []
     }
