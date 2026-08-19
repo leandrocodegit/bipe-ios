@@ -57,6 +57,12 @@ import ActivityKit
         
         NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        #if DEBUG
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            BipeLiveActivityManager.testTransitionLiveActivity()
+        }
+        #endif
     }
     
     @objc private func appDidEnterBackground() {
@@ -2163,6 +2169,20 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         }
         #endif
+    @objc static func testTransitionLiveActivity() {
+        if #available(iOS 16.1, *) {
+            startLiveActivity(
+                nickname: "Bipe.me",
+                address: "Casa da Vovó",
+                iconLocalPath: nil,
+                iconUrl: nil,
+                status: "transition",
+                way: "Casa da Vovó",
+                devices: ["iPhone do João", "Carro da Maria"],
+                event: "enter",
+                activityType: "transition"
+            )
+        }
     }
 
     @objc static func endEmergencyLiveActivity() {
