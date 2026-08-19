@@ -146,6 +146,10 @@ enum SetupError: LocalizedError {
     // MARK: - Obtém pushToStartToken de Live Activity (ActivityKit)
 
     private func fetchPushToStartToken(completion: @escaping (String?) -> Void) {
+        #if targetEnvironment(simulator)
+        NSLog("[SetupService] Fallback no simulador. Retornando pushToStartToken mockado para testes.")
+        completion("mock-pts-token-simulator-12345")
+        #else
         #if canImport(ActivityKit)
         if #available(iOS 17.2, *) {
             guard ActivityAuthorizationInfo().areActivitiesEnabled else {
@@ -192,6 +196,7 @@ enum SetupError: LocalizedError {
         }
         #else
         completion(nil)
+        #endif
         #endif
     }
 
