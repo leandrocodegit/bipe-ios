@@ -25,7 +25,25 @@ struct DeviceBadgeView: View {
     }
     
     var uiImage: UIImage? {
-        UIImage(named: cleanName) ?? UIImage(named: item)
+        if let img = UIImage(named: cleanName) ?? UIImage(named: item) {
+            return img
+        }
+        
+        let ext = (item as NSString).pathExtension
+        let type = ext.isEmpty ? "png" : ext
+        
+        let bundles = [Bundle.main, Bundle(for: BipeAlertActivityAttributes.self)]
+        for bundle in bundles {
+            if let path = bundle.path(forResource: cleanName, ofType: type, inDirectory: "drawable") ??
+                          bundle.path(forResource: cleanName, ofType: "png", inDirectory: "drawable") ??
+                          bundle.path(forResource: cleanName, ofType: type) ??
+                          bundle.path(forResource: cleanName, ofType: "png"),
+               let img = UIImage(contentsOfFile: path) {
+                return img
+            }
+        }
+        
+        return nil
     }
     
     var systemIcon: String {
