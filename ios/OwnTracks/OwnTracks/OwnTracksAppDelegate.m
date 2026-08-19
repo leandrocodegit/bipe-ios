@@ -391,6 +391,7 @@
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     OwnTracksLogDefault("[OwnTracksAppDelegate] didRegisterForRemoteNotificationsWithDeviceToken: %@", deviceToken);
     [FIRMessaging messaging].APNSToken = deviceToken;
+    [SetupService.shared triggerTokenSyncImmediately];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
