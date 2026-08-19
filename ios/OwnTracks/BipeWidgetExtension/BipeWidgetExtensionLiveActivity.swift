@@ -501,10 +501,17 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(themeColor)
                             }
-                            Text(regionName)
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
+                            if !regionName.lowercased().contains("monitora") {
+                                Text(regionName)
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                            } else {
+                                Text(context.state.nickname)
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                            }
                         } else {
                             Image(systemName: "exclamationmark.shield.fill")
                                 .resizable()
@@ -629,11 +636,15 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 } else if isTransition {
                     if let firstDev = devicesList.first {
                         DeviceBadgeView(item: firstDev, themeColor: themeColor)
-                    } else {
+                    } else if !regionName.lowercased().contains("monitora") {
                         Text(regionName)
                             .font(.system(size: 11, weight: .bold, design: .rounded))
                             .foregroundColor(themeColor)
                             .lineLimit(1)
+                    } else {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(themeColor)
                     }
                 } else {
                     Text(context.state.nickname)
