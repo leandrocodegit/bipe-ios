@@ -2112,9 +2112,6 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             return
         }
         
-        endEmergencyLiveActivityInternal()
-        
-        let attributes = BipeAlertActivityAttributes()
         let state = BipeAlertActivityAttributes.ContentState(
             address: address,
             iconUrl: iconUrl,
@@ -2129,13 +2126,23 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         )
         let content = ActivityContent(state: state, staleDate: nil)
         
+        // Se já existe uma Live Activity ativa, atualiza o seu conteúdo em vez de criar outra duplicada
+        if let activeActivity = Activity<BipeAlertActivityAttributes>.activities.first(where: { $0.activityState == .active }) {
+            NSLog("[BipeLiveActivityManager] Atualizando Live Activity existente (ID: %@)", activeActivity.id)
+            Task {
+                await activeActivity.update(content)
+            }
+            return
+        }
+        
         do {
+            let attributes = BipeAlertActivityAttributes()
             let activity = try Activity<BipeAlertActivityAttributes>.request(
                 attributes: attributes,
                 content: content,
                 pushType: .token
             )
-            NSLog("[BipeLiveActivityManager] Live Activity iniciada com sucesso. ID: %@", activity.id)
+            NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
             
             Task {
                 for await pushTokenData in activity.pushTokenUpdates {

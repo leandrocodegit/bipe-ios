@@ -37,7 +37,7 @@ struct BipeIconView: View {
     }
 }
 
-// MARK: - View para Transições de Região ("transition")
+// MARK: - View para Transições de Região ("transition") - Premium UI
 
 @available(iOS 16.1, *)
 struct TransitionWidgetView: View {
@@ -49,7 +49,7 @@ struct TransitionWidgetView: View {
     }
     
     var themeColor: Color {
-        isExit ? Color.orange : Color.green
+        isExit ? Color.orange : Color(red: 0.18, green: 0.80, blue: 0.44) // Emerald Green vs Amber Orange
     }
     
     var eventTitle: String {
@@ -69,97 +69,183 @@ struct TransitionWidgetView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Cabeçalho: Ícone da Região + Nome da Região + Badge (ENTROU / SAIU)
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            // MARK: 1. Header com ícone de radar, título da região e badge translúcido
+            HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(themeColor.opacity(0.18))
-                        .frame(width: 36, height: 36)
+                        .fill(
+                            LinearGradient(
+                                colors: [themeColor.opacity(0.3), themeColor.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Circle()
+                                .stroke(themeColor.opacity(0.4), lineWidth: 1.5)
+                        )
                     
-                    Image(systemName: "mappin.and.ellipse")
+                    Image(systemName: "antenna.radiowaves.left.and.right")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(themeColor)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(regionName)
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
+                    HStack(spacing: 6) {
+                        Text(regionName)
+                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                        
+                        // Live pulse dot
+                        Circle()
+                            .fill(themeColor)
+                            .frame(width: 7, height: 7)
+                            .shadow(color: themeColor, radius: 3)
+                    }
                     
-                    Text("Região Monitorada")
-                        .font(.caption2)
+                    Text("ZONA DE MONITORAMENTO")
+                        .font(.system(size: 10, weight: .heavy, design: .rounded))
                         .foregroundColor(.secondary)
+                        .tracking(0.5)
                 }
                 
                 Spacer()
                 
-                HStack(spacing: 4) {
+                // Badge translúcido
+                HStack(spacing: 5) {
                     Image(systemName: eventIcon)
-                        .font(.caption2)
-                        .fontWeight(.bold)
+                        .font(.system(size: 11, weight: .bold))
                     Text(eventTitle)
-                        .font(.caption2)
-                        .fontWeight(.black)
+                        .font(.system(size: 11, weight: .black, design: .rounded))
                 }
-                .padding(.horizontal, 9)
-                .padding(.vertical, 5)
-                .background(Capsule().fill(themeColor.opacity(0.2)))
-                .overlay(Capsule().stroke(themeColor.opacity(0.4), lineWidth: 1))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(themeColor.opacity(0.18))
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(themeColor.opacity(0.4), lineWidth: 1.2)
+                )
                 .foregroundColor(themeColor)
             }
             
-            // Seção de Dispositivos presentes na região
-            if !devicesList.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 4) {
+            // MARK: 2. Card de Perímetro (Geofence Zone) com os dispositivos
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    HStack(spacing: 5) {
                         Image(systemName: "shield.checkerboard")
-                            .font(.caption2)
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(themeColor)
+                        
+                        Text(devicesList.isEmpty ? "PERÍMETRO ATIVO" : "DISPOSITIVOS NA ZONA")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(.secondary)
-                        Text("DISPOSITIVOS NA ÁREA (\(devicesList.count))")
-                            .font(.caption2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                            .tracking(0.5)
                     }
                     
-                    HStack(spacing: 6) {
-                        ForEach(devicesList.prefix(4), id: \.self) { devName in
-                            HStack(spacing: 4) {
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 10))
-                                Text(devName)
-                                    .font(.caption2)
-                                    .fontWeight(.medium)
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Capsule().fill(Color.primary.opacity(0.08)))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                        }
-                        
-                        if devicesList.count > 4 {
-                            Text("+\(devicesList.count - 4)")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 4)
-                                .background(Capsule().fill(themeColor.opacity(0.15)))
-                                .foregroundColor(themeColor)
-                        }
+                    Spacer()
+                    
+                    if !devicesList.isEmpty {
+                        Text("\(devicesList.count) \(devicesList.count == 1 ? "dispositivo" : "dispositivos")")
+                            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                            .foregroundColor(themeColor)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(themeColor.opacity(0.12)))
                     }
                 }
+                
+                if !devicesList.isEmpty {
+                    HStack(spacing: 8) {
+                        ForEach(devicesList.prefix(3), id: \.self) { devName in
+                            HStack(spacing: 6) {
+                                // Avatar circular do dispositivo
+                                ZStack {
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [themeColor, themeColor.opacity(0.7)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 22, height: 22)
+                                    
+                                    Image(systemName: devName.lowercased().contains("car") ? "car.fill" : "iphone")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                Text(devName)
+                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                    .lineLimit(1)
+                            }
+                            .padding(.leading, 4)
+                            .padding(.trailing, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(Color(UIColor.tertiarySystemGroupedBackground))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                            )
+                        }
+                        
+                        if devicesList.count > 3 {
+                            ZStack {
+                                Circle()
+                                    .fill(themeColor.opacity(0.2))
+                                    .frame(width: 28, height: 28)
+                                Text("+\(devicesList.count - 3)")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundColor(themeColor)
+                            }
+                        }
+                    }
+                } else {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.system(size: 13))
+                            .foregroundColor(themeColor)
+                        Text("Transição registrada com sucesso no perímetro monitorado")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
             }
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color(UIColor.tertiarySystemGroupedBackground).opacity(0.6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(themeColor.opacity(0.25), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                    )
+            )
         }
         .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color(UIColor.secondarySystemGroupedBackground))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(themeColor.opacity(0.35), lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [themeColor.opacity(0.5), themeColor.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
                 )
         )
         .activityBackgroundTint(Color(UIColor.systemBackground))
@@ -241,7 +327,7 @@ public struct BipeLiveActivityWidget: Widget {
         } dynamicIsland: { context in
             let isTransition = context.state.activityType == "transition" || context.state.way != nil
             let isExit = (context.state.event?.lowercased() ?? "").contains("exit") || (context.state.event?.lowercased() ?? "").contains("saida")
-            let themeColor: Color = isTransition ? (isExit ? .orange : .green) : .red
+            let themeColor: Color = isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             
@@ -250,19 +336,20 @@ public struct BipeLiveActivityWidget: Widget {
                     HStack(spacing: 8) {
                         if isTransition {
                             ZStack {
-                                Circle().fill(themeColor.opacity(0.2)).frame(width: 28, height: 28)
-                                Image(systemName: "mappin.and.ellipse")
-                                    .font(.system(size: 14, weight: .bold))
+                                Circle()
+                                    .fill(themeColor.opacity(0.25))
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "antenna.radiowaves.left.and.right")
+                                    .font(.system(size: 15, weight: .bold))
                                     .foregroundColor(themeColor)
                             }
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(regionName)
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
                                     .lineLimit(1)
-                                Text("Região")
-                                    .font(.caption2)
+                                Text("Zona Monitorada")
+                                    .font(.system(size: 10, weight: .medium))
                                     .foregroundColor(.secondary)
                             }
                         } else {
@@ -279,13 +366,16 @@ public struct BipeLiveActivityWidget: Widget {
                 
                 DynamicIslandExpandedRegion(.trailing) {
                     if isTransition {
-                        Text(isExit ? "SAIU" : "ENTROU")
-                            .font(.caption2)
-                            .fontWeight(.black)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Capsule().fill(themeColor))
-                            .foregroundColor(.black)
+                        HStack(spacing: 4) {
+                            Image(systemName: isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact")
+                                .font(.system(size: 10, weight: .bold))
+                            Text(isExit ? "SAIU" : "ENTROU")
+                                .font(.system(size: 11, weight: .black, design: .rounded))
+                        }
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(themeColor))
+                        .foregroundColor(.black)
                     } else {
                         Text(context.state.status.uppercased())
                             .font(.caption2)
@@ -300,16 +390,31 @@ public struct BipeLiveActivityWidget: Widget {
                 DynamicIslandExpandedRegion(.bottom) {
                     if isTransition {
                         if !devicesList.isEmpty {
-                            HStack(spacing: 6) {
-                                Image(systemName: "iphone.radiowaves.left.and.right")
-                                    .font(.caption2)
+                            HStack(spacing: 8) {
+                                Image(systemName: "shield.checkerboard")
+                                    .font(.system(size: 12))
                                     .foregroundColor(themeColor)
                                 
-                                Text(devicesList.joined(separator: ", "))
-                                    .font(.footnote)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
+                                ForEach(devicesList.prefix(3), id: \.self) { dev in
+                                    HStack(spacing: 4) {
+                                        Circle()
+                                            .fill(themeColor)
+                                            .frame(width: 5, height: 5)
+                                        Text(dev)
+                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.white)
+                                            .lineLimit(1)
+                                    }
+                                    .padding(.horizontal, 7)
+                                    .padding(.vertical, 3)
+                                    .background(Capsule().fill(Color.white.opacity(0.12)))
+                                }
+                                
+                                if devicesList.count > 3 {
+                                    Text("+\(devicesList.count - 3)")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(themeColor)
+                                }
                             }
                             .padding(.top, 4)
                         } else {
@@ -340,7 +445,7 @@ public struct BipeLiveActivityWidget: Widget {
                 }
             } compactLeading: {
                 if isTransition {
-                    Image(systemName: isExit ? "figure.walk.departure" : "figure.walk.arrival")
+                    Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
                         .foregroundColor(themeColor)
                 } else {
                     Image(systemName: "exclamationmark.triangle.fill")
@@ -349,8 +454,7 @@ public struct BipeLiveActivityWidget: Widget {
             } compactTrailing: {
                 if isTransition {
                     Text(regionName)
-                        .font(.caption2)
-                        .fontWeight(.bold)
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundColor(themeColor)
                         .lineLimit(1)
                 } else {
@@ -362,7 +466,7 @@ public struct BipeLiveActivityWidget: Widget {
                 }
             } minimal: {
                 if isTransition {
-                    Image(systemName: isExit ? "mappin.slash.fill" : "mappin.circle.fill")
+                    Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
                         .foregroundColor(themeColor)
                 } else {
                     Image(systemName: "exclamationmark.triangle.fill")
