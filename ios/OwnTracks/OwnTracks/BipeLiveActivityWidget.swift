@@ -17,6 +17,15 @@ struct BipeWidgetBundle: WidgetBundle {
     var body: some Widget {
         BipeLiveActivityWidget()
     }
+    
+    static func main() {
+        _ = UIApplicationMain(
+            CommandLine.argc,
+            CommandLine.unsafeArgv,
+            nil,
+            NSStringFromClass(OwnTracksAppDelegate.self)
+        )
+    }
 }
 
 @available(iOS 16.1, *)
