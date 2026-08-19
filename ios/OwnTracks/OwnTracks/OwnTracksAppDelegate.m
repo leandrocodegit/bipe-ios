@@ -367,9 +367,21 @@
     
     [BipeLiveActivityManager processBipePushNotificationPayload:userInfo];
 
-    completionHandler(UNNotificationPresentationOptionList |
-                      UNNotificationPresentationOptionBanner |
-                      UNNotificationPresentationOptionSound);
+    NSDictionary *apsDict = [userInfo[@"aps"] isKindOfClass:[NSDictionary class]] ? userInfo[@"aps"] : nil;
+    BOOL hasLiveActivityPayload = userInfo[@"way"] != nil ||
+                                  [type.lowercaseString containsString:@"transition"] ||
+                                  [type.lowercaseString containsString:@"emergency"] ||
+                                  apsDict[@"content-state"] != nil ||
+                                  apsDict[@"contentState"] != nil;
+
+    if (hasLiveActivityPayload) {
+        // Suprime o banner convencional duplicado para Live Activities
+        completionHandler(UNNotificationPresentationOptionSound);
+    } else {
+        completionHandler(UNNotificationPresentationOptionList |
+                          UNNotificationPresentationOptionBanner |
+                          UNNotificationPresentationOptionSound);
+    }
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
