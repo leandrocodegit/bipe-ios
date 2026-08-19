@@ -1994,10 +1994,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         
         let isDistance = typeLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil
         let isTransition = typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil
-        let isEmergencyType = typeLower.contains("emergency") || typeLower.contains("bipe_alert") || typeLower.contains("vibrate") || typeLower.contains("bipe") || typeLower.contains("alert")
-        let isEmergencyStatus = statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
+        let isEmergency = typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
         
-        guard isDistance || isTransition || isEmergencyType || isEmergencyStatus else {
+        guard isDistance || isTransition || isEmergency else {
             NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a distance, transition ou emergency.", typeLower, statusLower, eventLower)
             return
         }
@@ -2049,8 +2048,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     event: event,
                     activityType: "transition"
                 )
-            } else {
-                let statusDisplay = statusLower.contains("emergency") || statusLower.contains("emergenc") ? "emergency" : (status ?? "emergency")
+            } else if isEmergency {
                 NSLog("[BipeLiveActivityManager] Iniciando Live Activity EMERGENCY para nickname: '%@', address: '%@'", nickname, address)
                 
                 startLiveActivity(
@@ -2058,7 +2056,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     address: address,
                     iconLocalPath: nil,
                     iconUrl: nil,
-                    status: statusDisplay,
+                    status: "emergency",
                     way: nil,
                     devices: nil,
                     event: nil,
