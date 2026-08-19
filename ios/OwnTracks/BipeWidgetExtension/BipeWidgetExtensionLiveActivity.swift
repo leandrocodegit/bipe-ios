@@ -7,21 +7,6 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-@available(iOS 16.1, *)
-struct BipeIconView: View {
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.red.opacity(0.15))
-            Image(systemName: "exclamationmark.shield.fill")
-                .resizable()
-                .scaledToFit()
-                .padding(8)
-                .foregroundColor(.red)
-        }
-    }
-}
-
 // MARK: - View para Transições de Região ("transition") - Premium UI
 
 @available(iOS 16.1, *)
@@ -346,8 +331,11 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     .foregroundColor(.secondary)
                             }
                         } else {
-                            BipeIconView()
-                                .frame(width: 28, height: 28)
+                            Image(systemName: "exclamationmark.shield.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24, height: 24)
+                                .foregroundColor(.red)
                             Text(context.state.nickname)
                                 .font(.subheadline)
                                 .fontWeight(.bold)
