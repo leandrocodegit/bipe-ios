@@ -2137,10 +2137,16 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         
         do {
             let attributes = BipeAlertActivityAttributes()
+            #if targetEnvironment(simulator)
+            let pType: ActivityPushType? = nil
+            #else
+            let pType: ActivityPushType? = .token
+            #endif
+            
             let activity = try Activity<BipeAlertActivityAttributes>.request(
                 attributes: attributes,
                 content: content,
-                pushType: .token
+                pushType: pType
             )
             NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
             
@@ -2161,7 +2167,18 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
                 }
             }
         } catch {
-            NSLog("[BipeLiveActivityManager] Erro ao iniciar Live Activity: %@", error.localizedDescription)
+            NSLog("[BipeLiveActivityManager] Erro ao iniciar Live Activity com token: %@. Tentando com pushType nil...", error.localizedDescription)
+            do {
+                let attributes = BipeAlertActivityAttributes()
+                let activity = try Activity<BipeAlertActivityAttributes>.request(
+                    attributes: attributes,
+                    content: content,
+                    pushType: nil
+                )
+                NSLog("[BipeLiveActivityManager] Live Activity iniciada com sucesso (fallback local). ID: %@", activity.id)
+            } catch {
+                NSLog("[BipeLiveActivityManager] Erro fatal ao iniciar Live Activity: %@", error.localizedDescription)
+            }
         }
         #endif
     }
