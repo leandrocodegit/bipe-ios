@@ -2138,15 +2138,15 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         do {
             let attributes = BipeAlertActivityAttributes()
             #if targetEnvironment(simulator)
-            let pType: ActivityPushType? = nil
+            let isSimulator = true
             #else
-            let pType: ActivityPushType? = .token
+            let isSimulator = false
             #endif
             
             let activity = try Activity<BipeAlertActivityAttributes>.request(
                 attributes: attributes,
                 content: content,
-                pushType: pType
+                pushType: isSimulator ? nil : .token
             )
             NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
             
