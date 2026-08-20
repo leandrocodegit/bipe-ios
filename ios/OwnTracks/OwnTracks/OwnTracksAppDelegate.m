@@ -218,13 +218,6 @@
     return YES;
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    OwnTracksLogDefault("[OwnTracksAppDelegate] applicationDidBecomeActive");
-    if ([SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized]) {
-        [BipeLiveActivityManager startLiveActivityOnAppLaunch];
-    }
-}
-
 - (void)startOwnTracksMonitoring {
     OwnTracksLogDefault("[OwnTracksAppDelegate] startOwnTracksMonitoring");
     
@@ -849,6 +842,10 @@
         [Settings setInt:LocationMonitoringMove forKey:@"monitoring_preference" inMOC:moc];
     }
     [CoreData.sharedInstance sync:moc];
+    
+    if ([SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized]) {
+        [BipeLiveActivityManager startLiveActivityOnAppLaunch];
+    }
     
     [self.connection connectToLast];
     
