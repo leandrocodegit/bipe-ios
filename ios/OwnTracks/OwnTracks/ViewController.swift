@@ -2041,12 +2041,13 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     nickname: nickname,
                     address: address,
                     iconLocalPath: nil,
-                    iconUrl: nil,
+                    iconUrl: iconUrl,
                     status: "transition",
                     way: way,
                     devices: devicesList,
                     event: event,
-                    activityType: "transition"
+                    activityType: "transition",
+                    icon: iconUrl
                 )
             } else if isEmergency {
                 NSLog("[BipeLiveActivityManager] Iniciando Live Activity EMERGENCY para nickname: '%@', address: '%@'", nickname, address)
@@ -2055,12 +2056,13 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     nickname: nickname,
                     address: address,
                     iconLocalPath: nil,
-                    iconUrl: nil,
+                    iconUrl: iconUrl,
                     status: "emergency",
                     way: nil,
                     devices: nil,
                     event: nil,
-                    activityType: "emergency"
+                    activityType: "emergency",
+                    icon: iconUrl
                 )
             }
         } else {
@@ -2122,7 +2124,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         activityType: String? = "emergency",
         target: String? = nil,
         alvo: String? = nil,
-        distancia: String? = nil
+        distancia: String? = nil,
+        icon: String? = nil
     ) {
         #if canImport(ActivityKit)
         DispatchQueue.main.async {
@@ -2136,6 +2139,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 status: status,
                 iconUrl: iconUrl,
                 iconLocalPath: iconLocalPath,
+                icon: icon ?? iconUrl,
                 timestamp: Date().timeIntervalSince1970,
                 target: target,
                 alvo: alvo,

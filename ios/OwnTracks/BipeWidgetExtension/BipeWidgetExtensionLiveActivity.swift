@@ -149,9 +149,13 @@ struct TransitionWidgetView: View {
                                 .stroke(themeColor.opacity(0.4), lineWidth: 1.5)
                         )
                     
-                    Image(systemName: "antenna.radiowaves.left.and.right")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(themeColor)
+                    if let triggerIcon = state.icon ?? state.iconUrl, !triggerIcon.isEmpty {
+                        DeviceBadgeView(item: triggerIcon, themeColor: themeColor)
+                    } else {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(themeColor)
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -493,13 +497,17 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                 }
                             }
                         } else if isTransition {
-                            ZStack {
-                                Circle()
-                                    .fill(themeColor.opacity(0.25))
-                                    .frame(width: 28, height: 28)
-                                Image(systemName: "antenna.radiowaves.left.and.right")
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(themeColor)
+                            if let triggerIcon = context.state.icon ?? context.state.iconUrl, !triggerIcon.isEmpty {
+                                DeviceBadgeView(item: triggerIcon, themeColor: themeColor)
+                            } else {
+                                ZStack {
+                                    Circle()
+                                        .fill(themeColor.opacity(0.25))
+                                        .frame(width: 28, height: 28)
+                                    Image(systemName: "antenna.radiowaves.left.and.right")
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundColor(themeColor)
+                                }
                             }
                             if !regionName.lowercased().contains("monitora") {
                                 Text(regionName)
