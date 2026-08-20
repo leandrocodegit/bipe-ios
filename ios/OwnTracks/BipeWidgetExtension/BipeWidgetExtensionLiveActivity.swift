@@ -57,11 +57,18 @@ struct DeviceBadgeView: View {
         return nil
     }
     
+    var isImageFile: Bool {
+        let n = item.lowercased()
+        return n.hasSuffix(".png") || n.hasSuffix(".svg") || n.hasSuffix(".jpg") || n.hasSuffix(".jpeg") || uiImage != nil
+    }
+    
     var systemIcon: String {
         let n = cleanName.lowercased()
+        if n.contains("car") || n.contains("carro") || n.contains("auto") { return "car.fill" }
+        if n.contains("person") || n.contains("user") || n.contains("pessoa") || n.contains("abacaxi") { return "person.fill" }
+        if n.contains("iphone") || n.contains("phone") || n.contains("mobile") || n.contains("celular") { return "iphone" }
         if n.contains("bus") || n.contains("onibus") { return "bus.fill" }
-        if n.contains("car") || n.contains("fiat") { return "car.fill" }
-        if n.contains("bicycle") || n.contains("bike") { return "bicycle" }
+        if n.contains("bicycle") || n.contains("bike") || n.contains("bicicleta") { return "bicycle" }
         if n.contains("boat") || n.contains("ship") { return "ferry.fill" }
         if n.contains("plane") || n.contains("aviao") { return "airplane" }
         if n.contains("motorcycle") || n.contains("scooter") { return "motorcycle" }
@@ -76,7 +83,7 @@ struct DeviceBadgeView: View {
                 Image(uiImage: img)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 24, height: 24)
+                    .frame(width: size, height: size)
             } else {
                 ZStack {
                     Circle()
@@ -87,10 +94,10 @@ struct DeviceBadgeView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 22, height: 22)
+                        .frame(width: size, height: size)
                     
                     Image(systemName: systemIcon)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: size * 0.48, weight: .bold))
                         .foregroundColor(.white)
                 }
             }
@@ -143,17 +150,17 @@ struct TransitionWidgetView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 44, height: 44)
+                        .frame(width: 48, height: 48)
                         .overlay(
                             Circle()
                                 .stroke(themeColor.opacity(0.4), lineWidth: 1.5)
                         )
                     
                     if let triggerIcon = state.icon ?? state.iconUrl, !triggerIcon.isEmpty {
-                        DeviceBadgeView(item: triggerIcon, themeColor: themeColor)
+                        DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 34)
                     } else {
                         Image(systemName: "antenna.radiowaves.left.and.right")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.system(size: 20, weight: .bold))
                             .foregroundColor(themeColor)
                     }
                 }
