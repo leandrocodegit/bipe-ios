@@ -2072,9 +2072,17 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         if #available(iOS 16.1, *) {
             #if canImport(ActivityKit)
             Task { @MainActor in
+                // Clean up any ended or dismissed activities from ActivityKit storage
+                for activity in Activity<BipeAlertActivityAttributes>.activities {
+                    if activity.activityState == .ended || activity.activityState == .dismissed {
+                        await activity.end(nil, dismissalPolicy: .immediate)
+                        removeLiveActivityTokenFromServer(activityId: activity.id)
+                    }
+                }
+                
                 let activeActivities = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
                 if activeActivities.isEmpty {
-                    NSLog("[BipeLiveActivityManager] Criando Live Activity inicial ao abrir o app...")
+                    NSLog("[BipeLiveActivityManager] Nenhuma Live Activity ativa. Recriando Live Activity ao reabrir o app...")
                     let moc = CoreData.sharedInstance().mainMOC
                     var nickname: String = "Bipe.me"
                     moc.performAndWait {
@@ -2181,6 +2189,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         }
         #endif
+    }
+
+    @objc static func endAllLiveActivities() {
+        endEmergencyLiveActivity()
     }
 
     @objc static func endEmergencyLiveActivity() {

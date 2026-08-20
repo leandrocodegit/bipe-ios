@@ -218,6 +218,13 @@
     return YES;
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    OwnTracksLogDefault("[OwnTracksAppDelegate] applicationDidBecomeActive");
+    if ([SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized]) {
+        [BipeLiveActivityManager startLiveActivityOnAppLaunch];
+    }
+}
+
 - (void)startOwnTracksMonitoring {
     OwnTracksLogDefault("[OwnTracksAppDelegate] startOwnTracksMonitoring");
     
