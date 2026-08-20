@@ -22,10 +22,6 @@ struct DeviceBadgeView: View {
         return name
     }
     
-    var isImageFile: Bool {
-        item.contains(".") || UIImage(named: cleanName) != nil || UIImage(named: item) != nil
-    }
-    
     var uiImage: UIImage? {
         if let img = UIImage(named: cleanName) ?? UIImage(named: item) ?? UIImage(named: "drawable/\(cleanName)") ?? UIImage(named: "drawable/\(item)") {
             return img
