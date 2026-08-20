@@ -13,6 +13,7 @@ private class WidgetBundleClass {}
 struct DeviceBadgeView: View {
     let item: String
     let themeColor: Color
+    var size: CGFloat = 24
     
     var cleanName: String {
         let name = item.trimmingCharacters(in: .whitespacesAndNewlines)
