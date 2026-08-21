@@ -307,15 +307,19 @@ public struct BipeLiveActivityWidget: Widget {
     
     public var body: some WidgetConfiguration {
         ActivityConfiguration(for: BipeAlertActivityAttributes.self) { context in
-            if context.state.activityType == "transition" || context.state.way != nil {
+            let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
+            if isEmergency {
+                EmergencyWidgetView(state: context.state)
+            } else if context.state.activityType == "transition" || context.state.way != nil {
                 TransitionWidgetView(state: context.state)
             } else {
                 EmergencyWidgetView(state: context.state)
             }
         } dynamicIsland: { context in
-            let isTransition = context.state.activityType == "transition" || context.state.way != nil
+            let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
+            let isTransition = !isEmergency && (context.state.activityType == "transition" || context.state.way != nil)
             let isExit = (context.state.event?.lowercased() ?? "").contains("exit") || (context.state.event?.lowercased() ?? "").contains("saida")
-            let themeColor: Color = isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red
+            let themeColor: Color = isEmergency ? .red : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red)
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             

@@ -467,21 +467,27 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
     
     public var body: some WidgetConfiguration {
         ActivityConfiguration(for: BipeAlertActivityAttributes.self) { context in
-            let isDistance = context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false)
-            if isDistance {
+            let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
+            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
+            let isTransition = !isEmergency && !isDistance && (context.state.activityType == "transition" || context.state.way != nil)
+            
+            if isEmergency {
+                EmergencyWidgetView(state: context.state)
+            } else if isDistance {
                 DistanceWidgetView(state: context.state)
-            } else if context.state.activityType == "transition" || context.state.way != nil {
+            } else if isTransition {
                 TransitionWidgetView(state: context.state)
             } else {
                 EmergencyWidgetView(state: context.state)
             }
         } dynamicIsland: { context in
-            let isDistance = context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false)
-            let isTransition = context.state.activityType == "transition" || context.state.way != nil
+            let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
+            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
+            let isTransition = !isEmergency && !isDistance && (context.state.activityType == "transition" || context.state.way != nil)
             let isExit = (context.state.event?.lowercased() ?? "").contains("exit") || (context.state.event?.lowercased() ?? "").contains("saida")
             let isApproaching = (context.state.event?.lowercased() ?? "").contains("aproxim") || context.state.status.lowercased().contains("aproxim")
             
-            let themeColor: Color = isDistance ? (isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red)
+            let themeColor: Color = isEmergency ? .red : (isDistance ? (isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red))
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             
