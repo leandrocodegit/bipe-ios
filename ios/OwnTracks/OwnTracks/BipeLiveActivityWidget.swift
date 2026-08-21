@@ -144,7 +144,7 @@ struct TransitionWidgetView: View {
                 
                 if !devicesList.isEmpty {
                     HStack(spacing: 8) {
-                        ForEach(devicesList.prefix(3), id: \.self) { devName in
+                        ForEach(devicesList.prefix(8), id: \.self) { devName in
                             HStack(spacing: 6) {
                                 // Avatar circular do dispositivo
                                 ZStack {
@@ -181,12 +181,12 @@ struct TransitionWidgetView: View {
                             )
                         }
                         
-                        if devicesList.count > 3 {
+                        if devicesList.count > 8 {
                             ZStack {
                                 Circle()
                                     .fill(themeColor.opacity(0.2))
                                     .frame(width: 28, height: 28)
-                                Text("+\(devicesList.count - 3)")
+                                Text("+\(devicesList.count - 8)")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(themeColor)
                             }
@@ -513,7 +513,7 @@ public struct BipeLiveActivityWidget: Widget {
                                     .font(.system(size: 12))
                                     .foregroundColor(themeColor)
                                 
-                                ForEach(devicesList.prefix(3), id: \.self) { dev in
+                                ForEach(devicesList.prefix(8), id: \.self) { dev in
                                     HStack(spacing: 4) {
                                         Circle()
                                             .fill(themeColor)
@@ -528,8 +528,8 @@ public struct BipeLiveActivityWidget: Widget {
                                     .background(Capsule().fill(Color.white.opacity(0.12)))
                                 }
                                 
-                                if devicesList.count > 3 {
-                                    Text("+\(devicesList.count - 3)")
+                                if devicesList.count > 8 {
+                                    Text("+\(devicesList.count - 8)")
                                         .font(.system(size: 10, weight: .bold))
                                         .foregroundColor(themeColor)
                                 }

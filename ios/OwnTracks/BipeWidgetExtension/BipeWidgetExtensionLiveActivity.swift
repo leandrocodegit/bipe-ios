@@ -235,16 +235,16 @@ struct TransitionWidgetView: View {
                 
                 if !devicesList.isEmpty {
                     HStack(spacing: 8) {
-                        ForEach(devicesList.prefix(4), id: \.self) { devName in
+                        ForEach(devicesList.prefix(8), id: \.self) { devName in
                             DeviceBadgeView(item: devName, themeColor: themeColor)
                         }
                         
-                        if devicesList.count > 4 {
+                        if devicesList.count > 8 {
                             ZStack {
                                 Circle()
                                     .fill(themeColor.opacity(0.2))
                                     .frame(width: 28, height: 28)
-                                Text("+\(devicesList.count - 4)")
+                                Text("+\(devicesList.count - 8)")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(themeColor)
                             }
@@ -672,12 +672,12 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                     } else if isTransition {
                         if !devicesList.isEmpty {
                             HStack(spacing: 8) {
-                                ForEach(devicesList.prefix(3), id: \.self) { dev in
+                                ForEach(devicesList.prefix(8), id: \.self) { dev in
                                     DeviceBadgeView(item: dev, themeColor: themeColor)
                                 }
                                 
-                                if devicesList.count > 3 {
-                                    Text("+\(devicesList.count - 3)")
+                                if devicesList.count > 8 {
+                                    Text("+\(devicesList.count - 8)")
                                         .font(.system(size: 10, weight: .bold))
                                         .foregroundColor(themeColor)
                                 }
