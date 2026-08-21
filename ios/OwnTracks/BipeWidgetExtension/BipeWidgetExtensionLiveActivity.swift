@@ -600,10 +600,15 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
     
     public var body: some WidgetConfiguration {
         ActivityConfiguration(for: BipeAlertActivityAttributes.self) { context in
-            let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
+            let st = context.state.status.lowercased()
+            let act = context.state.activityType?.lowercased() ?? ""
+            let ev = context.state.event?.lowercased() ?? ""
+            
+            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
+            let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
-            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.status.lowercased().contains("distance") || hasValidTarget || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
-            let isTransition = !isEmergency && !isDistance && (context.state.activityType == "transition" || context.state.way != nil)
+            let isDistance = !isEmergency && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
+            let isTransition = !isEmergency && !isDistance && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
             
             if isEmergency {
                 EmergencyWidgetView(state: context.state)
@@ -615,12 +620,16 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 EmergencyWidgetView(state: context.state)
             }
         } dynamicIsland: { context in
-            let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
-            let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
-            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.status.lowercased().contains("distance") || hasValidTarget || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
-            let isTransition = !isEmergency && !isDistance && (context.state.activityType == "transition" || context.state.way != nil)
-            let ev = context.state.event?.lowercased() ?? ""
             let st = context.state.status.lowercased()
+            let act = context.state.activityType?.lowercased() ?? ""
+            let ev = context.state.event?.lowercased() ?? ""
+            
+            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
+            let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+            let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
+            let isDistance = !isEmergency && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
+            let isTransition = !isEmergency && !isDistance && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
+            
             let isExit = ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
                          st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
             let isApproaching = ev.contains("aproxim") || st.contains("aproxim")

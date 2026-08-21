@@ -383,7 +383,7 @@ import ActivityKit
         let statusLower = status?.lowercased() ?? ""
         let eventLower = eventVal?.lowercased() ?? ""
         
-        let isBipe = typeLower.contains("bipe") || statusLower.contains("bipe") || eventLower.contains("bipe") || execucaoIdVal != nil
+        let isBipe = typeLower.contains("bipe") || statusLower.contains("bipe") || eventLower.contains("bipe") || execucaoIdVal != nil || statusLower == "start"
         let isEmergency = !isBipe && (typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência"))
         let isDistance = !isBipe && !isEmergency && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
         let isTransition = !isBipe && !isEmergency && !isDistance && (typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil)
