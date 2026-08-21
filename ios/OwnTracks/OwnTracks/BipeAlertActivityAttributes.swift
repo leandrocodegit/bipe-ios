@@ -63,12 +63,12 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.execucaoId = execucaoId
         }
 
-        private enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case address, way, event, devices, activityType, nickname, status
             case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound, execucaoId
         }
 
-        private enum AltCodingKeys: String, CodingKey {
+        public enum AltCodingKeys: String, CodingKey {
             case execucao_id
         }
 
