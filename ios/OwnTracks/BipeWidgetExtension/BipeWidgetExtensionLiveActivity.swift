@@ -436,34 +436,22 @@ struct DistanceWidgetView: View {
                 .foregroundColor(.black)
             }
             
-            // MARK: Linha Compacta: [Target] / [Alvo] e Distância
+            // MARK: Linha Compacta: Ícones [Target] / [Alvo] e Distância
             HStack(spacing: 6) {
                 HStack(spacing: 4) {
                     if let target = state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        HStack(spacing: 3) {
-                            DeviceBadgeView(item: target, themeColor: themeColor, size: 18)
-                            Text(target)
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                        }
+                        DeviceBadgeView(item: target, themeColor: themeColor, size: 24)
                     }
                     
                     if let target = state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                        let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         Text("/")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(.secondary)
                     }
                     
                     if let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        HStack(spacing: 3) {
-                            DeviceBadgeView(item: alvo, themeColor: themeColor, size: 18)
-                            Text(alvo)
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                        }
+                        DeviceBadgeView(item: alvo, themeColor: themeColor, size: 24)
                     }
                 }
                 
