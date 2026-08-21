@@ -12,6 +12,8 @@
 		6A7A6B0A3035547D00E14C2B /* BipeWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6A7A6AF53035547B00E14C2B /* BipeWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BIPE00000000000000000099 /* drawable in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000098 /* drawable */; };
 		BIPE00000000000000000100 /* drawable in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000098 /* drawable */; };
+		BIPE00000000000000000202 /* audios in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000201 /* audios */; };
+		BIPE00000000000000000203 /* audios in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000201 /* audios */; };
 		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
@@ -120,14 +122,7 @@
 		84ED67922F1E9A0E0013A265 /* DSJSONSchemaValidation in Frameworks */ = {isa = PBXBuildFile; productRef = 84ED67912F1E9A0E0013A265 /* DSJSONSchemaValidation */; };
 		84FAEA7225F01DA100DCD479 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84FAEA7125F01DA100DCD479 /* Launch Screen.storyboard */; };
 		99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99B1BE0012F800001000002 /* GoogleService-Info.plist */; };
-		BIPE00000000000000000006 /* bipe_enter.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000005 /* bipe_enter.wav */; };
-		BIPE00000000000000000008 /* bipe_routine_error.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000007 /* bipe_routine_error.wav */; };
-		BIPE00000000000000000010 /* bipe_routine_ok.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000009 /* bipe_routine_ok.wav */; };
-		BIPE00000000000000000012 /* bipe_call.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000011 /* bipe_call.wav */; };
-		BIPE00000000000000000014 /* bipe_exit.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000013 /* bipe_exit.wav */; };
-		BIPE00000000000000000016 /* bipe_sim.wav in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000015 /* bipe_sim.wav */; };
-		BIPE00000000000000000018 /* bipe_digital.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000017 /* bipe_digital.mp3 */; };
-/* End PBXBuildFile section */
+       /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		6A7A6B083035547D00E14C2B /* PBXContainerItemProxy */ = {
@@ -205,6 +200,7 @@
 		8400D9741D84946E00DEA134 /* Model 9.1.7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.1.7.xcdatamodel"; sourceTree = "<group>"; };
 		8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCardTVC.swift; sourceTree = "<group>"; };
 		BIPE00000000000000000098 /* drawable */ = {isa = PBXFileReference; lastKnownFileType = folder; name = drawable; path = drawable; sourceTree = "<group>"; };
+		BIPE00000000000000000201 /* audios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audios; path = audios; sourceTree = "<group>"; };
 		8405CB612F153DD9008C2580 /* ModesTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModesTVC.swift; sourceTree = "<group>"; };
 		840BBDD318E4274200DC113C /* Model 6.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 6.2.xcdatamodel"; sourceTree = "<group>"; };
 		840CA94E2F4DF83C00FD30C1 /* SettingsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTVC.swift; sourceTree = "<group>"; };
@@ -430,14 +426,7 @@
 		B1AC89FB2E2FDF3700E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		B1AC89FD2E2FDF3900E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		B1AC89FE2E2FDF3900E0E194 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
-		BIPE00000000000000000005 /* bipe_enter.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_enter.wav; sourceTree = "<group>"; };
-		BIPE00000000000000000007 /* bipe_routine_error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_routine_error.wav; sourceTree = "<group>"; };
-		BIPE00000000000000000009 /* bipe_routine_ok.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_routine_ok.wav; sourceTree = "<group>"; };
-		BIPE00000000000000000011 /* bipe_call.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_call.wav; sourceTree = "<group>"; };
-		BIPE00000000000000000013 /* bipe_exit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_exit.wav; sourceTree = "<group>"; };
-		BIPE00000000000000000015 /* bipe_sim.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bipe_sim.wav; sourceTree = "<group>"; };
-		BIPE00000000000000000017 /* bipe_digital.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = bipe_digital.mp3; sourceTree = "<group>"; };
-/* End PBXFileReference section */
+	/* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		6A7A6B0D3035547D00E14C2B /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
@@ -589,14 +578,7 @@
 				8411B897189FEB790019D2D6 /* assets */,
 				8411B867189FE1ED0019D2D6 /* coredata */,
 				8411B83C189FDB140019D2D6 /* OwnTracksAppDelegate.h */,
-				8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */,
-				BIPE00000000000000000005 /* bipe_enter.wav */,
-				BIPE00000000000000000007 /* bipe_routine_error.wav */,
-				BIPE00000000000000000009 /* bipe_routine_ok.wav */,
-				BIPE00000000000000000011 /* bipe_call.wav */,
-				BIPE00000000000000000013 /* bipe_exit.wav */,
-				BIPE00000000000000000015 /* bipe_sim.wav */,
-				BIPE00000000000000000017 /* bipe_digital.mp3 */,
+				8411B83D189FDB140019D2D6 /* OwnTracksAppDelegate.m */,			
 				84BDD0CF2F2A815500358CC2 /* OwnTracksLog.h */,
 				84BDD0D02F2A815500358CC2 /* OwnTracksLog.m */,
 				847444381DA4BC9600975BE4 /* ConnType.h */,
@@ -629,6 +611,7 @@
 				84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */,
 				84B1BE0012F8000010000106 /* BipeLiveActivityManager.swift */,
 				BIPE00000000000000000098 /* drawable */,
+				BIPE00000000000000000201 /* audios */,
 				846FFA491B40A301001482A6 /* UI */,
 				8411B834189FDB140019D2D6 /* Supporting Files */,
 			);
@@ -991,6 +974,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BIPE00000000000000000100 /* drawable in Resources */,
+				BIPE00000000000000000202 /* audios in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -999,14 +983,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99B1BE0012F800001000001 /* GoogleService-Info.plist in Resources */,
-				BIPE00000000000000000006 /* bipe_enter.wav in Resources */,
-				BIPE00000000000000000008 /* bipe_routine_error.wav in Resources */,
-				BIPE00000000000000000010 /* bipe_routine_ok.wav in Resources */,
-				BIPE00000000000000000012 /* bipe_call.wav in Resources */,
-				BIPE00000000000000000014 /* bipe_exit.wav in Resources */,
-				BIPE00000000000000000016 /* bipe_sim.wav in Resources */,
-				BIPE00000000000000000018 /* bipe_digital.mp3 in Resources */,
-				8479EEB718E4529900923B24 /* MQTT.plist in Resources */,
+			    8479EEB718E4529900923B24 /* MQTT.plist in Resources */,
 				8400D9731D83825E00DEA134 /* HTTP.plist in Resources */,
 				843B91721C8A14BF00DBD306 /* Storyboard.storyboard in Resources */,
 				84CC5A521FEC71850010314C /* OwnTracks-29.png in Resources */,
@@ -1023,6 +1000,7 @@
 				846B38E92785B50B003E4852 /* elgolfo1.gpx in Resources */,
 				8411B8E1189FEB790019D2D6 /* Location.gpx in Resources */,
 				BIPE00000000000000000099 /* drawable in Resources */,
+				BIPE00000000000000000203 /* audios in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,9 +9,76 @@
 
 import Foundation
 import UIKit
+import AVFoundation
+import UserNotifications
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
+
+// MARK: - BipeAudioHelper (Gerenciamento e Reprodução de Áudio de Notificação)
+
+@objc class BipeAudioHelper: NSObject {
+    
+    private static var audioPlayer: AVAudioPlayer?
+
+    /// Sanitiza e resolve o som recebido no payload buscando EXCLUSIVAMENTE na pasta/subdiretório 'audios/'
+    /// (ex: "audios/bipe_exit.mp3" ou "bipe_exit" -> "audios/bipe_exit.mp3")
+    @objc static func resolveSoundName(from rawSound: String?) -> String? {
+        guard let raw = rawSound?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+            return nil
+        }
+        
+        let filename = (raw as NSString).lastPathComponent
+        let baseName = (filename as NSString).deletingPathExtension
+        let rawExt = (filename as NSString).pathExtension
+        
+        let possibleExtensions = [rawExt, "mp3", "wav", "caf", "aiff"].filter { !$0.isEmpty }
+        
+        for ext in possibleExtensions {
+            if Bundle.main.url(forResource: baseName, withExtension: ext, subdirectory: "audios") != nil {
+                return "audios/\(baseName).\(ext)"
+            }
+        }
+        
+        if Bundle.main.url(forResource: "audios/\(filename)", withExtension: nil) != nil {
+            return "audios/\(filename)"
+        }
+        
+        return "audios/\(baseName).mp3"
+    }
+
+    /// Toca o som de notificação localmente da pasta 'audios/' via AVAudioPlayer
+    @objc static func playSound(named rawSound: String?) {
+        guard let relativePath = resolveSoundName(from: rawSound) else {
+            NSLog("[BipeAudioHelper] Impossível resolver áudio para o parâmetro: %@", rawSound ?? "nil")
+            return
+        }
+        
+        let filename = (relativePath as NSString).lastPathComponent
+        let baseName = (filename as NSString).deletingPathExtension
+        let ext = (filename as NSString).pathExtension
+        
+        guard let soundURL = Bundle.main.url(forResource: baseName, withExtension: ext, subdirectory: "audios")
+                ?? Bundle.main.url(forResource: relativePath, withExtension: nil) else {
+            NSLog("[BipeAudioHelper] Arquivo de áudio '%@' não encontrado na pasta 'audios/'", relativePath)
+            return
+        }
+        
+        DispatchQueue.main.async {
+            do {
+                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+                try AVAudioSession.sharedInstance().setActive(true)
+                
+                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                audioPlayer?.prepareToPlay()
+                audioPlayer?.play()
+                NSLog("[BipeAudioHelper] Áudio '%@' da pasta 'audios/' reproduzido com sucesso!", relativePath)
+            } catch {
+                NSLog("[BipeAudioHelper] Erro ao reproduzir áudio '%@': %@", relativePath, error.localizedDescription)
+            }
+        }
+    }
+}
 
 @objc class BipeLiveActivityManager: NSObject {
     
@@ -304,7 +371,10 @@ import ActivityKit
         let wayVal = extractValue(keys: ["way", "region", "wayName", "locationName"], userInfo: userInfo, dataDict: dataDict)
         let targetVal = extractValue(keys: ["target", "targetDevice", "dispositivo1"], userInfo: userInfo, dataDict: dataDict)
         let alvoVal = extractValue(keys: ["alvo", "targetAlvo", "dispositivo2"], userInfo: userInfo, dataDict: dataDict)
-        let distanciaVal = extractValue(keys: ["distancia", "distance"], userInfo: userInfo, dataDict: dataDict)
+        let soundVal = extractValue(keys: ["sound", "soundName", "audio"], userInfo: userInfo, dataDict: dataDict)
+        if let soundVal = soundVal, !soundVal.isEmpty {
+            BipeAudioHelper.playSound(named: soundVal)
+        }
         
         let typeLower = type?.lowercased() ?? ""
         let statusLower = status?.lowercased() ?? ""

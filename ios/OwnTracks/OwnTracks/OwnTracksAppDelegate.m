@@ -1764,6 +1764,10 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
     if (!iconUrlString) iconUrlString = safeEventString(dictionary[@"avatar"]);
     NSString *soundName = safeEventString(dictionary[@"sound"]);
     if (!soundName) soundName = safeEventString(dictionary[@"soundName"]);
+    if (!soundName && [dictionary[@"data"] isKindOfClass:[NSDictionary class]]) {
+        soundName = safeEventString(dictionary[@"data"][@"sound"]);
+    }
+    NSString *resolvedSoundName = [BipeAudioHelper resolveSoundNameFrom:soundName];
 
     void (^scheduleNotification)(UNNotificationAttachment *) = ^(UNNotificationAttachment *attachment) {
         @try {
@@ -1771,8 +1775,9 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
             content.title = notificationTitle;
             content.body = messageText;
             
-            if (soundName && soundName.length > 0) {
-                content.sound = [UNNotificationSound soundNamed:soundName];
+            if (resolvedSoundName && resolvedSoundName.length > 0) {
+                content.sound = [UNNotificationSound soundNamed:resolvedSoundName];
+                [BipeAudioHelper playSoundNamed:soundName];
             } else {
                 content.sound = [UNNotificationSound defaultSound];
             }
