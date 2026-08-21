@@ -300,6 +300,14 @@ struct EmergencyWidgetView: View {
         return nil
     }
 
+    var badgeText: String {
+        let st = state.status.lowercased()
+        if st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st.isEmpty {
+            return "EMERGÊNCIA"
+        }
+        return state.status.uppercased()
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 8) {
@@ -330,7 +338,7 @@ struct EmergencyWidgetView: View {
                     
                     Spacer()
                     
-                    Text(state.status.uppercased())
+                    Text(badgeText)
                         .font(.caption2)
                         .fontWeight(.black)
                         .padding(.horizontal, 8)
@@ -582,7 +590,9 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                         .background(Capsule().fill(themeColor))
                         .foregroundColor(.black)
                     } else {
-                        Text(context.state.status.uppercased())
+                        let st = context.state.status.lowercased()
+                        let emergencyStatusText = (st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st.isEmpty) ? "EMERGÊNCIA" : context.state.status.uppercased()
+                        Text(emergencyStatusText)
                             .font(.caption2)
                             .fontWeight(.black)
                             .padding(.horizontal, 6)
