@@ -426,7 +426,8 @@ import ActivityKit
                 )
             } else if isTransition {
                 let way = wayVal ?? extractValue(keys: ["way", "region", "wayName", "locationName", "desc"], userInfo: userInfo, dataDict: dataDict) ?? "Região Cadastrada"
-                let event = eventLower.contains("exit") || eventLower.contains("saida") || eventLower.contains("saída") ? "exit" : "enter"
+                let isExitEvent = eventLower.contains("exit") || eventLower.contains("leave") || eventLower.contains("left") || eventLower.contains("saida") || eventLower.contains("saída") || eventLower.contains("saiu") || eventLower.contains("out") || statusLower.contains("exit") || statusLower.contains("leave") || statusLower.contains("left") || statusLower.contains("saida") || statusLower.contains("saída") || statusLower.contains("saiu") || statusLower.contains("out")
+                let event = isExitEvent ? "exit" : "enter"
                 let devicesList = extractDevicesArray(userInfo: userInfo, dataDict: dataDict)
                 
                 NSLog("[BipeLiveActivityManager] Atualizando Live Activity para TRANSITION (way: '%@', event: '%@', devices: %@)", way, event, devicesList)

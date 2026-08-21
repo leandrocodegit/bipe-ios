@@ -116,7 +116,9 @@ struct TransitionWidgetView: View {
     
     var isExit: Bool {
         let ev = state.event?.lowercased() ?? ""
-        return ev.contains("exit") || ev.contains("saida") || ev.contains("saída")
+        let st = state.status.lowercased()
+        return ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
+               st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
     }
     
     var themeColor: Color {
@@ -553,8 +555,11 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.status.lowercased().contains("distance") || hasValidTarget || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
             let isTransition = !isEmergency && !isDistance && (context.state.activityType == "transition" || context.state.way != nil)
-            let isExit = (context.state.event?.lowercased() ?? "").contains("exit") || (context.state.event?.lowercased() ?? "").contains("saida")
-            let isApproaching = (context.state.event?.lowercased() ?? "").contains("aproxim") || context.state.status.lowercased().contains("aproxim")
+            let ev = context.state.event?.lowercased() ?? ""
+            let st = context.state.status.lowercased()
+            let isExit = ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
+                         st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
+            let isApproaching = ev.contains("aproxim") || st.contains("aproxim")
             
             let themeColor: Color = isEmergency ? .red : (isDistance ? (isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red))
             let regionName = context.state.way ?? context.state.address
