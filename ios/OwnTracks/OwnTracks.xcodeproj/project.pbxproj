@@ -12,8 +12,6 @@
 		6A7A6B0A3035547D00E14C2B /* BipeWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6A7A6AF53035547B00E14C2B /* BipeWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BIPE00000000000000000099 /* drawable in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000098 /* drawable */; };
 		BIPE00000000000000000100 /* drawable in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000098 /* drawable */; };
-		BIPE00000000000000000202 /* audios in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000201 /* audios */; };
-		BIPE00000000000000000203 /* audios in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000201 /* audios */; };
 		BIPE00000000000000000302 /* bipe_afasta.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000301 /* bipe_afasta.mp3 */; };
 		BIPE00000000000000000305 /* bipe_aproxima.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000304 /* bipe_aproxima.mp3 */; };
 		BIPE00000000000000000308 /* bipe_call.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000307 /* bipe_call.mp3 */; };
