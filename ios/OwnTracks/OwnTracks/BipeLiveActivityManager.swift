@@ -765,7 +765,25 @@ import ActivityKit
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
                     NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada via MQTT com sucesso (topico: %@, execucaoId: %@)", topic, execucaoId ?? "nil")
                     if #available(iOS 16.1, *) {
-                        endAllLiveActivities()
+                        let moc = CoreData.sharedInstance().mainMOC
+                        var nick: String = "Bipe.me"
+                        moc.performAndWait {
+                            if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
+                                nick = name
+                            }
+                        }
+                        startLiveActivity(
+                            nickname: nick,
+                            address: "Monitorando em tempo real",
+                            iconLocalPath: nil,
+                            iconUrl: nil,
+                            status: "transition",
+                            way: "Monitoramento Ativo",
+                            devices: nil,
+                            event: "enter",
+                            activityType: "transition",
+                            execucaoId: nil
+                        )
                     }
                 } else if attemptsRemaining > 0 {
                     appDelegate.connection?.connectToLast()
@@ -776,7 +794,25 @@ import ActivityKit
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
                     NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada no fallback final com execucaoId: %@", execucaoId ?? "nil")
                     if #available(iOS 16.1, *) {
-                        endAllLiveActivities()
+                        let moc = CoreData.sharedInstance().mainMOC
+                        var nick: String = "Bipe.me"
+                        moc.performAndWait {
+                            if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
+                                nick = name
+                            }
+                        }
+                        startLiveActivity(
+                            nickname: nick,
+                            address: "Monitorando em tempo real",
+                            iconLocalPath: nil,
+                            iconUrl: nil,
+                            status: "transition",
+                            way: "Monitoramento Ativo",
+                            devices: nil,
+                            event: "enter",
+                            activityType: "transition",
+                            execucaoId: nil
+                        )
                     }
                 }
             }
