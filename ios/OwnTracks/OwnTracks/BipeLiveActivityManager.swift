@@ -779,7 +779,7 @@ import ActivityKit
                 if currentState == 3 {
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
                     NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado com sucesso (topico: %@, execucaoId: %@)", status, topic, execucaoId ?? "nil")
-                    if autoResetLiveActivity && #available(iOS 16.1, *) {
+                    if autoResetLiveActivity, #available(iOS 16.1, *) {
                         let nickToUse = nickname ?? "Bipe.me"
                         startLiveActivity(
                             nickname: nickToUse,
@@ -802,7 +802,7 @@ import ActivityKit
                 } else {
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
                     NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado no fallback final com execucaoId: %@", status, topic, execucaoId ?? "nil")
-                    if autoResetLiveActivity && #available(iOS 16.1, *) {
+                    if autoResetLiveActivity, #available(iOS 16.1, *) {
                         let nickToUse = nickname ?? "Bipe.me"
                         startLiveActivity(
                             nickname: nickToUse,
