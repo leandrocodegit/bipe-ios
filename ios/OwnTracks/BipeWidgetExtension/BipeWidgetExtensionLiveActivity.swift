@@ -292,19 +292,33 @@ struct TransitionWidgetView: View {
 struct EmergencyWidgetView: View {
     let state: BipeAlertActivityAttributes.ContentState
 
+    var receivedIcon: String? {
+        if let icon = state.icon, !icon.isEmpty { return icon }
+        if let iconUrl = state.iconUrl, !iconUrl.isEmpty { return iconUrl }
+        if let target = state.target, !target.isEmpty { return target }
+        if let firstDev = state.devices?.first, !firstDev.isEmpty { return firstDev }
+        return nil
+    }
+
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(Color.red.opacity(0.15))
-                Image(systemName: "exclamationmark.shield.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .padding(8)
-                    .foregroundColor(.red)
+        HStack(spacing: 12) {
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(Color.red.opacity(0.15))
+                    Image(systemName: "exclamationmark.shield.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .padding(8)
+                        .foregroundColor(.red)
+                }
+                .frame(width: 44, height: 44)
+                .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
+                
+                if let iconItem = receivedIcon {
+                    DeviceBadgeView(item: iconItem, themeColor: .red, size: 44)
+                }
             }
-            .frame(width: 48, height: 48)
-            .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -536,6 +550,9 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                 .scaledToFit()
                                 .frame(width: 24, height: 24)
                                 .foregroundColor(.red)
+                            if let iconItem = context.state.icon ?? context.state.iconUrl ?? context.state.target ?? context.state.devices?.first, !iconItem.isEmpty {
+                                DeviceBadgeView(item: iconItem, themeColor: .red, size: 24)
+                            }
                             Text(context.state.nickname)
                                 .font(.subheadline)
                                 .fontWeight(.bold)

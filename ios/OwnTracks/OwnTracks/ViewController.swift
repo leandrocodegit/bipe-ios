@@ -2047,7 +2047,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 ?? Settings.string(forKey: "user_preference", inMOC: moc)
                 ?? "Bipe.me"
             
-            let address = extractValue(keys: ["address", "endereco", "locationName", "desc", "text"], userInfo: userInfo, dataDict: dataDict)
+            let address = extractValue(keys: ["address", "endereco", "locationName", "desc", "text", "location"], userInfo: userInfo, dataDict: dataDict)
                 ?? "Localização atual"
             
             let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict)

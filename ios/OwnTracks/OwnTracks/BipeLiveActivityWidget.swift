@@ -233,25 +233,128 @@ struct TransitionWidgetView: View {
     }
 }
 
+private class WidgetBundleClass {}
+
+@available(iOS 16.1, *)
+struct DeviceBadgeView: View {
+    let item: String
+    let themeColor: Color
+    var size: CGFloat = 20.0
+    
+    var cleanName: String {
+        let name = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.hasSuffix(".png") || name.hasSuffix(".svg") || name.hasSuffix(".jpg") {
+            return (name as NSString).deletingPathExtension
+        }
+        return name
+    }
+    
+    var uiImage: UIImage? {
+        if let img = UIImage(named: cleanName) ?? UIImage(named: item) ?? UIImage(named: "drawable/\(cleanName)") ?? UIImage(named: "drawable/\(item)") {
+            return img
+        }
+        
+        let ext = (item as NSString).pathExtension
+        let possibleTypes = Array(Set([ext, "png", "PNG", "jpg", "JPG", "jpeg"])).filter { !$0.isEmpty }
+        let bundles = [Bundle.main, Bundle(for: WidgetBundleClass.self)]
+        
+        for bundle in bundles {
+            for type in possibleTypes {
+                if let path = bundle.path(forResource: cleanName, ofType: type), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
+                if let path = bundle.path(forResource: item, ofType: type), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
+                if let path = bundle.path(forResource: cleanName, ofType: type, inDirectory: "drawable"), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
+                if let path = bundle.path(forResource: item, ofType: type, inDirectory: "drawable"), let img = UIImage(contentsOfFile: path) {
+                    return img
+                }
+            }
+        }
+        
+        return nil
+    }
+    
+    var systemIcon: String {
+        let n = cleanName.lowercased()
+        if n.contains("car") || n.contains("carro") || n.contains("auto") { return "car.fill" }
+        if n.contains("person") || n.contains("user") || n.contains("pessoa") || n.contains("abacaxi") { return "person.fill" }
+        if n.contains("iphone") || n.contains("phone") || n.contains("mobile") || n.contains("celular") { return "iphone" }
+        if n.contains("bus") || n.contains("onibus") { return "bus.fill" }
+        if n.contains("bicycle") || n.contains("bike") || n.contains("bicicleta") { return "bicycle" }
+        if n.contains("boat") || n.contains("ship") { return "ferry.fill" }
+        if n.contains("plane") || n.contains("aviao") { return "airplane" }
+        if n.contains("motorcycle") || n.contains("scooter") { return "motorcycle" }
+        if n.contains("truck") || n.contains("caminhao") { return "truck.box.fill" }
+        if n.contains("train") || n.contains("tram") { return "tram.fill" }
+        return "mappin.circle.fill"
+    }
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            if let img = uiImage {
+                Image(uiImage: img)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size, height: size)
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [themeColor, themeColor.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: size, height: size)
+                    
+                    Image(systemName: systemIcon)
+                        .font(.system(size: size * 0.48, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+        }
+        .padding(2)
+    }
+}
+
 // MARK: - View para Alertas de Emergência
 
 @available(iOS 16.1, *)
 struct EmergencyWidgetView: View {
     let state: BipeAlertActivityAttributes.ContentState
 
+    var receivedIcon: String? {
+        if let icon = state.icon, !icon.isEmpty { return icon }
+        if let iconUrl = state.iconUrl, !iconUrl.isEmpty { return iconUrl }
+        if let target = state.target, !target.isEmpty { return target }
+        if let firstDev = state.devices?.first, !firstDev.isEmpty { return firstDev }
+        return nil
+    }
+
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(Color.red.opacity(0.15))
-                Image(systemName: "exclamationmark.shield.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .padding(8)
-                    .foregroundColor(.red)
+        HStack(spacing: 12) {
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(Color.red.opacity(0.15))
+                    Image(systemName: "exclamationmark.shield.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .padding(8)
+                        .foregroundColor(.red)
+                }
+                .frame(width: 44, height: 44)
+                .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
+                
+                if let iconItem = receivedIcon {
+                    DeviceBadgeView(item: iconItem, themeColor: .red, size: 44)
+                }
             }
-            .frame(width: 48, height: 48)
-            .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
