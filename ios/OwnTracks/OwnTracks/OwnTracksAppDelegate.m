@@ -308,6 +308,21 @@
         return TRUE;
     }
 
+    // Handler para confirmação de bipe via URL (ex: bipe://confirm?execucaoId=123 ou bipe.me://confirm?execucaoId=123)
+    if ([host isEqualToString:@"confirm"] || [path isEqualToString:@"/confirm"] || [url.scheme isEqualToString:@"bipe"]) {
+        NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+        NSString *execucaoId = nil;
+        for (NSURLQueryItem *item in components.queryItems) {
+            if ([item.name isEqualToString:@"execucaoId"] || [item.name isEqualToString:@"execucao_id"]) {
+                execucaoId = item.value;
+                break;
+            }
+        }
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Link bipe://confirm recebido com execucaoId: %@", execucaoId);
+        [BipeLiveActivityManager sendBipeConfirmationWithExecucaoId:execucaoId];
+        return YES;
+    }
+
     OwnTracksLogDebug("[OwnTracksAppDelegate] URL scheme %@", url.scheme);
 
     if ([url.scheme isEqualToString:@"owntracks"]) {
@@ -545,22 +560,7 @@
     completionHandler();
 }
 
-- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    if (url && ([url.scheme isEqualToString:@"bipe"] || [url.host isEqualToString:@"confirm"])) {
-        NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-        NSString *execucaoId = nil;
-        for (NSURLQueryItem *item in components.queryItems) {
-            if ([item.name isEqualToString:@"execucaoId"] || [item.name isEqualToString:@"execucao_id"]) {
-                execucaoId = item.value;
-                break;
-            }
-        }
-        OwnTracksLogDefault("[OwnTracksAppDelegate] Link bipe://confirm recebido com execucaoId: %@", execucaoId);
-        [BipeLiveActivityManager sendBipeConfirmationWithExecucaoId:execucaoId];
-        return YES;
-    }
-    return YES;
-}
+
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
     if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
