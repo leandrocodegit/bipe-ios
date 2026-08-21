@@ -371,6 +371,7 @@ import ActivityKit
         let wayVal = extractValue(keys: ["way", "region", "wayName", "locationName"], userInfo: userInfo, dataDict: dataDict)
         let targetVal = extractValue(keys: ["target", "targetDevice", "dispositivo1"], userInfo: userInfo, dataDict: dataDict)
         let alvoVal = extractValue(keys: ["alvo", "targetAlvo", "dispositivo2"], userInfo: userInfo, dataDict: dataDict)
+        let distanciaVal = extractValue(keys: ["distancia", "distance"], userInfo: userInfo, dataDict: dataDict)
         let soundVal = extractValue(keys: ["sound", "soundName", "audio"], userInfo: userInfo, dataDict: dataDict)
         if let soundVal = soundVal, !soundVal.isEmpty {
             BipeAudioHelper.playSound(named: soundVal)
