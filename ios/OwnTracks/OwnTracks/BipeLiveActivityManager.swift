@@ -101,7 +101,7 @@ import ActivityKit
                 }
             }
             Task { @MainActor in
-                let active = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
+                let active = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
                 if let first = active.first {
                     await sanitizeDuplicateActivities(keeping: first)
                 }
@@ -154,14 +154,14 @@ import ActivityKit
     private static func sanitizeDuplicateActivities(keeping primaryActivity: Activity<BipeAlertActivityAttributes>? = nil) async {
         #if canImport(ActivityKit)
         let allActivities = Activity<BipeAlertActivityAttributes>.activities
-        let activeActivities = allActivities.filter { $0.activityState == .active }
+        let visibleActivities = allActivities.filter { $0.activityState == .active || $0.activityState == .stale }
         
-        guard activeActivities.count > 1 else { return }
+        guard visibleActivities.count > 1 else { return }
         
-        let targetToKeep = primaryActivity ?? activeActivities.first
-        NSLog("[BipeLiveActivityManager] Encontradas %d Live Activities ativas. Mantendo ID %@ e encerrando duplicadas...", activeActivities.count, targetToKeep?.id ?? "")
+        let targetToKeep = primaryActivity ?? visibleActivities.first
+        NSLog("[BipeLiveActivityManager] Encontradas %d Live Activities visíveis. Mantendo ID %@ e encerrando duplicadas...", visibleActivities.count, targetToKeep?.id ?? "")
         
-        for activity in activeActivities {
+        for activity in visibleActivities {
             if let keep = targetToKeep, activity.id == keep.id {
                 continue
             }
@@ -187,15 +187,15 @@ import ActivityKit
                     }
                 }
                 
-                // 2. Garante que exista no máximo 1 ativa
-                let activeActivities = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
-                if activeActivities.count > 1 {
-                    await sanitizeDuplicateActivities(keeping: activeActivities.first)
+                // 2. Garante que exista no máximo 1 ativa/visível
+                let visibleActivities = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
+                if visibleActivities.count > 1 {
+                    await sanitizeDuplicateActivities(keeping: visibleActivities.first)
                 }
                 
-                // 3. Se nenhuma estiver ativa, cria a Live Activity padrão inicial
-                let remainingActive = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
-                if remainingActive.isEmpty {
+                // 3. Se nenhuma estiver visível, cria a Live Activity padrão inicial
+                let remainingVisible = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
+                if remainingVisible.isEmpty {
                     NSLog("[BipeLiveActivityManager] Nenhuma Live Activity ativa. Criando Live Activity única inicial...")
                     let moc = CoreData.sharedInstance().mainMOC
                     var nickname: String = "Bipe.me"
@@ -216,7 +216,10 @@ import ActivityKit
                         activityType: "transition"
                     )
                 } else {
-                    NSLog("[BipeLiveActivityManager] Live Activity única já ativa na tela (ID: %@). Nenhuma nova criação necessária.", remainingActive.first?.id ?? "")
+                    if let first = remainingVisible.first {
+                        NSLog("[BipeLiveActivityManager] Live Activity única já visível na tela (ID: %@). Re-sincronizando tokens...", first.id)
+                        observeActivityToken(first)
+                    }
                 }
             }
             #endif
@@ -261,27 +264,28 @@ import ActivityKit
             )
             let content: ActivityContent<BipeAlertActivityAttributes.ContentState>
             if #available(iOS 16.2, *) {
-                content = ActivityContent(state: state, staleDate: Date().addingTimeInterval(3600), relevanceScore: 100.0)
+                content = ActivityContent(state: state, staleDate: Date.distantFuture, relevanceScore: 100.0)
             } else {
-                content = ActivityContent(state: state, staleDate: Date().addingTimeInterval(3600))
+                content = ActivityContent(state: state, staleDate: Date.distantFuture)
             }
             
             Task { @MainActor in
-                let activeActivities = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
+                let visibleActivities = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
                 
-                // Se houver mais de uma atividade ativa, encerra as duplicadas mantendo apenas a primeira
-                if activeActivities.count > 1 {
-                    await sanitizeDuplicateActivities(keeping: activeActivities.first)
+                // Se houver mais de uma atividade visível, encerra as duplicadas mantendo apenas a primeira
+                if visibleActivities.count > 1 {
+                    await sanitizeDuplicateActivities(keeping: visibleActivities.first)
                 }
                 
-                let currentActive = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active }
+                let currentVisible = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
                 
-                if let singleActiveActivity = currentActive.first {
+                if let singleActiveActivity = currentVisible.first {
                     NSLog("[BipeLiveActivityManager] Reutilizando e atualizando Live Activity existente (ID: %@)", singleActiveActivity.id)
                     await singleActiveActivity.update(content)
+                    observeActivityToken(singleActiveActivity)
                     NSLog("[BipeLiveActivityManager] Live Activity %@ atualizada com sucesso!", singleActiveActivity.id)
                 } else {
-                    NSLog("[BipeLiveActivityManager] Nenhuma Live Activity ativa. Criando nova atividade única...")
+                    NSLog("[BipeLiveActivityManager] Nenhuma Live Activity visível. Criando nova atividade única...")
                     do {
                         let attributes = BipeAlertActivityAttributes()
                         let activity = try Activity<BipeAlertActivityAttributes>.request(
@@ -290,23 +294,7 @@ import ActivityKit
                             pushType: .token
                         )
                         NSLog("[BipeLiveActivityManager] Nova Live Activity iniciada com sucesso. ID: %@", activity.id)
-                        
-                        Task {
-                            for await pushTokenData in activity.pushTokenUpdates {
-                                let pushTokenHex = pushTokenData.map { String(format: "%02x", $0) }.joined()
-                                NSLog("[BipeLiveActivityManager] Push Token recebido para Live Activity %@: %@", activity.id, pushTokenHex)
-                                sendLiveActivityTokenToServer(token: pushTokenHex, activityId: activity.id)
-                            }
-                        }
-                        
-                        Task {
-                            for await state in activity.activityStateUpdates {
-                                if state == .ended || state == .dismissed {
-                                    NSLog("[BipeLiveActivityManager] Live Activity %@ finalizada. Removendo token do servidor.", activity.id)
-                                    removeLiveActivityTokenFromServer(activityId: activity.id)
-                                }
-                            }
-                        }
+                        observeActivityToken(activity)
                     } catch {
                         NSLog("[BipeLiveActivityManager] Erro ao iniciar Live Activity: %@ (detalhes: %@)", error.localizedDescription, String(describing: error))
                     }
