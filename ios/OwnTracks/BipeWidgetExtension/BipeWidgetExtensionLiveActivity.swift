@@ -17,18 +17,23 @@ struct DeviceBadgeView: View {
     
     var cleanName: String {
         let name = item.trimmingCharacters(in: .whitespacesAndNewlines)
-        if name.hasSuffix(".png") || name.hasSuffix(".svg") || name.hasSuffix(".jpg") {
+        if name.hasSuffix(".png") || name.hasSuffix(".svg") || name.hasSuffix(".jpg") || name.hasSuffix(".jpeg") {
             return (name as NSString).deletingPathExtension
         }
         return name
     }
     
     var uiImage: UIImage? {
+        let trimmed = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        
         if let img = UIImage(named: cleanName) ?? UIImage(named: item) ?? UIImage(named: "drawable/\(cleanName)") ?? UIImage(named: "drawable/\(item)") {
             return img
         }
         
         let ext = (item as NSString).pathExtension
+        guard !ext.isEmpty else { return nil }
+        
         let possibleTypes = Array(Set([ext, "png", "PNG", "jpg", "JPG", "jpeg"])).filter { !$0.isEmpty }
         let bundles = [Bundle.main, Bundle(for: WidgetBundleClass.self)]
         
@@ -434,22 +439,37 @@ struct DistanceWidgetView: View {
             // MARK: Linha Compacta: [Target] / [Alvo] e Distância
             HStack(spacing: 6) {
                 HStack(spacing: 4) {
-                    if let target = state.target, !target.isEmpty {
-                        DeviceBadgeView(item: target, themeColor: themeColor)
+                    if let target = state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        HStack(spacing: 3) {
+                            DeviceBadgeView(item: target, themeColor: themeColor, size: 18)
+                            Text(target)
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                        }
                     }
                     
-                    Text("/")
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(.secondary)
+                    if let target = state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                       let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("/")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundColor(.secondary)
+                    }
                     
-                    if let alvo = state.alvo, !alvo.isEmpty {
-                        DeviceBadgeView(item: alvo, themeColor: themeColor)
+                    if let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        HStack(spacing: 3) {
+                            DeviceBadgeView(item: alvo, themeColor: themeColor, size: 18)
+                            Text(alvo)
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                        }
                     }
                 }
                 
                 Spacer()
                 
-                if let dist = state.distancia, !dist.isEmpty {
+                if let dist = state.distancia, !dist.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     HStack(spacing: 3) {
                         Image(systemName: "location.fill")
                             .font(.system(size: 10, weight: .bold))
@@ -490,7 +510,8 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
     public var body: some WidgetConfiguration {
         ActivityConfiguration(for: BipeAlertActivityAttributes.self) { context in
             let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
-            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
+            let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
+            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.status.lowercased().contains("distance") || hasValidTarget || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
             let isTransition = !isEmergency && !isDistance && (context.state.activityType == "transition" || context.state.way != nil)
             
             if isEmergency {
@@ -504,7 +525,8 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             }
         } dynamicIsland: { context in
             let isEmergency = context.state.activityType == "emergency" || context.state.status.lowercased().contains("emergency") || context.state.status.lowercased().contains("emergencia") || context.state.status.lowercased().contains("emergência")
-            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.target != nil || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
+            let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
+            let isDistance = !isEmergency && (context.state.activityType == "distance" || context.state.status.lowercased().contains("distance") || hasValidTarget || (context.state.event?.lowercased().contains("aproxim") ?? false) || (context.state.event?.lowercased().contains("afast") ?? false))
             let isTransition = !isEmergency && !isDistance && (context.state.activityType == "transition" || context.state.way != nil)
             let isExit = (context.state.event?.lowercased() ?? "").contains("exit") || (context.state.event?.lowercased() ?? "").contains("saida")
             let isApproaching = (context.state.event?.lowercased() ?? "").contains("aproxim") || context.state.status.lowercased().contains("aproxim")

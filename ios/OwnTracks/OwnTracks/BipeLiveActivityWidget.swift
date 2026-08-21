@@ -243,18 +243,23 @@ struct DeviceBadgeView: View {
     
     var cleanName: String {
         let name = item.trimmingCharacters(in: .whitespacesAndNewlines)
-        if name.hasSuffix(".png") || name.hasSuffix(".svg") || name.hasSuffix(".jpg") {
+        if name.hasSuffix(".png") || name.hasSuffix(".svg") || name.hasSuffix(".jpg") || name.hasSuffix(".jpeg") {
             return (name as NSString).deletingPathExtension
         }
         return name
     }
     
     var uiImage: UIImage? {
+        let trimmed = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        
         if let img = UIImage(named: cleanName) ?? UIImage(named: item) ?? UIImage(named: "drawable/\(cleanName)") ?? UIImage(named: "drawable/\(item)") {
             return img
         }
         
         let ext = (item as NSString).pathExtension
+        guard !ext.isEmpty else { return nil }
+        
         let possibleTypes = Array(Set([ext, "png", "PNG", "jpg", "JPG", "jpeg"])).filter { !$0.isEmpty }
         let bundles = [Bundle.main, Bundle(for: WidgetBundleClass.self)]
         

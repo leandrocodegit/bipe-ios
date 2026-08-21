@@ -311,7 +311,7 @@ import ActivityKit
         let eventLower = eventVal?.lowercased() ?? ""
         
         let isEmergency = typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
-        let isDistance = !isEmergency && (typeLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
+        let isDistance = !isEmergency && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
         let isTransition = !isEmergency && !isDistance && (typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil)
         
         guard isDistance || isTransition || isEmergency else {
