@@ -757,7 +757,7 @@ import ActivityKit
             let topic = (baseTopic ?? "").isEmpty ? "bipe" : (baseTopic! + "/bipe")
             
             func attemptPublish(attemptsRemaining: Int) {
-                let currentState = appDelegate.connection?.state.rawValue ?? -1
+                let currentState = Int(appDelegate.connection?.state ?? -1)
                 NSLog("[BipeLiveActivityManager] Tentativa de envio MQTT bipe. Estado conexao: %d, tentativas restantes: %d", currentState, attemptsRemaining)
                 
                 // state_connected tem rawValue 3
