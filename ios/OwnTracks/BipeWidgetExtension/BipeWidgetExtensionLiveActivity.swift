@@ -6,6 +6,25 @@
 import ActivityKit
 import WidgetKit
 import SwiftUI
+import AppIntents
+
+@available(iOS 17.0, *)
+struct ConfirmBipeIntent: LiveActivityIntent {
+    static var title: LocalizedStringResource = "Confirmar Bipe"
+    
+    @Parameter(title: "Execução ID")
+    var execucaoId: String?
+    
+    init() {}
+    init(execucaoId: String?) {
+        self.execucaoId = execucaoId
+    }
+    
+    func perform() async throws -> some IntentResult {
+        BipeLiveActivityManager.sendBipeConfirmation(execucaoId: execucaoId)
+        return .result()
+    }
+}
 
 private class WidgetBundleClass {}
 
@@ -300,8 +319,7 @@ struct EmergencyWidgetView: View {
     let state: BipeAlertActivityAttributes.ContentState
 
     var receivedIcon: String? {
-        if let icon = state.icon, !icon.isEmpty { return icon }
-        if let iconUrl = state.iconUrl, !iconUrl.isEmpty { return iconUrl }
+        if let icon = state.icon, !icon.isEmpty { return icon } 
         if let target = state.target, !target.isEmpty { return target }
         if let firstDev = state.devices?.first, !firstDev.isEmpty { return firstDev }
         return nil
@@ -316,54 +334,96 @@ struct EmergencyWidgetView: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(Color.red.opacity(0.15))
-                    Image(systemName: "exclamationmark.shield.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .padding(8)
-                        .foregroundColor(.red)
+        VStack(spacing: 8) {
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.red.opacity(0.15))
+                        Image(systemName: "exclamationmark.shield.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(8)
+                            .foregroundColor(.red)
+                    }
+                    .frame(width: 44, height: 44)
+                    .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
+                    
+                    if let iconItem = receivedIcon {
+                        DeviceBadgeView(item: iconItem, themeColor: .red, size: 44)
+                    }
                 }
-                .frame(width: 44, height: 44)
-                .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
                 
-                if let iconItem = receivedIcon {
-                    DeviceBadgeView(item: iconItem, themeColor: .red, size: 44)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(state.nickname)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                        
+                        Spacer()
+                        
+                        Text(badgeText)
+                            .font(.caption2)
+                            .fontWeight(.black)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Capsule().fill(Color.red))
+                            .foregroundColor(.white)
+                    }
+                    
+                    HStack(alignment: .top, spacing: 4) {
+                        Image(systemName: "mappin.and.ellipse")
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                        
+                        Text(state.address)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             }
             
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(state.nickname)
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                    
-                    Spacer()
-                    
-                    Text(badgeText)
-                        .font(.caption2)
-                        .fontWeight(.black)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Capsule().fill(Color.red))
+            let isBipeAlert = state.status.lowercased().contains("bipe") || (state.activityType?.lowercased().contains("bipe") ?? false) || (state.event?.lowercased().contains("bipe") ?? false) || state.execucaoId != nil
+            if isBipeAlert {
+                if #available(iOS 17.0, *) {
+                    Button(intent: ConfirmBipeIntent(execucaoId: state.execucaoId)) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 15, weight: .bold))
+                            Text("CONFIRMAR BIPE")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing))
+                        )
                         .foregroundColor(.white)
-                }
-                
-                HStack(alignment: .top, spacing: 4) {
-                    Image(systemName: "mappin.and.ellipse")
-                        .font(.subheadline)
-                        .foregroundColor(.red)
-                    
-                    Text(state.address)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+                } else {
+                    Link(destination: URL(string: "bipe://confirm?execucaoId=\(state.execucaoId ?? "")")!) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 15, weight: .bold))
+                            Text("CONFIRMAR BIPE")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing))
+                        )
+                        .foregroundColor(.white)
+                    }
+                    .padding(.top, 4)
                 }
             }
         }
@@ -695,16 +755,50 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             .padding(.top, 4)
                         }
                     } else {
-                        HStack(alignment: .center, spacing: 6) {
-                            Image(systemName: "mappin.circle.fill")
-                                .font(.title3)
-                                .foregroundColor(.red)
+                        VStack(spacing: 6) {
+                            HStack(alignment: .center, spacing: 6) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.red)
+                                
+                                Text(context.state.address)
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                                    .lineLimit(2)
+                            }
                             
-                            Text(context.state.address)
-                                .font(.footnote)
-                                .fontWeight(.medium)
-                                .foregroundColor(.white)
-                                .lineLimit(2)
+                            let isBipeAlert = context.state.status.lowercased().contains("bipe") || (context.state.activityType?.lowercased().contains("bipe") ?? false) || (context.state.event?.lowercased().contains("bipe") ?? false) || context.state.execucaoId != nil
+                            if isBipeAlert {
+                                if #available(iOS 17.0, *) {
+                                    Button(intent: ConfirmBipeIntent(execucaoId: context.state.execucaoId)) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 13, weight: .bold))
+                                            Text("CONFIRMAR BIPE")
+                                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 6)
+                                        .background(Capsule().fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing)))
+                                        .foregroundColor(.white)
+                                    }
+                                    .buttonStyle(.plain)
+                                } else {
+                                    Link(destination: URL(string: "bipe://confirm?execucaoId=\(context.state.execucaoId ?? "")")!) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 13, weight: .bold))
+                                            Text("CONFIRMAR BIPE")
+                                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 6)
+                                        .background(Capsule().fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing)))
+                                        .foregroundColor(.white)
+                                    }
+                                }
+                            }
                         }
                         .padding(.top, 4)
                     }

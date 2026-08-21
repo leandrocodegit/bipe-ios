@@ -242,7 +242,8 @@ import ActivityKit
         target: String? = nil,
         alvo: String? = nil,
         distancia: String? = nil,
-        icon: String? = nil
+        icon: String? = nil,
+        execucaoId: String? = nil
     ) {
         #if canImport(ActivityKit)
         DispatchQueue.main.async {
@@ -260,7 +261,8 @@ import ActivityKit
                 timestamp: Date().timeIntervalSince1970,
                 target: target,
                 alvo: alvo,
-                distancia: distancia
+                distancia: distancia,
+                execucaoId: execucaoId
             )
             let content: ActivityContent<BipeAlertActivityAttributes.ContentState>
             if #available(iOS 16.2, *) {
@@ -312,21 +314,16 @@ import ActivityKit
 
     @objc static func endEmergencyLiveActivity() {
         if #available(iOS 16.1, *) {
-            endEmergencyLiveActivityInternal()
-        }
-    }
-
-    @available(iOS 16.1, *)
-    private static func endEmergencyLiveActivityInternal() {
-        #if canImport(ActivityKit)
-        for activity in Activity<BipeAlertActivityAttributes>.activities {
-            let activityId = activity.id
-            Task {
-                await activity.end(nil, dismissalPolicy: .immediate)
-                removeLiveActivityTokenFromServer(activityId: activityId)
+            #if canImport(ActivityKit)
+            Task { @MainActor in
+                for activity in Activity<BipeAlertActivityAttributes>.activities {
+                    let activityId = activity.id
+                    await activity.end(nil, dismissalPolicy: .immediate)
+                    removeLiveActivityTokenFromServer(activityId: activityId)
+                }
             }
+            #endif
         }
-        #endif
     }
 
     // MARK: - Process Push Notification Payload
@@ -363,6 +360,8 @@ import ActivityKit
         let alvoVal = extractValue(keys: ["alvo", "targetAlvo", "dispositivo2"], userInfo: userInfo, dataDict: dataDict)
         let distanciaVal = extractValue(keys: ["distancia", "distance"], userInfo: userInfo, dataDict: dataDict)
         let soundVal = extractValue(keys: ["sound", "soundName", "audio"], userInfo: userInfo, dataDict: dataDict)
+        let execucaoIdVal = extractValue(keys: ["execucaoId", "execucao_id", "id"], userInfo: userInfo, dataDict: dataDict)
+        
         if let soundVal = soundVal, !soundVal.isEmpty {
             BipeAudioHelper.playSound(named: soundVal)
         }
@@ -371,12 +370,13 @@ import ActivityKit
         let statusLower = status?.lowercased() ?? ""
         let eventLower = eventVal?.lowercased() ?? ""
         
-        let isEmergency = typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência")
-        let isDistance = !isEmergency && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
-        let isTransition = !isEmergency && !isDistance && (typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil)
+        let isBipe = typeLower.contains("bipe") || statusLower.contains("bipe") || eventLower.contains("bipe") || execucaoIdVal != nil
+        let isEmergency = !isBipe && (typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência"))
+        let isDistance = !isBipe && !isEmergency && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
+        let isTransition = !isBipe && !isEmergency && !isDistance && (typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil)
         
-        guard isDistance || isTransition || isEmergency else {
-            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a distance, transition ou emergency.", typeLower, statusLower, eventLower)
+        guard isBipe || isDistance || isTransition || isEmergency else {
+            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a bipe, distance, transition ou emergency.", typeLower, statusLower, eventLower)
             return
         }
         
@@ -391,20 +391,23 @@ import ActivityKit
             
             let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict)
             
-            if isEmergency {
-                NSLog("[BipeLiveActivityManager] Atualizando Live Activity para EMERGENCY (nickname: '%@', address: '%@')", nickname, address)
+            if isBipe || isEmergency {
+                let activityTypeToUse = isBipe ? "bipe" : "emergency"
+                let statusToUse = isBipe ? "bipe" : "emergency"
+                NSLog("[BipeLiveActivityManager] Atualizando Live Activity para BIPE/EMERGENCY (nickname: '%@', address: '%@', execucaoId: '%@')", nickname, address, execucaoIdVal ?? "")
                 
                 startLiveActivity(
                     nickname: nickname,
                     address: address,
                     iconLocalPath: nil,
                     iconUrl: iconUrl,
-                    status: "emergency",
+                    status: statusToUse,
                     way: nil,
                     devices: nil,
                     event: nil,
-                    activityType: "emergency",
-                    icon: iconUrl
+                    activityType: activityTypeToUse,
+                    icon: iconUrl,
+                    execucaoId: execucaoIdVal
                 )
             } else if isDistance {
                 let eventDisplay = eventVal ?? (statusLower.contains("afast") ? "AFASTAR" : "APROXIMAR")
@@ -676,6 +679,75 @@ import ActivityKit
                     NSLog("[BipeLiveActivityManager] Token da Live Activity removido do servidor. Status HTTP: %d", httpResp.statusCode)
                 }
             }.resume()
+        }
+    }
+
+    // MARK: - Bipe Confirmation Flow (MQTT)
+
+    @objc(sendBipeConfirmationWithExecucaoId:)
+    static func sendBipeConfirmation(execucaoId: String?) {
+        DispatchQueue.main.async {
+            guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else { return }
+            let moc = CoreData.sharedInstance().mainMOC
+            var json: [String: Any] = [
+                "_type": "bipe",
+                "status": "COMPLETED",
+                "button": "TOUCH"
+            ]
+            if let execId = execucaoId, !execId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                json["execucaoId"] = execId
+            }
+            
+            var userName: String? = nil
+            var clienteId: String? = nil
+            var tid: String? = nil
+            var deviceId: String? = nil
+            var nickname: String? = nil
+            var face: String? = nil
+            var color: String? = nil
+            var qosVal: Int32 = 0
+            var baseTopic: String? = nil
+            
+            moc.performAndWait {
+                userName = Settings.string(forKey: "user_preference", inMOC: moc)
+                clienteId = Settings.string(forKey: "clientid_preference", inMOC: moc)
+                tid = Settings.string(forKey: "trackerid_preference", inMOC: moc)
+                deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc)
+                nickname = Settings.string(forKey: "device_name_preference", inMOC: moc)
+                if nickname == nil || nickname!.isEmpty {
+                    nickname = Settings.string(forKey: "nickname_preference", inMOC: moc)
+                }
+                face = Settings.string(forKey: "icon", inMOC: moc)
+                color = Settings.string(forKey: "color", inMOC: moc)
+                qosVal = Settings.int(forKey: "qos_preference", inMOC: moc)
+                baseTopic = Settings.theGeneralTopic(inMOC: moc)
+            }
+            
+            if let userName = userName, !userName.isEmpty { json["userName"] = userName }
+            if let clienteId = clienteId, !clienteId.isEmpty { json["clienteId"] = clienteId }
+            if let tid = tid, !tid.isEmpty { json["tid"] = tid }
+            if let deviceId = deviceId, !deviceId.isEmpty { json["deviceId"] = deviceId }
+            if let nickname = nickname, !nickname.isEmpty { json["nickname"] = nickname }
+            if let face = face, !face.isEmpty { json["face"] = face }
+            if let color = color, !color.isEmpty { json["color"] = color }
+            
+            guard let payload = try? JSONSerialization.data(withJSONObject: json, options: []) else { return }
+            
+            if appDelegate.connection == nil {
+                appDelegate.connection = Connection()
+                appDelegate.connection?.delegate = appDelegate
+                appDelegate.connection?.start()
+            }
+            
+            let qos = MQTTQosLevel(rawValue: UInt8(qosVal)) ?? .atMostOnce
+            let topic = (baseTopic ?? "").isEmpty ? "" : (baseTopic! + "/bipe")
+            
+            appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
+            NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada via MQTT com execucaoId: %@", execucaoId ?? "nil")
+            
+            if #available(iOS 16.1, *) {
+                endAllLiveActivities()
+            }
         }
     }
 }

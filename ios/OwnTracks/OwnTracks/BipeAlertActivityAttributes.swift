@@ -25,6 +25,7 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         public var alvo: String?
         public var distancia: String?
         public var sound: String?
+        public var execucaoId: String?
         
         public init(
             address: String = "Localização atual",
@@ -41,7 +42,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             target: String? = nil,
             alvo: String? = nil,
             distancia: String? = nil,
-            sound: String? = nil
+            sound: String? = nil,
+            execucaoId: String? = nil
         ) {
             self.address = address
             self.way = way
@@ -58,11 +60,12 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.alvo = alvo
             self.distancia = distancia
             self.sound = sound
+            self.execucaoId = execucaoId
         }
 
         private enum CodingKeys: String, CodingKey {
             case address, way, event, devices, activityType, nickname, status
-            case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound
+            case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound, execucaoId, execucao_id
         }
 
         public init(from decoder: Decoder) throws {
@@ -82,6 +85,7 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.alvo = try? container.decode(String.self, forKey: .alvo)
             self.distancia = try? container.decode(String.self, forKey: .distancia)
             self.sound = try? container.decode(String.self, forKey: .sound)
+            self.execucaoId = (try? container.decode(String.self, forKey: .execucaoId)) ?? (try? container.decode(String.self, forKey: .execucao_id))
             
             // Decodificação flexível para timestamp (Double ou String)
             if let doubleVal = try? container.decode(Double.self, forKey: .timestamp) {
