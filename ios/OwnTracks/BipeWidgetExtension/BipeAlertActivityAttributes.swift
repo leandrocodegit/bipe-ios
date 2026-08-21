@@ -24,9 +24,10 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         public var target: String?
         public var alvo: String?
         public var distancia: String?
+        public var sound: String?
         
         public init(
-            address: String,
+            address: String = "Localização atual",
             way: String? = nil,
             event: String? = nil,
             devices: [String]? = nil,
@@ -39,7 +40,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             timestamp: Double? = Date().timeIntervalSince1970,
             target: String? = nil,
             alvo: String? = nil,
-            distancia: String? = nil
+            distancia: String? = nil,
+            sound: String? = nil
         ) {
             self.address = address
             self.way = way
@@ -55,6 +57,54 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.target = target
             self.alvo = alvo
             self.distancia = distancia
+            self.sound = sound
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case address, way, event, devices, activityType, nickname, status
+            case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            self.address = (try? container.decode(String.self, forKey: .address)) ?? "Localização atual"
+            self.nickname = (try? container.decode(String.self, forKey: .nickname)) ?? "Bipe.me"
+            self.status = (try? container.decode(String.self, forKey: .status)) ?? "transition"
+            
+            self.way = try? container.decode(String.self, forKey: .way)
+            self.event = try? container.decode(String.self, forKey: .event)
+            self.activityType = try? container.decode(String.self, forKey: .activityType)
+            self.iconUrl = try? container.decode(String.self, forKey: .iconUrl)
+            self.iconLocalPath = try? container.decode(String.self, forKey: .iconLocalPath)
+            self.icon = try? container.decode(String.self, forKey: .icon)
+            self.target = try? container.decode(String.self, forKey: .target)
+            self.alvo = try? container.decode(String.self, forKey: .alvo)
+            self.distancia = try? container.decode(String.self, forKey: .distancia)
+            self.sound = try? container.decode(String.self, forKey: .sound)
+            
+            // Decodificação flexível para timestamp (Double ou String)
+            if let doubleVal = try? container.decode(Double.self, forKey: .timestamp) {
+                self.timestamp = doubleVal
+            } else if let strVal = try? container.decode(String.self, forKey: .timestamp), let doubleConv = Double(strVal) {
+                self.timestamp = doubleConv
+            } else {
+                self.timestamp = Date().timeIntervalSince1970
+            }
+            
+            // Decodificação flexível para devices ([String] ou String única)
+            if let arrayVal = try? container.decode([String].self, forKey: .devices) {
+                self.devices = arrayVal
+            } else if let singleString = try? container.decode(String.self, forKey: .devices) {
+                let trimmed = singleString.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    self.devices = [trimmed]
+                } else {
+                    self.devices = nil
+                }
+            } else {
+                self.devices = nil
+            }
         }
     }
 
