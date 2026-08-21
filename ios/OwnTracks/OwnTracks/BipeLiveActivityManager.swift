@@ -751,16 +751,37 @@ import ActivityKit
                 appDelegate.connection?.delegate = appDelegate
                 appDelegate.connection?.start()
             }
+            appDelegate.connection?.connectToLast()
             
             let qos = MQTTQosLevel(rawValue: UInt8(qosVal)) ?? .atMostOnce
-            let topic = (baseTopic ?? "").isEmpty ? "" : (baseTopic! + "/bipe")
+            let topic = (baseTopic ?? "").isEmpty ? "bipe" : (baseTopic! + "/bipe")
             
-            appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
-            NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada via MQTT com execucaoId: %@", execucaoId ?? "nil")
-            
-            if #available(iOS 16.1, *) {
-                endAllLiveActivities()
+            func attemptPublish(attemptsRemaining: Int) {
+                let currentState = appDelegate.connection?.state.rawValue ?? -1
+                NSLog("[BipeLiveActivityManager] Tentativa de envio MQTT bipe. Estado conexao: %d, tentativas restantes: %d", currentState, attemptsRemaining)
+                
+                // state_connected tem rawValue 3
+                if currentState == 3 {
+                    appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
+                    NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada via MQTT com sucesso (topico: %@, execucaoId: %@)", topic, execucaoId ?? "nil")
+                    if #available(iOS 16.1, *) {
+                        endAllLiveActivities()
+                    }
+                } else if attemptsRemaining > 0 {
+                    appDelegate.connection?.connectToLast()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        attemptPublish(attemptsRemaining: attemptsRemaining - 1)
+                    }
+                } else {
+                    appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
+                    NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada no fallback final com execucaoId: %@", execucaoId ?? "nil")
+                    if #available(iOS 16.1, *) {
+                        endAllLiveActivities()
+                    }
+                }
             }
+            
+            attemptPublish(attemptsRemaining: 15)
         }
     }
 }
