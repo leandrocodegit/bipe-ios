@@ -475,19 +475,19 @@ import ActivityKit
         for key in keys {
             if let val = userInfo[key] {
                 let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
-                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
+                if !str.isEmpty && str != "<null>" && str != "nil" && str != "null" { return str }
             }
             if let dataDict = dataDict, let val = dataDict[key] {
                 let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
-                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
+                if !str.isEmpty && str != "<null>" && str != "nil" && str != "null" { return str }
             }
             if let contentState = contentState, let val = contentState[key] {
                 let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
-                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
+                if !str.isEmpty && str != "<null>" && str != "nil" && str != "null" { return str }
             }
             if let apsDict = apsDict, let val = apsDict[key] {
                 let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
-                if !str.isEmpty && str != "<null>" && str != "nil" { return str }
+                if !str.isEmpty && str != "<null>" && str != "nil" && str != "null" { return str }
             }
         }
         return nil
