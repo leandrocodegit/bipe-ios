@@ -14,6 +14,22 @@
 		BIPE00000000000000000100 /* drawable in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000098 /* drawable */; };
 		BIPE00000000000000000202 /* audios in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000201 /* audios */; };
 		BIPE00000000000000000203 /* audios in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000201 /* audios */; };
+		BIPE00000000000000000302 /* bipe_afasta.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000301 /* bipe_afasta.mp3 */; };
+		BIPE00000000000000000305 /* bipe_aproxima.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000304 /* bipe_aproxima.mp3 */; };
+		BIPE00000000000000000308 /* bipe_call.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000307 /* bipe_call.mp3 */; };
+		BIPE00000000000000000311 /* bipe_classic.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000310 /* bipe_classic.mp3 */; };
+		BIPE00000000000000000314 /* bipe_digital.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000313 /* bipe_digital.mp3 */; };
+		BIPE00000000000000000317 /* bipe_digital_alarm.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000316 /* bipe_digital_alarm.mp3 */; };
+		BIPE00000000000000000320 /* bipe_enter.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000319 /* bipe_enter.mp3 */; };
+		BIPE00000000000000000323 /* bipe_error.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000322 /* bipe_error.mp3 */; };
+		BIPE00000000000000000326 /* bipe_event.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000325 /* bipe_event.mp3 */; };
+		BIPE00000000000000000329 /* bipe_exit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000328 /* bipe_exit.mp3 */; };
+		BIPE00000000000000000332 /* bipe_notification.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000331 /* bipe_notification.mp3 */; };
+		BIPE00000000000000000335 /* bipe_routine_error.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000334 /* bipe_routine_error.mp3 */; };
+		BIPE00000000000000000338 /* bipe_routine_ok.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000337 /* bipe_routine_ok.mp3 */; };
+		BIPE00000000000000000341 /* bipe_sim.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000340 /* bipe_sim.mp3 */; };
+		BIPE00000000000000000344 /* digital_game.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000343 /* digital_game.mp3 */; };
+		BIPE00000000000000000347 /* freesound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BIPE00000000000000000346 /* freesound.mp3 */; };
 		6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */; };
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
@@ -201,6 +217,22 @@
 		8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCardTVC.swift; sourceTree = "<group>"; };
 		BIPE00000000000000000098 /* drawable */ = {isa = PBXFileReference; lastKnownFileType = folder; name = drawable; path = drawable; sourceTree = "<group>"; };
 		BIPE00000000000000000201 /* audios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audios; path = audios; sourceTree = "<group>"; };
+		BIPE00000000000000000301 /* bipe_afasta.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_afasta.mp3; path = audios/bipe_afasta.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000304 /* bipe_aproxima.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_aproxima.mp3; path = audios/bipe_aproxima.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000307 /* bipe_call.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_call.mp3; path = audios/bipe_call.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000310 /* bipe_classic.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_classic.mp3; path = audios/bipe_classic.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000313 /* bipe_digital.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_digital.mp3; path = audios/bipe_digital.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000316 /* bipe_digital_alarm.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_digital_alarm.mp3; path = audios/bipe_digital_alarm.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000319 /* bipe_enter.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_enter.mp3; path = audios/bipe_enter.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000322 /* bipe_error.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_error.mp3; path = audios/bipe_error.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000325 /* bipe_event.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_event.mp3; path = audios/bipe_event.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000328 /* bipe_exit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_exit.mp3; path = audios/bipe_exit.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000331 /* bipe_notification.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_notification.mp3; path = audios/bipe_notification.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000334 /* bipe_routine_error.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_routine_error.mp3; path = audios/bipe_routine_error.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000337 /* bipe_routine_ok.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_routine_ok.mp3; path = audios/bipe_routine_ok.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000340 /* bipe_sim.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = bipe_sim.mp3; path = audios/bipe_sim.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000343 /* digital_game.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = digital_game.mp3; path = audios/digital_game.mp3; sourceTree = "<group>"; };
+		BIPE00000000000000000346 /* freesound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = freesound.mp3; path = audios/freesound.mp3; sourceTree = "<group>"; };
 		8405CB612F153DD9008C2580 /* ModesTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModesTVC.swift; sourceTree = "<group>"; };
 		840BBDD318E4274200DC113C /* Model 6.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 6.2.xcdatamodel"; sourceTree = "<group>"; };
 		840CA94E2F4DF83C00FD30C1 /* SettingsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTVC.swift; sourceTree = "<group>"; };
@@ -1001,6 +1033,22 @@
 				8411B8E1189FEB790019D2D6 /* Location.gpx in Resources */,
 				BIPE00000000000000000099 /* drawable in Resources */,
 				BIPE00000000000000000203 /* audios in Resources */,
+				BIPE00000000000000000302 /* bipe_afasta.mp3 in Resources */,
+				BIPE00000000000000000305 /* bipe_aproxima.mp3 in Resources */,
+				BIPE00000000000000000308 /* bipe_call.mp3 in Resources */,
+				BIPE00000000000000000311 /* bipe_classic.mp3 in Resources */,
+				BIPE00000000000000000314 /* bipe_digital.mp3 in Resources */,
+				BIPE00000000000000000317 /* bipe_digital_alarm.mp3 in Resources */,
+				BIPE00000000000000000320 /* bipe_enter.mp3 in Resources */,
+				BIPE00000000000000000323 /* bipe_error.mp3 in Resources */,
+				BIPE00000000000000000326 /* bipe_event.mp3 in Resources */,
+				BIPE00000000000000000329 /* bipe_exit.mp3 in Resources */,
+				BIPE00000000000000000332 /* bipe_notification.mp3 in Resources */,
+				BIPE00000000000000000335 /* bipe_routine_error.mp3 in Resources */,
+				BIPE00000000000000000338 /* bipe_routine_ok.mp3 in Resources */,
+				BIPE00000000000000000341 /* bipe_sim.mp3 in Resources */,
+				BIPE00000000000000000344 /* digital_game.mp3 in Resources */,
+				BIPE00000000000000000347 /* freesound.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
