@@ -769,7 +769,15 @@ import ActivityKit
             appDelegate.connection?.connectToLast()
             
             let qos = MQTTQosLevel(rawValue: UInt8(qosVal)) ?? .atMostOnce
-            let topic = (baseTopic ?? "").isEmpty ? "bipe" : (baseTopic! + "/bipe")
+            let rawTopic = baseTopic ?? ""
+            let mainTopic: String
+            if rawTopic.isEmpty {
+                mainTopic = "bipe"
+            } else if rawTopic.hasSuffix("/bipe") || rawTopic.contains("/push/") {
+                mainTopic = rawTopic
+            } else {
+                mainTopic = rawTopic + "/bipe"
+            }
             
             func attemptPublish(attemptsRemaining: Int) {
                 let currentState = Int(appDelegate.connection?.state ?? -1)
@@ -777,8 +785,17 @@ import ActivityKit
                 
                 // state_connected tem rawValue 3
                 if currentState == 3 {
-                    appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
-                    NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado com sucesso (topico: %@, execucaoId: %@)", status, topic, execucaoId ?? "nil")
+                    appDelegate.connection?.send(payload, topic: mainTopic, topicAlias: nil, qos: qos, retain: false)
+                    if !rawTopic.isEmpty && rawTopic != mainTopic {
+                        appDelegate.connection?.send(payload, topic: rawTopic, topicAlias: nil, qos: qos, retain: false)
+                    }
+                    if !rawTopic.isEmpty && !rawTopic.hasSuffix("/bipe") {
+                        let altTopic = rawTopic + "/bipe"
+                        if altTopic != mainTopic {
+                            appDelegate.connection?.send(payload, topic: altTopic, topicAlias: nil, qos: qos, retain: false)
+                        }
+                    }
+                    NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado com sucesso (topicos: '%@' / '%@', execucaoId: %@)", status, mainTopic, rawTopic, execucaoId ?? "nil")
                     if autoResetLiveActivity, #available(iOS 16.1, *) {
                         let nickToUse = nickname ?? "Bipe.me"
                         startLiveActivity(
@@ -800,8 +817,11 @@ import ActivityKit
                         attemptPublish(attemptsRemaining: attemptsRemaining - 1)
                     }
                 } else {
-                    appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
-                    NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado no fallback final com execucaoId: %@", status, topic, execucaoId ?? "nil")
+                    appDelegate.connection?.send(payload, topic: mainTopic, topicAlias: nil, qos: qos, retain: false)
+                    if !rawTopic.isEmpty && rawTopic != mainTopic {
+                        appDelegate.connection?.send(payload, topic: rawTopic, topicAlias: nil, qos: qos, retain: false)
+                    }
+                    NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado no fallback final com execucaoId: %@", status, execucaoId ?? "nil")
                     if autoResetLiveActivity, #available(iOS 16.1, *) {
                         let nickToUse = nickname ?? "Bipe.me"
                         startLiveActivity(
