@@ -379,6 +379,45 @@ struct EmergencyWidgetView: View {
     }
 }
 
+// MARK: - Separador Direcional de Distância (Ex: ›—‹ para Aproximar, ‹—› para Afastar)
+
+struct DistanceDirectionSeparatorView: View {
+    let isApproaching: Bool
+    let themeColor: Color
+    var fontSize: CGFloat = 11
+
+    var body: some View {
+        HStack(spacing: 2) {
+            if isApproaching {
+                // › — ‹ (Aproximando)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: fontSize, weight: .bold))
+                Capsule()
+                    .fill(themeColor.opacity(0.7))
+                    .frame(width: 5, height: 2)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: fontSize, weight: .bold))
+            } else {
+                // ‹ — › (Afastando)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: fontSize, weight: .bold))
+                Capsule()
+                    .fill(themeColor.opacity(0.7))
+                    .frame(width: 5, height: 2)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: fontSize, weight: .bold))
+            }
+        }
+        .foregroundColor(themeColor)
+        .padding(.horizontal, 5)
+        .padding(.vertical, 3)
+        .background(
+            Capsule()
+                .fill(themeColor.opacity(0.18))
+        )
+    }
+}
+
 // MARK: - View para Evento de Distância ("distance" / "APROXIMAR" / "AFASTAR") - Compact UI
 
 @available(iOS 16.1, *)
@@ -445,9 +484,7 @@ struct DistanceWidgetView: View {
                     
                     if let target = state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                        let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text("/")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(.secondary)
+                        DistanceDirectionSeparatorView(isApproaching: isApproaching, themeColor: themeColor)
                     }
                     
                     if let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -528,13 +565,14 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                     HStack(spacing: 8) {
                         if isDistance {
                             HStack(spacing: 4) {
-                                if let target = context.state.target {
+                                if let target = context.state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                     DeviceBadgeView(item: target, themeColor: themeColor)
                                 }
-                                Text("/")
-                                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                                    .foregroundColor(.secondary)
-                                if let alvo = context.state.alvo {
+                                if let target = context.state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                                   let alvo = context.state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                    DistanceDirectionSeparatorView(isApproaching: isApproaching, themeColor: themeColor, fontSize: 10)
+                                }
+                                if let alvo = context.state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                     DeviceBadgeView(item: alvo, themeColor: themeColor)
                                 }
                             }
