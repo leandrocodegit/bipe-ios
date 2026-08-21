@@ -498,8 +498,6 @@ public struct BipeLiveActivityWidget: Widget {
             
             if isEmergency {
                 EmergencyWidgetView(state: context.state)
-            } else if isDistance {
-                DistanceWidgetView(state: context.state)
             } else if isTransition {
                 TransitionWidgetView(state: context.state)
             } else {
