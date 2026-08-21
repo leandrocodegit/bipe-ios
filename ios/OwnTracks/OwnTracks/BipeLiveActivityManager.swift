@@ -23,7 +23,8 @@ import ActivityKit
 
     /// Sanitiza e resolve o som recebido no payload buscando EXCLUSIVAMENTE na pasta/subdiretório 'audios/'
     /// (ex: "audios/bipe_exit.mp3" ou "bipe_exit" -> "audios/bipe_exit.mp3")
-    @objc static func resolveSoundName(from rawSound: String?) -> String? {
+    @objc(resolveSoundNameFrom:)
+    static func resolveSoundName(from rawSound: String?) -> String? {
         guard let raw = rawSound?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
             return nil
         }
@@ -48,7 +49,8 @@ import ActivityKit
     }
 
     /// Toca o som de notificação localmente da pasta 'audios/' via AVAudioPlayer
-    @objc static func playSound(named rawSound: String?) {
+    @objc(playSoundNamed:)
+    static func playSound(named rawSound: String?) {
         guard let relativePath = resolveSoundName(from: rawSound) else {
             NSLog("[BipeAudioHelper] Impossível resolver áudio para o parâmetro: %@", rawSound ?? "nil")
             return
