@@ -65,11 +65,16 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
 
         private enum CodingKeys: String, CodingKey {
             case address, way, event, devices, activityType, nickname, status
-            case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound, execucaoId, execucao_id
+            case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound, execucaoId
+        }
+
+        private enum AltCodingKeys: String, CodingKey {
+            case execucao_id
         }
 
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
+            let altContainer = try? decoder.container(keyedBy: AltCodingKeys.self)
             
             self.address = (try? container.decode(String.self, forKey: .address)) ?? "Localização atual"
             self.nickname = (try? container.decode(String.self, forKey: .nickname)) ?? "Bipe.me"
@@ -85,7 +90,7 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.alvo = try? container.decode(String.self, forKey: .alvo)
             self.distancia = try? container.decode(String.self, forKey: .distancia)
             self.sound = try? container.decode(String.self, forKey: .sound)
-            self.execucaoId = (try? container.decode(String.self, forKey: .execucaoId)) ?? (try? container.decode(String.self, forKey: .execucao_id))
+            self.execucaoId = (try? container.decode(String.self, forKey: .execucaoId)) ?? (try? altContainer?.decode(String.self, forKey: .execucao_id))
             
             // Decodificação flexível para timestamp (Double ou String)
             if let doubleVal = try? container.decode(Double.self, forKey: .timestamp) {
@@ -109,6 +114,26 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             } else {
                 self.devices = nil
             }
+        }
+
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(address, forKey: .address)
+            try container.encodeIfPresent(way, forKey: .way)
+            try container.encodeIfPresent(event, forKey: .event)
+            try container.encodeIfPresent(devices, forKey: .devices)
+            try container.encodeIfPresent(activityType, forKey: .activityType)
+            try container.encode(nickname, forKey: .nickname)
+            try container.encode(status, forKey: .status)
+            try container.encodeIfPresent(iconUrl, forKey: .iconUrl)
+            try container.encodeIfPresent(iconLocalPath, forKey: .iconLocalPath)
+            try container.encodeIfPresent(icon, forKey: .icon)
+            try container.encodeIfPresent(timestamp, forKey: .timestamp)
+            try container.encodeIfPresent(target, forKey: .target)
+            try container.encodeIfPresent(alvo, forKey: .alvo)
+            try container.encodeIfPresent(distancia, forKey: .distancia)
+            try container.encodeIfPresent(sound, forKey: .sound)
+            try container.encodeIfPresent(execucaoId, forKey: .execucaoId)
         }
     }
 
