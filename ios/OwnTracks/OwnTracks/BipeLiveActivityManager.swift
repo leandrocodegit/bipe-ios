@@ -409,6 +409,10 @@ import ActivityKit
                 let statusToUse = isBipe ? "bipe" : "emergency"
                 NSLog("[BipeLiveActivityManager] Atualizando Live Activity para BIPE/EMERGENCY (nickname: '%@', address: '%@', execucaoId: '%@')", nickname, address, execucaoIdVal ?? "")
                 
+                if isBipe {
+                    sendBipeReceipt(status: "ACCEPTED", execucaoId: execucaoIdVal)
+                }
+                
                 startLiveActivity(
                     nickname: nickname,
                     address: address,
@@ -695,18 +699,29 @@ import ActivityKit
         }
     }
 
-    // MARK: - Bipe Confirmation Flow (MQTT)
+    // MARK: - Bipe MQTT Receipt & Confirmation Flow
+
+    @objc(sendBipeReceiptWithStatus:execucaoId:)
+    static func sendBipeReceipt(status: String, execucaoId: String?) {
+        sendBipeResponse(status: status, button: nil, execucaoId: execucaoId, autoResetLiveActivity: false)
+    }
 
     @objc(sendBipeConfirmationWithExecucaoId:)
     static func sendBipeConfirmation(execucaoId: String?) {
+        sendBipeResponse(status: "COMPLETED", button: "TOUCH", execucaoId: execucaoId, autoResetLiveActivity: true)
+    }
+
+    private static func sendBipeResponse(status: String, button: String?, execucaoId: String?, autoResetLiveActivity: Bool) {
         DispatchQueue.main.async {
             guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else { return }
             let moc = CoreData.sharedInstance().mainMOC
             var json: [String: Any] = [
                 "_type": "bipe",
-                "status": "COMPLETED",
-                "button": "TOUCH"
+                "status": status
             ]
+            if let btn = button, !btn.isEmpty {
+                json["button"] = btn
+            }
             if let execId = execucaoId, !execId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 json["execucaoId"] = execId
             }
@@ -758,22 +773,16 @@ import ActivityKit
             
             func attemptPublish(attemptsRemaining: Int) {
                 let currentState = Int(appDelegate.connection?.state ?? -1)
-                NSLog("[BipeLiveActivityManager] Tentativa de envio MQTT bipe. Estado conexao: %d, tentativas restantes: %d", currentState, attemptsRemaining)
+                NSLog("[BipeLiveActivityManager] Tentativa de envio MQTT status '%@'. Estado conexao: %d, tentativas restantes: %d", status, currentState, attemptsRemaining)
                 
                 // state_connected tem rawValue 3
                 if currentState == 3 {
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
-                    NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada via MQTT com sucesso (topico: %@, execucaoId: %@)", topic, execucaoId ?? "nil")
-                    if #available(iOS 16.1, *) {
-                        let moc = CoreData.sharedInstance().mainMOC
-                        var nick: String = "Bipe.me"
-                        moc.performAndWait {
-                            if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
-                                nick = name
-                            }
-                        }
+                    NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado com sucesso (topico: %@, execucaoId: %@)", status, topic, execucaoId ?? "nil")
+                    if autoResetLiveActivity && #available(iOS 16.1, *) {
+                        let nickToUse = nickname ?? "Bipe.me"
                         startLiveActivity(
-                            nickname: nick,
+                            nickname: nickToUse,
                             address: "Monitorando em tempo real",
                             iconLocalPath: nil,
                             iconUrl: nil,
@@ -792,17 +801,11 @@ import ActivityKit
                     }
                 } else {
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
-                    NSLog("[BipeLiveActivityManager] Confirmacao de Bipe enviada no fallback final com execucaoId: %@", execucaoId ?? "nil")
-                    if #available(iOS 16.1, *) {
-                        let moc = CoreData.sharedInstance().mainMOC
-                        var nick: String = "Bipe.me"
-                        moc.performAndWait {
-                            if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
-                                nick = name
-                            }
-                        }
+                    NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado no fallback final com execucaoId: %@", status, topic, execucaoId ?? "nil")
+                    if autoResetLiveActivity && #available(iOS 16.1, *) {
+                        let nickToUse = nickname ?? "Bipe.me"
                         startLiveActivity(
-                            nickname: nick,
+                            nickname: nickToUse,
                             address: "Monitorando em tempo real",
                             iconLocalPath: nil,
                             iconUrl: nil,
