@@ -1851,11 +1851,51 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
     @objc static func registerPushToStartListener() {
         #if canImport(ActivityKit)
+        if #available(iOS 16.1, *) {
+            Task {
+                for await activity in Activity<BipeAlertActivityAttributes>.activityUpdates {
+                    NSLog("[BipeLiveActivityManager] Atividade detectada via activityUpdates (ID: %@)", activity.id)
+                    observeActivityToken(activity)
+                }
+            }
+            Task { @MainActor in
+                for activity in Activity<BipeAlertActivityAttributes>.activities {
+                    observeActivityToken(activity)
+                }
+            }
+        }
         if #available(iOS 17.2, *) {
             Task {
                 for await tokenData in Activity<BipeAlertActivityAttributes>.pushToStartTokenUpdates {
                     let tokenHex = tokenData.map { String(format: "%02x", $0) }.joined()
                     NSLog("[BipeLiveActivityManager] Push-to-Start Token registrado/atualizado: %@", tokenHex)
+                    SetupService.shared.syncPushToStartTokenWithServer(tokenHex)
+                }
+            }
+        }
+        #endif
+    }
+
+    @available(iOS 16.1, *)
+    private static func observeActivityToken(_ activity: Activity<BipeAlertActivityAttributes>) {
+        #if canImport(ActivityKit)
+        Task {
+            if let pushTokenData = activity.pushToken {
+                let pushTokenHex = pushTokenData.map { String(format: "%02x", $0) }.joined()
+                NSLog("[BipeLiveActivityManager] Push Token inicial para Live Activity %@: %@", activity.id, pushTokenHex)
+                sendLiveActivityTokenToServer(token: pushTokenHex, activityId: activity.id)
+            }
+            for await pushTokenData in activity.pushTokenUpdates {
+                let pushTokenHex = pushTokenData.map { String(format: "%02x", $0) }.joined()
+                NSLog("[BipeLiveActivityManager] Push Token recebido para Live Activity %@: %@", activity.id, pushTokenHex)
+                sendLiveActivityTokenToServer(token: pushTokenHex, activityId: activity.id)
+            }
+        }
+        Task {
+            for await state in activity.activityStateUpdates {
+                if state == .ended || state == .dismissed {
+                    NSLog("[BipeLiveActivityManager] Live Activity %@ finalizada. Removendo token do servidor.", activity.id)
+                    removeLiveActivityTokenFromServer(activityId: activity.id)
                 }
             }
         }
@@ -2219,9 +2259,25 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     }
 
     private static func sendLiveActivityTokenToServer(token: String, activityId: String) {
+        var bgTask: UIBackgroundTaskIdentifier = .invalid
+        bgTask = UIApplication.shared.beginBackgroundTask(withName: "SendLiveActivityToken") {
+            if bgTask != .invalid {
+                UIApplication.shared.endBackgroundTask(bgTask)
+                bgTask = .invalid
+            }
+        }
+        
         AuthManager.shared.getBearerToken { bearerToken in
+            let finishBgTaskIfNeeded = {
+                if bgTask != .invalid {
+                    UIApplication.shared.endBackgroundTask(bgTask)
+                    bgTask = .invalid
+                }
+            }
+            
             guard let bearerToken = bearerToken else {
                 NSLog("[BipeLiveActivityManager] Impossível registrar token: Bearer token ausente.")
+                finishBgTaskIfNeeded()
                 return
             }
             
@@ -2246,8 +2302,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             
             let authHeader = bearerToken.hasPrefix("Bearer ") ? bearerToken : "Bearer \(bearerToken)"
             
+            let group = DispatchGroup()
+            
             // 1. Registra no endpoint /bipe/live-activity/token
             if let url = URL(string: tokenEndpoint) {
+                group.enter()
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.setValue(authHeader, forHTTPHeaderField: "Authorization")
@@ -2255,6 +2314,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 request.httpBody = try? JSONSerialization.data(withJSONObject: payloadDict)
                 
                 URLSession.shared.dataTask(with: request) { _, response, error in
+                    defer { group.leave() }
                     if let error = error {
                         NSLog("[BipeLiveActivityManager] Erro ao enviar activityToken para servidor: %@", error.localizedDescription)
                     } else if let httpResp = response as? HTTPURLResponse {
@@ -2265,6 +2325,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             
             // 2. Atualiza no endpoint especifico do dispositivo /bipe/devices/{id}/tokens se o deviceId existir
             if let devId = deviceId, !devId.isEmpty, let patchUrl = URL(string: "https://dev.simodapp.com:2087/bipe/devices/\(devId)/tokens") {
+                group.enter()
                 var patchReq = URLRequest(url: patchUrl)
                 patchReq.httpMethod = "PATCH"
                 patchReq.setValue(authHeader, forHTTPHeaderField: "Authorization")
@@ -2273,18 +2334,44 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 patchReq.httpBody = try? JSONSerialization.data(withJSONObject: patchBody)
                 
                 URLSession.shared.dataTask(with: patchReq) { _, response, error in
+                    defer { group.leave() }
                     if let httpResp = response as? HTTPURLResponse, (200...299).contains(httpResp.statusCode) {
                         NSLog("[BipeLiveActivityManager] ActivityToken sincronizado no dispositivo %@ via PATCH. Status: %d", devId, httpResp.statusCode)
                     }
                 }.resume()
             }
+            
+            group.notify(queue: .main) {
+                finishBgTaskIfNeeded()
+            }
         }
     }
 
     private static func removeLiveActivityTokenFromServer(activityId: String) {
+        var bgTask: UIBackgroundTaskIdentifier = .invalid
+        bgTask = UIApplication.shared.beginBackgroundTask(withName: "RemoveLiveActivityToken") {
+            if bgTask != .invalid {
+                UIApplication.shared.endBackgroundTask(bgTask)
+                bgTask = .invalid
+            }
+        }
+        
         AuthManager.shared.getBearerToken { bearerToken in
-            guard let bearerToken = bearerToken else { return }
-            guard let url = URL(string: "\(activityEndpointPrefix)\(activityId)") else { return }
+            let finishBgTaskIfNeeded = {
+                if bgTask != .invalid {
+                    UIApplication.shared.endBackgroundTask(bgTask)
+                    bgTask = .invalid
+                }
+            }
+            
+            guard let bearerToken = bearerToken else {
+                finishBgTaskIfNeeded()
+                return
+            }
+            guard let url = URL(string: "\(activityEndpointPrefix)\(activityId)") else {
+                finishBgTaskIfNeeded()
+                return
+            }
             
             let authHeader = bearerToken.hasPrefix("Bearer ") ? bearerToken : "Bearer \(bearerToken)"
             var request = URLRequest(url: url)
@@ -2292,6 +2379,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             request.setValue(authHeader, forHTTPHeaderField: "Authorization")
             
             URLSession.shared.dataTask(with: request) { _, response, error in
+                defer { finishBgTaskIfNeeded() }
                 if let error = error {
                     NSLog("[BipeLiveActivityManager] Erro ao remover token do servidor: %@", error.localizedDescription)
                 } else if let httpResp = response as? HTTPURLResponse {

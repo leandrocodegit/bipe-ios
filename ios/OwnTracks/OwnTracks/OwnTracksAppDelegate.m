@@ -414,6 +414,13 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     OwnTracksLogDefault("[OwnTracksAppDelegate] didReceiveRemoteNotification: %@", userInfo);
     
+    __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithName:@"BipeLiveActivityPushTask" expirationHandler:^{
+        if (bgTask != UIBackgroundTaskInvalid) {
+            [application endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+        }
+    }];
+    
     NSString *type = nil;
     if (userInfo[@"type"]) {
         type = [NSString stringWithFormat:@"%@", userInfo[@"type"]];
@@ -432,7 +439,13 @@
         [self performReceiveEvent:userInfo];
     }
     
-    completionHandler(UIBackgroundFetchResultNewData);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        completionHandler(UIBackgroundFetchResultNewData);
+        if (bgTask != UIBackgroundTaskInvalid) {
+            [application endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+        }
+    });
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
