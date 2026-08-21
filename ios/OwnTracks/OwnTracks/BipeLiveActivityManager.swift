@@ -221,8 +221,21 @@ import ActivityKit
                         observeActivityToken(first)
                     }
                 }
+                
+                checkPendingBipeConfirmationFromAppGroup()
             }
             #endif
+        }
+    }
+
+    @objc static func checkPendingBipeConfirmationFromAppGroup() {
+        if let sharedDefaults = UserDefaults(suiteName: appGroupSuite),
+           let pendingExecId = sharedDefaults.string(forKey: "pending_bipe_confirm_execucao_id"),
+           !pendingExecId.isEmpty {
+            sharedDefaults.removeObject(forKey: "pending_bipe_confirm_execucao_id")
+            sharedDefaults.synchronize()
+            NSLog("[BipeLiveActivityManager] Processando confirmacao de bipe pendente via AppGroup execucaoId: %@", pendingExecId)
+            sendBipeConfirmation(execucaoId: pendingExecId)
         }
     }
 

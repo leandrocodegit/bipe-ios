@@ -11,6 +11,7 @@ import AppIntents
 @available(iOS 17.0, *)
 struct ConfirmBipeIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Confirmar Bipe"
+    static var openAppWhenRun: Bool = true
     
     @Parameter(title: "Execução ID")
     var execucaoId: String?
@@ -21,7 +22,10 @@ struct ConfirmBipeIntent: LiveActivityIntent {
     }
     
     func perform() async throws -> some IntentResult {
-        BipeLiveActivityManager.sendBipeConfirmation(execucaoId: execucaoId)
+        if let sharedDefaults = UserDefaults(suiteName: "group.br.com.bipe.me") {
+            sharedDefaults.set(execucaoId ?? "", forKey: "pending_bipe_confirm_execucao_id")
+            sharedDefaults.synchronize()
+        }
         return .result()
     }
 }
