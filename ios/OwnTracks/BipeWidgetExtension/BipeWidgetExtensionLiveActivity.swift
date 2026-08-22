@@ -154,7 +154,7 @@ struct TransitionWidgetView: View {
     }
     
     var eventTitle: String {
-        isExit ? "SAIU" : (isActive ? "ATIVO" : "ENTROU")
+        isExit ? "SAIU" : (isActived ? "ATIVO" : "ENTROU")
     }
     
     var eventIcon: String {
