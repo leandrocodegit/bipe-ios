@@ -494,12 +494,15 @@ public struct BipeLiveActivityWidget: Widget {
             
             let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
             let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+            let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
-            let isDistance = !isEmergency && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
-            let isTransition = !isEmergency && !isDistance && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
+            let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
+            let isTransition = !isEmergency && !isDistance && !isRoutine && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
             
             if isEmergency {
                 EmergencyWidgetView(state: context.state)
+            } else if isRoutine {
+                RoutineWidgetView(state: context.state)
             } else if isTransition {
                 TransitionWidgetView(state: context.state)
             } else {
@@ -512,20 +515,35 @@ public struct BipeLiveActivityWidget: Widget {
             
             let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
             let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+            let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
-            let isDistance = !isEmergency && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
-            let isTransition = !isEmergency && !isDistance && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
+            let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
+            let isTransition = !isEmergency && !isDistance && !isRoutine && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
             
             let isExit = ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
                          st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
-            let themeColor: Color = isEmergency ? .red : (isDistance ? Color(red: 0.18, green: 0.80, blue: 0.44) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red))
+            let routineThemeColor = Color(red: 0.55, green: 0.27, blue: 0.80)
+            let themeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .red : (isDistance ? Color(red: 0.18, green: 0.80, blue: 0.44) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red)))
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 8) {
-                        if isTransition {
+                        if isRoutine {
+                            let routineIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                            DeviceBadgeView(item: routineIcon, themeColor: themeColor, size: 28)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(context.state.nickname)
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                Text(context.state.address)
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                            }
+                        } else if isTransition {
                             let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
                             DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 28)
                             VStack(alignment: .leading, spacing: 1) {
@@ -553,7 +571,18 @@ public struct BipeLiveActivityWidget: Widget {
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
-                    if isTransition {
+                    if isRoutine {
+                        HStack(spacing: 5) {
+                            Image(systemName: "clock.badge.exclamationmark")
+                                .font(.system(size: 10, weight: .bold))
+                            Text("ROTINA")
+                                .font(.system(size: 11, weight: .black, design: .rounded))
+                        }
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(themeColor))
+                        .foregroundColor(.white)
+                    } else if isTransition {
                         HStack(spacing: 4) {
                             Image(systemName: isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact")
                                 .font(.system(size: 10, weight: .bold))
@@ -578,7 +607,18 @@ public struct BipeLiveActivityWidget: Widget {
                 }
                 
                 DynamicIslandExpandedRegion(.bottom) {
-                    if isTransition {
+                    if isRoutine {
+                        HStack(spacing: 6) {
+                            Image(systemName: "clock.badge.exclamationmark")
+                                .font(.footnote)
+                                .foregroundColor(themeColor)
+                            Text("Rotina não atendida")
+                                .font(.footnote)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.top, 4)
+                    } else if isTransition {
                         if !devicesList.isEmpty {
                             HStack(spacing: 8) {
                                 Image(systemName: "shield.checkerboard")
@@ -634,7 +674,10 @@ public struct BipeLiveActivityWidget: Widget {
                     }
                 }
             } compactLeading: {
-                if isTransition {
+                if isRoutine {
+                    let routineIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                    DeviceBadgeView(item: routineIcon, themeColor: themeColor)
+                } else if isTransition {
                     Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
                         .foregroundColor(themeColor)
                 } else {
@@ -642,7 +685,11 @@ public struct BipeLiveActivityWidget: Widget {
                         .foregroundColor(.red)
                 }
             } compactTrailing: {
-                if isTransition {
+                if isRoutine {
+                    Text("ROTINA")
+                        .font(.system(size: 10, weight: .black, design: .rounded))
+                        .foregroundColor(themeColor)
+                } else if isTransition {
                     Text(regionName)
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundColor(themeColor)
@@ -655,7 +702,10 @@ public struct BipeLiveActivityWidget: Widget {
                         .lineLimit(1)
                 }
             } minimal: {
-                if isTransition {
+                if isRoutine {
+                    Image(systemName: "clock.badge.exclamationmark")
+                        .foregroundColor(themeColor)
+                } else if isTransition {
                     Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
                         .foregroundColor(themeColor)
                 } else {

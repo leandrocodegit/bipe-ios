@@ -388,11 +388,12 @@ import ActivityKit
         
         let isBipe = typeLower.contains("bipe") || statusLower.contains("bipe") || eventLower.contains("bipe")
         let isEmergency = !isBipe && (typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência"))
-        let isDistance = !isBipe && !isEmergency && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
-        let isTransition = !isBipe && !isEmergency && !isDistance
+        let isRoutine = !isBipe && !isEmergency && (typeLower.contains("routine") || typeLower.contains("rotina") || statusLower.contains("routine") || statusLower.contains("rotina") || eventLower.contains("routine") || eventLower.contains("rotina"))
+        let isDistance = !isBipe && !isEmergency && !isRoutine && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
+        let isTransition = !isBipe && !isEmergency && !isDistance && !isRoutine
         
-        guard isBipe || isDistance || isTransition || isEmergency else {
-            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a bipe, distance, transition ou emergency.", typeLower, statusLower, eventLower)
+        guard isBipe || isDistance || isTransition || isEmergency || isRoutine else {
+            NSLog("[BipeLiveActivityManager] Push ignorado (type: '%@', status: '%@', event: '%@'). Não corresponde a bipe, distance, transition, routine ou emergency.", typeLower, statusLower, eventLower)
             return
         }
         
@@ -425,6 +426,21 @@ import ActivityKit
                     activityType: activityTypeToUse,
                     icon: iconUrl,
                     execucaoId: execucaoIdVal
+                )
+            } else if isRoutine {
+                NSLog("[BipeLiveActivityManager] Atualizando Live Activity para ROUTINE (nickname: '%@', address: '%@')", nickname, address)
+                
+                startLiveActivity(
+                    nickname: nickname,
+                    address: address,
+                    iconLocalPath: nil,
+                    iconUrl: iconUrl,
+                    status: "routine",
+                    way: nil,
+                    devices: nil,
+                    event: "routine",
+                    activityType: "routine",
+                    icon: iconUrl
                 )
             } else if isDistance {
                 let eventDisplay = eventVal ?? (statusLower.contains("afast") ? "AFASTAR" : "APROXIMAR")
