@@ -54,7 +54,7 @@ struct TransitionWidgetView: View {
     }
     
     var eventTitle: String {
-        isExit ? "SAIU DA REGIÃO" : "ENTROU NA REGIÃO"
+        isExit ? "SAIU DA REGIÃO" : isActive ? "ATIVO" : "ENTROU NA REGIÃO"
     }
     
     var eventIcon: String {
