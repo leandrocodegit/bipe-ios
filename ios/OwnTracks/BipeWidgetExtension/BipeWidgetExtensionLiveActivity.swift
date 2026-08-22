@@ -831,7 +831,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                         .foregroundColor(.black)
                     } else if isActive {
                         HStack(spacing: 4) {
-                            Image("checkmark.circle.fill")
+                            Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 10, weight: .bold))
                             Text("ATIVO")
                                 .font(.system(size: 11, weight: .black, design: .rounded))
