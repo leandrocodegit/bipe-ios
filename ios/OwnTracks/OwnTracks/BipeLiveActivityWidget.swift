@@ -480,6 +480,109 @@ struct EmergencyWidgetView: View {
     }
 }
 
+// MARK: - View para Evento de Rotina ("routine") - Compact UI
+
+@available(iOS 16.1, *)
+struct RoutineWidgetView: View {
+    let state: BipeAlertActivityAttributes.ContentState
+    
+    var themeColor: Color {
+        Color(red: 0.55, green: 0.27, blue: 0.80)
+    }
+    
+    var deviceIcon: String {
+        if let icon = state.icon, !icon.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return icon
+        }
+        if let iconUrl = state.iconUrl, !iconUrl.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return iconUrl
+        }
+        return "abacaxi"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [themeColor.opacity(0.3), themeColor.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 48, height: 48)
+                        .overlay(
+                            Circle()
+                                .stroke(themeColor.opacity(0.4), lineWidth: 1.5)
+                        )
+                    
+                    DeviceBadgeView(item: deviceIcon, themeColor: themeColor, size: 34)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(state.nickname)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    
+                    Text(state.address)
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 5) {
+                    Image(systemName: "clock.badge.exclamationmark")
+                        .font(.system(size: 11, weight: .bold))
+                    Text("ROTINA")
+                        .font(.system(size: 11, weight: .black, design: .rounded))
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(themeColor.opacity(0.18))
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(themeColor.opacity(0.4), lineWidth: 1.2)
+                )
+                .foregroundColor(themeColor)
+            }
+            
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(themeColor)
+                Text("Rotina não atendida pelo dispositivo")
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(themeColor.opacity(0.08))
+            )
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(themeColor.opacity(0.3), lineWidth: 1.5)
+                )
+        )
+        .activityBackgroundTint(Color(UIColor.systemBackground))
+        .activitySystemActionForegroundColor(Color.primary)
+    }
+}
+
 // MARK: - Live Activity Widget Principal
 
 @available(iOS 16.1, *)
