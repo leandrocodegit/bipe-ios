@@ -675,7 +675,7 @@ struct RoutineWidgetView: View {
                 Image(systemName: "exclamationmark.circle.fill")
                     .font(.system(size: 14))
                     .foregroundColor(themeColor)
-                Text("Rotina não atendida pelo dispositivo")
+                Text(state.address)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
             }
