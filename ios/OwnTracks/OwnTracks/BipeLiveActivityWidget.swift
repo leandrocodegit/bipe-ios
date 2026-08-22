@@ -600,7 +600,7 @@ public struct BipeLiveActivityWidget: Widget {
             let act = context.state.activityType?.lowercased() ?? ""
             let ev = context.state.event?.lowercased() ?? ""
             
-            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
+            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || st == "start"
             let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
@@ -622,7 +622,7 @@ public struct BipeLiveActivityWidget: Widget {
             let act = context.state.activityType?.lowercased() ?? ""
             let ev = context.state.event?.lowercased() ?? ""
             
-            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
+            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || st == "start"
             let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))

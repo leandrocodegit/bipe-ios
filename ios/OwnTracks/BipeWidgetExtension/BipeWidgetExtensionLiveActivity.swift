@@ -934,7 +934,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     .lineLimit(2)
                             }
                             
-                            let isBipeAlert = context.state.status.lowercased().contains("bipe") || (context.state.activityType?.lowercased().contains("bipe") ?? false) || (context.state.event?.lowercased().contains("bipe") ?? false) || context.state.execucaoId != nil
+                            let isBipeAlert = context.state.status.lowercased().contains("bipe") || (context.state.activityType?.lowercased().contains("bipe") ?? false) || (context.state.event?.lowercased().contains("bipe") ?? false)
                             if isBipeAlert {
                                 if #available(iOS 17.0, *) {
                                     Button(intent: ConfirmBipeIntent(execucaoId: context.state.execucaoId)) {
