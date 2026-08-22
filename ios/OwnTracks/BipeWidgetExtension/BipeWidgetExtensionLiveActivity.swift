@@ -819,7 +819,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             .padding(.vertical, 4)
                             .background(Capsule().fill(themeColor))
                             .foregroundColor(.black)
-                    } else if isTransition {
+                    } else if isTransition && !isActive {
                         HStack(spacing: 4) {
                             Image(systemName: isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact")
                                 .font(.system(size: 10, weight: .bold))
