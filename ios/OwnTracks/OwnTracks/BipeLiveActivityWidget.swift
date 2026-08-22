@@ -48,13 +48,18 @@ struct TransitionWidgetView: View {
         return ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
                st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
     }
+
+    let isActive = Bool {
+        let ev = state.event?.lowercased() ?? "" 
+        return ev.contains("active") || ev.contains("active")
+    } 
     
     var themeColor: Color {
         isExit ? Color.orange : Color(red: 0.18, green: 0.80, blue: 0.44) // Emerald Green vs Amber Orange
     }
     
     var eventTitle: String {
-        isExit ? "SAIU DA REGIÃO" : isActive ? "ATIVO" : "ENTROU NA REGIÃO"
+        isExit ? "SAIU DA REGIÃO" : (isActive ? "ATIVO" : "ENTROU NA REGIÃO")
     }
     
     var eventIcon: String {
