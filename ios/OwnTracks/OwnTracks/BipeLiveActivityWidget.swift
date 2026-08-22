@@ -601,7 +601,8 @@ public struct BipeLiveActivityWidget: Widget {
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
             let isTransition = !isEmergency && !isDistance && !isRoutine && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
-            
+            let isActive = ev.contains("active") || ev.contains("active")
+
             if isEmergency {
                 EmergencyWidgetView(state: context.state)
             } else if isRoutine {
@@ -629,6 +630,7 @@ public struct BipeLiveActivityWidget: Widget {
             let themeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .red : (isDistance ? Color(red: 0.18, green: 0.80, blue: 0.44) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red)))
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
+            let isActive = ev.contains("active") || ev.contains("active")
             
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
@@ -690,6 +692,17 @@ public struct BipeLiveActivityWidget: Widget {
                             Image(systemName: isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact")
                                 .font(.system(size: 10, weight: .bold))
                             Text(isExit ? "SAIU" : "ENTROU")
+                                .font(.system(size: 11, weight: .black, design: .rounded))
+                        }
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(themeColor))
+                        .foregroundColor(.black)
+                    } if isActive {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle")
+                                .font(.system(size: 10, weight: .bold))
+                            Text("ATIVO")
                                 .font(.system(size: 11, weight: .black, design: .rounded))
                         }
                         .padding(.horizontal, 9)
