@@ -1770,7 +1770,6 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? "device"
             let bipeTopic = "owntracks/\(userName)/\(deviceId)/bipe"
             
-            let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
             let nickname = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? ""
             let face = Settings.string(forKey: "icon", inMOC: moc) ?? ""
             let color = Settings.string(forKey: "color", inMOC: moc) ?? ""
