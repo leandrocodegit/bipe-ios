@@ -212,7 +212,7 @@ import ActivityKit
                         status: "transition",
                         way: "Monitoramento Ativo",
                         devices: nil,
-                        event: "enter",
+                        event: "active",
                         activityType: "transition"
                     )
                 } else {

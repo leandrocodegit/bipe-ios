@@ -718,6 +718,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
             let isTransition = !isEmergency && !isDistance && !isRoutine
+            let isActive = ev.contains("active") || ev.contains("active")
             
             if isEmergency {
                 EmergencyWidgetView(state: context.state)
@@ -822,6 +823,17 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             Image(systemName: isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact")
                                 .font(.system(size: 10, weight: .bold))
                             Text(isExit ? "SAIU" : "ENTROU")
+                                .font(.system(size: 11, weight: .black, design: .rounded))
+                        }
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(themeColor))
+                        .foregroundColor(.black)
+                    } else if isActive {
+                        HStack(spacing: 4) {
+                            Image(systemName: isExit ? "checkmark.circle.fill")
+                                .font(.system(size: 10, weight: .bold))
+                            Text("ATIVO")
                                 .font(.system(size: 11, weight: .black, design: .rounded))
                         }
                         .padding(.horizontal, 9)
