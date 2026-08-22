@@ -88,9 +88,8 @@ struct TransitionWidgetView: View {
                                 .stroke(themeColor.opacity(0.4), lineWidth: 1.5)
                         )
                     
-                    Image(systemName: "antenna.radiowaves.left.and.right")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(themeColor)
+                    let triggerIcon = (state.icon != nil && !state.icon!.isEmpty) ? state.icon! : ((state.iconUrl != nil && !state.iconUrl!.isEmpty) ? state.iconUrl! : "abacaxi")
+                    DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 32)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -527,14 +526,8 @@ public struct BipeLiveActivityWidget: Widget {
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 8) {
                         if isTransition {
-                            ZStack {
-                                Circle()
-                                    .fill(themeColor.opacity(0.25))
-                                    .frame(width: 32, height: 32)
-                                Image(systemName: "antenna.radiowaves.left.and.right")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(themeColor)
-                            }
+                            let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                            DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 28)
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(regionName)
                                     .font(.system(size: 14, weight: .bold, design: .rounded))

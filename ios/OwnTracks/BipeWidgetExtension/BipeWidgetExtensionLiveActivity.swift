@@ -183,13 +183,8 @@ struct TransitionWidgetView: View {
                                 .stroke(themeColor.opacity(0.4), lineWidth: 1.5)
                         )
                     
-                    if let triggerIcon = state.icon ?? state.iconUrl, !triggerIcon.isEmpty {
-                        DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 34)
-                    } else {
-                        Image(systemName: "antenna.radiowaves.left.and.right")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(themeColor)
-                    }
+                    let triggerIcon = (state.icon != nil && !state.icon!.isEmpty) ? state.icon! : ((state.iconUrl != nil && !state.iconUrl!.isEmpty) ? state.iconUrl! : "abacaxi")
+                    DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 34)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -655,19 +650,8 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     DeviceBadgeView(item: alvo, themeColor: themeColor)
                                 }
                             }
-                        } else if isTransition {
-                            if let triggerIcon = context.state.icon ?? context.state.iconUrl, !triggerIcon.isEmpty {
-                                DeviceBadgeView(item: triggerIcon, themeColor: themeColor)
-                            } else {
-                                ZStack {
-                                    Circle()
-                                        .fill(themeColor.opacity(0.25))
-                                        .frame(width: 28, height: 28)
-                                    Image(systemName: "antenna.radiowaves.left.and.right")
-                                        .font(.system(size: 13, weight: .bold))
-                                        .foregroundColor(themeColor)
-                                }
-                            }
+                            let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                            DeviceBadgeView(item: triggerIcon, themeColor: themeColor)
                             if !regionName.lowercased().contains("monitora") {
                                 Text(regionName)
                                     .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -848,9 +832,8 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             .foregroundColor(themeColor)
                             .lineLimit(1)
                     } else {
-                        Image(systemName: "antenna.radiowaves.left.and.right")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(themeColor)
+                        let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                        DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 20)
                     }
                 } else {
                     Text(context.state.nickname)

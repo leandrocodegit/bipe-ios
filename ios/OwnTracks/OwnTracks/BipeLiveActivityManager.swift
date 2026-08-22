@@ -405,7 +405,8 @@ import ActivityKit
             let address = extractValue(keys: ["address", "endereco", "locationName", "desc", "text", "location"], userInfo: userInfo, dataDict: dataDict)
                 ?? "Localização atual"
             
-            let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict)
+            let appDeviceIcon = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc)
+            let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict) ?? appDeviceIcon
             
             if isBipe || isEmergency {
                 let activityTypeToUse = isBipe ? "bipe" : "emergency"
@@ -790,16 +791,23 @@ import ActivityKit
                     NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado com sucesso (topico: '%@', execucaoId: %@)", status, topic, execucaoId ?? "nil")
                     if autoResetLiveActivity, #available(iOS 16.1, *) {
                         let nickToUse = nickname ?? "Bipe.me"
+                        let moc = CoreData.sharedInstance().mainMOC
+                        var deviceIcon: String? = nil
+                        moc.performAndWait {
+                            deviceIcon = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc)
+                        }
+                        let iconToUse = (deviceIcon != nil && !deviceIcon!.isEmpty) ? deviceIcon : "abacaxi"
                         startLiveActivity(
                             nickname: nickToUse,
                             address: "Monitorando em tempo real",
                             iconLocalPath: nil,
-                            iconUrl: nil,
+                            iconUrl: iconToUse,
                             status: "transition",
                             way: "Monitoramento Ativo",
                             devices: nil,
                             event: "enter",
                             activityType: "transition",
+                            icon: iconToUse,
                             execucaoId: nil
                         )
                     }
