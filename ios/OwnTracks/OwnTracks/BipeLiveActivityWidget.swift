@@ -49,7 +49,7 @@ struct TransitionWidgetView: View {
                st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
     }
 
-    let isActived = Bool {
+    var isActived: Bool {
         let ev = state.event?.lowercased() ?? "" 
         return ev.contains("active") || ev.contains("active")
     } 
