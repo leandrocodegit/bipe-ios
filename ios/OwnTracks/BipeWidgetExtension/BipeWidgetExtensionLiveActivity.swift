@@ -642,7 +642,7 @@ struct RoutineWidgetView: View {
                         .foregroundColor(.primary)
                         .lineLimit(1)
                     
-                    Text(state.address)
+                    Text(state.way ?? "")
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                         .lineLimit(1)
