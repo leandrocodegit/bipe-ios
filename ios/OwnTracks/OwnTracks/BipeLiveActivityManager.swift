@@ -396,11 +396,6 @@ import ActivityKit
             return
         }
         
-        if isBipe {
-            NSLog("[BipeLiveActivityManager] Disparando recibo MQTT 'ACCEPTED' para push de Bipe (execucaoId: '%@')", execucaoIdVal ?? "nil")
-            sendBipeReceipt(status: "ACCEPTED", execucaoId: execucaoIdVal)
-        }
-        
         if #available(iOS 16.1, *) {
             let moc = CoreData.sharedInstance().mainMOC
             let nickname = extractValue(keys: ["nickname", "name", "userName"], userInfo: userInfo, dataDict: dataDict)
