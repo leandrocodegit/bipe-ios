@@ -379,11 +379,14 @@ import ActivityKit
             BipeAudioHelper.playSound(named: soundVal)
         }
         
+        let titleVal = extractValue(keys: ["title"], userInfo: userInfo, dataDict: dataDict)?.lowercased() ?? ""
+        let soundValLower = soundVal?.lowercased() ?? ""
+        
         let typeLower = type?.lowercased() ?? ""
         let statusLower = status?.lowercased() ?? ""
         let eventLower = eventVal?.lowercased() ?? ""
         
-        let isBipe = typeLower.contains("bipe") || statusLower.contains("bipe") || eventLower.contains("bipe") || execucaoIdVal != nil || statusLower == "start"
+        let isBipe = typeLower.contains("bipe") || statusLower.contains("bipe") || eventLower.contains("bipe") || titleVal.contains("bipe") || soundValLower.contains("bipe") || execucaoIdVal != nil || statusLower == "start"
         let isEmergency = !isBipe && (typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência"))
         let isDistance = !isBipe && !isEmergency && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
         let isTransition = !isBipe && !isEmergency && !isDistance && (typeLower.contains("transition") || statusLower.contains("transition") || eventLower.contains("transition") || wayVal != nil)
