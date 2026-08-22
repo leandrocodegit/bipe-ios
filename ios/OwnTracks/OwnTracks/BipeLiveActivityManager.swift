@@ -781,8 +781,9 @@ import ActivityKit
             appDelegate.connection?.connectToLast()
             
             let qos = MQTTQosLevel(rawValue: UInt8(qosVal)) ?? .atMostOnce
-            let rawTopic = baseTopic ?? ""
-            let topic = rawTopic.isEmpty ? "bipe" : (rawTopic.hasSuffix("/bipe") ? rawTopic : rawTopic + "/bipe")
+            let userStr = (userName ?? "").isEmpty ? "user" : userName!
+            let devStr = (deviceId ?? "").isEmpty ? ((tid ?? "").isEmpty ? "device" : tid!) : deviceId!
+            let topic = "owntracks/\(userStr)/\(devStr)/bipe"
             
             func attemptPublish(attemptsRemaining: Int) {
                 let currentState = Int(appDelegate.connection?.state ?? -1)

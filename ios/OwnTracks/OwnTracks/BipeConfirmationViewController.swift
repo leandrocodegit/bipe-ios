@@ -158,8 +158,9 @@ public class BipeConfirmationViewController: UIViewController {
                 }
                 
                 let qos = MQTTQosLevel(rawValue: UInt8(Settings.int(forKey: "qos_preference", inMOC: moc))) ?? .atMostOnce
-                let rawTopic = Settings.theGeneralTopic(inMOC: moc) ?? ""
-                let topic = rawTopic.isEmpty ? "bipe" : (rawTopic.hasSuffix("/bipe") ? rawTopic : rawTopic + "/bipe")
+                let userName = Settings.string(forKey: "user_preference", inMOC: moc) ?? "user"
+                let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? "device"
+                let topic = "owntracks/\(userName)/\(deviceId)/bipe"
                 
                 appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
                 print("[BipeConfirmationViewController] MQTT Payload bipe status \(status) enviado para \(topic)")
