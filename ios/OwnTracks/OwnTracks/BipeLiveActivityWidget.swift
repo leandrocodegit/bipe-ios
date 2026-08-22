@@ -698,7 +698,7 @@ public struct BipeLiveActivityWidget: Widget {
                         .padding(.vertical, 4)
                         .background(Capsule().fill(themeColor))
                         .foregroundColor(.black)
-                    } if isActive {
+                    } else if isActive {
                         HStack(spacing: 4) {
                             Image(systemName: "checkmark.circle")
                                 .font(.system(size: 10, weight: .bold))
