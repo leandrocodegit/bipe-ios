@@ -49,7 +49,7 @@ struct TransitionWidgetView: View {
                st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
     }
 
-    let isActive = Bool {
+    let isActived = Bool {
         let ev = state.event?.lowercased() ?? "" 
         return ev.contains("active") || ev.contains("active")
     } 
@@ -59,7 +59,7 @@ struct TransitionWidgetView: View {
     }
     
     var eventTitle: String {
-        isExit ? "SAIU DA REGIÃO" : (isActive ? "ATIVO" : "ENTROU NA REGIÃO")
+        isExit ? "SAIU DA REGIÃO" : (isActived ? "ATIVO" : "ENTROU NA REGIÃO")
     }
     
     var eventIcon: String {
