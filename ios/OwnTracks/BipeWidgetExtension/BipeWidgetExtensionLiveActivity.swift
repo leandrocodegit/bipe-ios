@@ -642,7 +642,7 @@ struct RoutineWidgetView: View {
                         .foregroundColor(.primary)
                         .lineLimit(1)
                     
-                    Text(state.address)
+                    Text(state.way)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                         .lineLimit(1)
@@ -672,7 +672,7 @@ struct RoutineWidgetView: View {
             
             // MARK: Info card
             HStack(spacing: 8) {
-                Image(systemName: "exclamationmark.circle.fill")
+                Image(systemName: "mappin.circle.fill")
                     .font(.system(size: 14))
                     .foregroundColor(themeColor)
                 Text(state.address)
