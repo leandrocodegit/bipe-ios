@@ -393,6 +393,11 @@ import ActivityKit
             return
         }
         
+        if isBipe {
+            NSLog("[BipeLiveActivityManager] Disparando recibo MQTT 'ACCEPTED' para push de Bipe (execucaoId: '%@')", execucaoIdVal ?? "nil")
+            sendBipeReceipt(status: "ACCEPTED", execucaoId: execucaoIdVal)
+        }
+        
         if #available(iOS 16.1, *) {
             let moc = CoreData.sharedInstance().mainMOC
             let nickname = extractValue(keys: ["nickname", "name", "userName"], userInfo: userInfo, dataDict: dataDict)
@@ -408,10 +413,6 @@ import ActivityKit
                 let activityTypeToUse = isBipe ? "bipe" : "emergency"
                 let statusToUse = isBipe ? "bipe" : "emergency"
                 NSLog("[BipeLiveActivityManager] Atualizando Live Activity para BIPE/EMERGENCY (nickname: '%@', address: '%@', execucaoId: '%@')", nickname, address, execucaoIdVal ?? "")
-                
-                if isBipe {
-                    sendBipeReceipt(status: "ACCEPTED", execucaoId: execucaoIdVal)
-                }
                 
                 startLiveActivity(
                     nickname: nickname,
@@ -474,7 +475,11 @@ import ActivityKit
 
     private static func extractValue(keys: [String], userInfo: NSDictionary, dataDict: [String: Any]?) -> String? {
         let apsDict = (userInfo["aps"] as? NSDictionary) ?? (userInfo["aps"] as? [String: Any]) as NSDictionary?
-        let contentState = (apsDict?["content-state"] as? NSDictionary) ?? (apsDict?["content-state"] as? [String: Any]) as NSDictionary?
+        let alertDict = (apsDict?["alert"] as? NSDictionary) ?? (apsDict?["alert"] as? [String: Any]) as NSDictionary?
+        let contentState = (apsDict?["content-state"] as? NSDictionary)
+            ?? (apsDict?["content-state"] as? [String: Any]) as NSDictionary?
+            ?? (apsDict?["contentState"] as? NSDictionary)
+            ?? (apsDict?["content_state"] as? NSDictionary)
         
         for key in keys {
             if let val = userInfo[key] {
@@ -486,6 +491,10 @@ import ActivityKit
                 if !str.isEmpty && str != "<null>" && str != "nil" && str != "null" { return str }
             }
             if let contentState = contentState, let val = contentState[key] {
+                let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !str.isEmpty && str != "<null>" && str != "nil" && str != "null" { return str }
+            }
+            if let alertDict = alertDict, let val = alertDict[key] {
                 let str = String(describing: val).trimmingCharacters(in: .whitespacesAndNewlines)
                 if !str.isEmpty && str != "<null>" && str != "nil" && str != "null" { return str }
             }
