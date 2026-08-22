@@ -1168,7 +1168,9 @@ import ActivityKit
             isBiometricsEnabled: function() { return window.prompt("is_biometrics_enabled", "") === "true"; },
             getBiometricName: function() { return window.prompt("get_biometric_name", ""); },
             enableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.enableBiometrics) window.webkit.messageHandlers.enableBiometrics.postMessage({}); },
-            disableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.disableBiometrics) window.webkit.messageHandlers.disableBiometrics.postMessage({}); }
+            disableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.disableBiometrics) window.webkit.messageHandlers.disableBiometrics.postMessage({}); },
+            openQRScanner: function() { if (window.webkit && window.webkit.messageHandlers.openQRScanner) window.webkit.messageHandlers.openQRScanner.postMessage({}); else window.prompt("open_qr_scanner", ""); },
+            scanQRCode: function() { if (window.webkit && window.webkit.messageHandlers.scanQRCode) window.webkit.messageHandlers.scanQRCode.postMessage({}); else window.prompt("open_qr_scanner", ""); }
         };
         """
 
@@ -1176,7 +1178,7 @@ import ActivityKit
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1246,7 +1248,12 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
-            if url.scheme == "bipe.me" || url.scheme == "bipe.ia" {
+            if url.scheme == "bipe" || url.scheme == "bipe.me" || url.scheme == "bipe.ia" {
+                if url.host == "scan-qr" || url.host == "scan-qrcode" || url.host == "qrcode" || url.path.contains("scan-qr") || url.path.contains("scan-qrcode") {
+                    decisionHandler(.cancel)
+                    openNativeQRScanner()
+                    return
+                }
                 if url.host == "login" || url.host == "auth" {
                     decisionHandler(.cancel)
                     
@@ -1457,6 +1464,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
             completionHandler("{\"error\": \"invalid_payload\"}")
             return
+        } else if prompt == "open_qr_scanner" || prompt == "scan_qr" || prompt == "scan_qrcode" || prompt == "qrcode" {
+            openNativeQRScanner()
+            completionHandler("{\"status\": \"opened\"}")
+            return
         }
 
         completionHandler(nil)
@@ -1555,6 +1566,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         case "disableBiometrics":
             BiometricAuthManager.shared.isBiometricsEnabled = false
+        case "openQRScanner", "scanQRCode":
+            openNativeQRScanner()
         case "startVoiceCall":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -1879,3 +1892,65 @@ struct BipeShortcutsProvider: AppShortcutsProvider {
         )
     }
 }
+
+// MARK: - Native QR Code Scanner Delegate
+extension ViewController: QRCodeScannerViewControllerDelegate {
+    @objc func openNativeQRScanner() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if self.presentedViewController is QRCodeScannerViewController { return }
+            let scannerVC = QRCodeScannerViewController()
+            scannerVC.delegate = self
+            scannerVC.modalPresentationStyle = .fullScreen
+            self.present(scannerVC, animated: true, completion: nil)
+        }
+    }
+    
+    func qrCodeScanner(_ scanner: QRCodeScannerViewController, didScanResult result: String) {
+        NSLog("[ViewController] QR Code lido com sucesso: %@", result)
+        let trimmedResult = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedResult.isEmpty else { return }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let webView = self.webView else { return }
+            
+            // 1. Injeta callback no WebKit caso a aplicação Angular tenha funções registradas
+            let safeResult = trimmedResult.replacingOccurrences(of: "'", with: "\\'")
+            let jsScript = """
+            if (typeof window.handleQrCodeDecoded === 'function') {
+                window.handleQrCodeDecoded('\(safeResult)');
+            } else if (typeof window.onQRCodeScanned === 'function') {
+                window.onQRCodeScanned('\(safeResult)');
+            }
+            """
+            webView.evaluateJavaScript(jsScript, completionHandler: nil)
+            
+            // 2. Extrai o token ou URL completa para navegação direta no WebKit
+            var targetUrlString: String = ""
+            
+            if trimmedResult.hasPrefix("http://") || trimmedResult.hasPrefix("https://") {
+                targetUrlString = trimmedResult
+            } else if trimmedResult.contains("payload=") {
+                if let components = URLComponents(string: "http://dummy?\(trimmedResult)"),
+                   let payloadItem = components.queryItems?.first(where: { $0.name == "payload" }),
+                   let payloadVal = payloadItem.value {
+                    targetUrlString = "https://bipe.simodapp.com/share/accept?payload=\(payloadVal)"
+                } else {
+                    targetUrlString = "https://bipe.simodapp.com/share/accept?\(trimmedResult)"
+                }
+            } else {
+                targetUrlString = "https://bipe.simodapp.com/share/accept?payload=\(trimmedResult)"
+            }
+            
+            if let targetUrl = URL(string: targetUrlString) {
+                NSLog("[ViewController] Redirecionando WebKit para a rota de aceite de compartilhamento: %@", targetUrlString)
+                webView.load(URLRequest(url: targetUrl))
+            }
+        }
+    }
+    
+    func qrCodeScannerDidCancel(_ scanner: QRCodeScannerViewController) {
+        NSLog("[ViewController] Leitura do QR Code cancelada pelo usuário.")
+    }
+}
+
