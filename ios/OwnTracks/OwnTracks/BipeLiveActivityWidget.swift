@@ -502,7 +502,7 @@ struct RoutineWidgetView: View {
         if let iconUrl = state.iconUrl, !iconUrl.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return iconUrl
         }
-        return "abacaxi"
+        return "logo"
     }
 
     var body: some View {

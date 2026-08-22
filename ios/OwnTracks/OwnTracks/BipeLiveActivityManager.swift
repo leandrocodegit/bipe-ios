@@ -210,7 +210,7 @@ import ActivityKit
                         iconLocalPath: nil,
                         iconUrl: nil,
                         status: "transition",
-                        way: "Monitoramento",
+                        way: "Bipe.me",
                         devices: nil,
                         event: "active",
                         activityType: "transition"
@@ -812,14 +812,14 @@ import ActivityKit
                         moc.performAndWait {
                             deviceIcon = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc)
                         }
-                        let iconToUse = (deviceIcon != nil && !deviceIcon!.isEmpty) ? deviceIcon : "abacaxi"
+                        let iconToUse = (deviceIcon != nil && !deviceIcon!.isEmpty) ? deviceIcon : "logo"
                         startLiveActivity(
                             nickname: nickToUse,
                             address: "Monitorando em tempo real",
                             iconLocalPath: nil,
                             iconUrl: iconToUse,
                             status: "transition",
-                            way: "Monitoramento",
+                            way: "Bipe.me",
                             devices: nil,
                             event: "active",
                             activityType: "transition",
@@ -843,7 +843,7 @@ import ActivityKit
                             iconLocalPath: nil,
                             iconUrl: nil,
                             status: "transition",
-                            way: "Monitoramento",
+                            way: "Bipe.me",
                             devices: nil,
                             event: "active",
                             activityType: "transition",
