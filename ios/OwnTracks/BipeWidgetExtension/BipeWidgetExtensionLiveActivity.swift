@@ -391,7 +391,10 @@ struct EmergencyWidgetView: View {
                 }
             }
             
-            let isBipeAlert = true
+            let act = state.activityType?.lowercased() ?? ""
+            let st = state.status.lowercased()
+            let ev = state.event?.lowercased() ?? ""
+            let isBipeAlert = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe")
             if isBipeAlert {
                 if #available(iOS 17.0, *) {
                     Button(intent: ConfirmBipeIntent(execucaoId: state.execucaoId)) {
@@ -604,31 +607,29 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let act = context.state.activityType?.lowercased() ?? ""
             let ev = context.state.event?.lowercased() ?? ""
             
-            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
+            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe")
             let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
-            let isTransition = !isEmergency && !isDistance && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
+            let isTransition = !isEmergency && !isDistance
             
             if isEmergency {
                 EmergencyWidgetView(state: context.state)
             } else if isDistance {
                 DistanceWidgetView(state: context.state)
-            } else if isTransition {
-                TransitionWidgetView(state: context.state)
             } else {
-                EmergencyWidgetView(state: context.state)
+                TransitionWidgetView(state: context.state)
             }
         } dynamicIsland: { context in
             let st = context.state.status.lowercased()
             let act = context.state.activityType?.lowercased() ?? ""
             let ev = context.state.event?.lowercased() ?? ""
             
-            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe") || context.state.execucaoId != nil || st == "start"
+            let isBipe = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe")
             let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
-            let isTransition = !isEmergency && !isDistance && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
+            let isTransition = !isEmergency && !isDistance
             
             let isExit = ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
                          st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")

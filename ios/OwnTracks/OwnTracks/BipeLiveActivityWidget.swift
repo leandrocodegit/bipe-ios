@@ -424,7 +424,10 @@ struct EmergencyWidgetView: View {
                 }
             }
             
-            let isBipeAlert = true
+            let act = state.activityType?.lowercased() ?? ""
+            let st = state.status.lowercased()
+            let ev = state.event?.lowercased() ?? ""
+            let isBipeAlert = act.contains("bipe") || st.contains("bipe") || ev.contains("bipe")
             if isBipeAlert {
                 if #available(iOS 17.0, *) {
                     Button(intent: ConfirmBipeIntent(execucaoId: state.execucaoId)) {
