@@ -220,7 +220,7 @@ struct TransitionWidgetView: View {
                         Image(systemName: "checkmark.shield.fill")
                             .font(.system(size: 13))
                             .foregroundColor(themeColor)
-                        Text("Transição registrada com sucesso no perímetro monitorado")
+                        Text("Aguardando publicação")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                     }
