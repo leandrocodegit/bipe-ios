@@ -512,9 +512,13 @@ struct DistanceWidgetView: View {
                         .frame(width: 32, height: 32)
                         .overlay(Circle().stroke(themeColor.opacity(0.4), lineWidth: 1))
                     
-                    Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(themeColor)
+                    if let firstDev = state.devices?.first, !firstDev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        DeviceBadgeView(item: firstDev, themeColor: themeColor, size: 24)
+                    } else {
+                        Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(themeColor)
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 1) {
@@ -803,8 +807,12 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 }
             } compactLeading: {
                 if isDistance {
-                    Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                        .foregroundColor(themeColor)
+                    if let firstDev = devicesList.first, !firstDev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        DeviceBadgeView(item: firstDev, themeColor: themeColor)
+                    } else {
+                        Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                            .foregroundColor(themeColor)
+                    }
                 } else if isTransition {
                     Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
                         .foregroundColor(themeColor)
@@ -844,8 +852,12 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                 }
             } minimal: {
                 if isDistance {
-                    Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                        .foregroundColor(themeColor)
+                    if let firstDev = devicesList.first, !firstDev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        DeviceBadgeView(item: firstDev, themeColor: themeColor)
+                    } else {
+                        Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                            .foregroundColor(themeColor)
+                    }
                 } else if isTransition {
                     if let firstDev = devicesList.first {
                         DeviceBadgeView(item: firstDev, themeColor: themeColor)
