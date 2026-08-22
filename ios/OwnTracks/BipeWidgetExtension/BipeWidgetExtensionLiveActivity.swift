@@ -749,6 +749,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let themeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .red : (isDistance ? (isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red)))
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
+            let isActive = ev.contains("active") || ev.contains("active")
             
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
