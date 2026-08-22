@@ -93,7 +93,7 @@ struct TransitionWidgetView: View {
                                 .stroke(themeColor.opacity(0.4), lineWidth: 1.5)
                         )
                     
-                    let triggerIcon = (state.icon != nil && !state.icon!.isEmpty) ? state.icon! : ((state.iconUrl != nil && !state.iconUrl!.isEmpty) ? state.iconUrl! : "abacaxi")
+                    let triggerIcon = (state.icon != nil && !state.icon!.isEmpty) ? state.icon! : ((state.iconUrl != nil && !state.iconUrl!.isEmpty) ? state.iconUrl! : "logo")
                     DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 32)
                 }
                 
@@ -311,7 +311,7 @@ struct DeviceBadgeView: View {
     var systemIcon: String {
         let n = cleanName.lowercased()
         if n.contains("car") || n.contains("carro") || n.contains("auto") { return "car.fill" }
-        if n.contains("person") || n.contains("user") || n.contains("pessoa") || n.contains("abacaxi") { return "person.fill" }
+        if n.contains("person") || n.contains("user") || n.contains("pessoa") || n.contains("logo") { return "person.fill" }
         if n.contains("iphone") || n.contains("phone") || n.contains("mobile") || n.contains("celular") { return "iphone" }
         if n.contains("bus") || n.contains("onibus") { return "bus.fill" }
         if n.contains("bicycle") || n.contains("bike") || n.contains("bicicleta") { return "bicycle" }
@@ -641,7 +641,7 @@ public struct BipeLiveActivityWidget: Widget {
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 8) {
                         if isRoutine {
-                            let routineIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                            let routineIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "logo")
                             DeviceBadgeView(item: routineIcon, themeColor: themeColor, size: 28)
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(context.state.nickname)
@@ -654,7 +654,7 @@ public struct BipeLiveActivityWidget: Widget {
                                     .lineLimit(1)
                             }
                         } else if isTransition {
-                            let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                            let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "logo")
                             DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 28)
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(regionName)
@@ -796,7 +796,7 @@ public struct BipeLiveActivityWidget: Widget {
                 }
             } compactLeading: {
                 if isRoutine {
-                    let routineIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "abacaxi")
+                    let routineIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "logo")
                     DeviceBadgeView(item: routineIcon, themeColor: themeColor)
                 } else if isTransition {
                     Image(systemName: isExit ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
