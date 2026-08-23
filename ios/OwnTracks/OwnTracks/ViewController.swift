@@ -57,6 +57,7 @@ import ActivityKit
         
         NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(loadActivityHistoryRoute), name: NSNotification.Name("LoadActivityHistory"), object: nil)
     }
     
     @objc private func appDidEnterBackground() {
@@ -1231,6 +1232,13 @@ import ActivityKit
 
     @objc func loadAndroidSetupRoute() {
         guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/android-setup") else { return }
+        DispatchQueue.main.async {
+            webView.load(URLRequest(url: url))
+        }
+    }
+
+    @objc func loadActivityHistoryRoute() {
+        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/activity-history") else { return }
         DispatchQueue.main.async {
             webView.load(URLRequest(url: url))
         }

@@ -800,17 +800,21 @@ public struct BipeLiveActivityWidget: Widget {
             let isTransition = !isEmergency && !isDistance && !isRoutine && (act.contains("transition") || st.contains("transition") || (ev.contains("enter") || ev.contains("exit") || ev.contains("leave") || ev.contains("saida")))
             let isActive = ev.contains("active") || ev.contains("active")
 
-            if isEmergency {
-                EmergencyWidgetView(state: context.state)
-            } else if isRoutine {
-                RoutineWidgetView(state: context.state)
-            } else if isDistance {
-                DistanceWidgetView(state: context.state)
-            } else if isTransition {
-                TransitionWidgetView(state: context.state)
-            } else {
-                EmergencyWidgetView(state: context.state)
+            Group {
+                if isEmergency {
+                    EmergencyWidgetView(state: context.state)
+                } else if isRoutine {
+                    RoutineWidgetView(state: context.state)
+                } else if isDistance {
+                    DistanceWidgetView(state: context.state)
+                } else if isTransition {
+                    TransitionWidgetView(state: context.state)
+                } else {
+                    EmergencyWidgetView(state: context.state)
+                }
             }
+            .widgetURL(URL(string: "bipe://activity-history"))
+
         } dynamicIsland: { context in
             let st = context.state.status.lowercased()
             let act = context.state.activityType?.lowercased() ?? ""
@@ -1075,6 +1079,7 @@ public struct BipeLiveActivityWidget: Widget {
                 }
             }
             .keylineTint(themeColor)
+            .widgetURL(URL(string: "bipe://activity-history"))
         }
     }
 }

@@ -309,7 +309,7 @@
     }
 
     // Handler para confirmação de bipe via URL (ex: bipe://confirm?execucaoId=123 ou bipe.me://confirm?execucaoId=123)
-    if ([host isEqualToString:@"confirm"] || [path isEqualToString:@"/confirm"] || [url.scheme isEqualToString:@"bipe"]) {
+    if ([host isEqualToString:@"confirm"] || [path isEqualToString:@"/confirm"] || ([url.scheme isEqualToString:@"bipe"] && [host isEqualToString:@"confirm"])) {
         NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
         NSString *execucaoId = nil;
         for (NSURLQueryItem *item in components.queryItems) {
@@ -322,6 +322,13 @@
         [BipeLiveActivityManager sendBipeConfirmationWithExecucaoId:execucaoId];
         return YES;
     }
+
+    if ([host isEqualToString:@"activity-history"] || [path isEqualToString:@"/activity-history"]) {
+        OwnTracksLogDefault("[OwnTracksAppDelegate] Link bipe://activity-history recebido");
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"LoadActivityHistory" object:nil];
+        return YES;
+    }
+
 
     OwnTracksLogDebug("[OwnTracksAppDelegate] URL scheme %@", url.scheme);
 
