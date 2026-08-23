@@ -413,6 +413,13 @@ struct EmergencyWidgetView: View {
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                    
+                    if let prev = state.previousEvent, !prev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("Último evento: \(prev)")
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary.opacity(0.8))
+                            .lineLimit(1)
+                    }
                 }
             }
             
@@ -662,6 +669,13 @@ struct DistanceWidgetView: View {
                     Text("Alerta de Distância")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.secondary)
+                        
+                    if let prev = state.previousEvent, !prev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("Último evento: \(prev)")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary.opacity(0.8))
+                            .lineLimit(1)
+                    }
                 }
                 
                 Spacer()

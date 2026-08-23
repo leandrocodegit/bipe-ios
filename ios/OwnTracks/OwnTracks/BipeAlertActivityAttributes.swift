@@ -26,6 +26,7 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         public var distancia: String?
         public var sound: String?
         public var execucaoId: String?
+        public var previousEvent: String?
         
         public init(
             address: String = "Localização atual",
@@ -43,7 +44,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             alvo: String? = nil,
             distancia: String? = nil,
             sound: String? = nil,
-            execucaoId: String? = nil
+            execucaoId: String? = nil,
+            previousEvent: String? = nil
         ) {
             self.address = address
             self.way = way
@@ -61,6 +63,7 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.distancia = distancia
             self.sound = sound
             self.execucaoId = execucaoId
+            self.previousEvent = previousEvent
         }
 
         public enum CodingKeys: String, CodingKey {
