@@ -368,8 +368,8 @@ struct EmergencyWidgetView: View {
 
     var badgeText: String {
         let st = state.status.lowercased()
-        if st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st.isEmpty {
-            return "EMERGÊNCIA"
+        if st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st == "bipe" || st == "bipe_alert" || st.isEmpty {
+            return "ATENÇÃO"
         }
         return state.status.uppercased()
     }
@@ -378,20 +378,8 @@ struct EmergencyWidgetView: View {
         VStack(spacing: 8) {
             HStack(spacing: 12) {
                 HStack(spacing: 8) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.red.opacity(0.15))
-                        Image(systemName: "exclamationmark.shield.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(8)
-                            .foregroundColor(.red)
-                    }
-                    .frame(width: 44, height: 44)
-                    .shadow(color: Color.red.opacity(0.4), radius: 4, x: 0, y: 2)
-                    
                     if let iconItem = receivedIcon {
-                        DeviceBadgeView(item: iconItem, themeColor: .red, size: 44)
+                        DeviceBadgeView(item: iconItem, themeColor: .orange, size: 44)
                     }
                 }
                 
@@ -410,14 +398,14 @@ struct EmergencyWidgetView: View {
                             .fontWeight(.black)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Capsule().fill(Color.red))
+                            .background(Capsule().fill(Color.orange))
                             .foregroundColor(.white)
                     }
                     
                     HStack(alignment: .top, spacing: 4) {
                         Image(systemName: "mappin.and.ellipse")
                             .font(.subheadline)
-                            .foregroundColor(.red)
+                            .foregroundColor(.orange)
                         
                         Text(state.address)
                             .font(.subheadline)
@@ -632,7 +620,7 @@ public struct BipeLiveActivityWidget: Widget {
             let isExit = ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
                          st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
             let routineThemeColor = Color(red: 0.55, green: 0.27, blue: 0.80)
-            let themeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .red : (isDistance ? Color(red: 0.18, green: 0.80, blue: 0.44) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .red)))
+            let themeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .orange : (isDistance ? Color(red: 0.18, green: 0.80, blue: 0.44) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .orange)))
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             let isActive = ev.contains("active") || ev.contains("active")
@@ -666,11 +654,11 @@ public struct BipeLiveActivityWidget: Widget {
                                     .foregroundColor(.secondary)
                             }
                         } else {
-                            Image(systemName: "exclamationmark.shield.fill")
+                            Image(systemName: "exclamationmark.triangle.fill")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 24, height: 24)
-                                .foregroundColor(.red)
+                                .foregroundColor(.orange)
                             Text(context.state.nickname)
                                 .font(.subheadline)
                                 .fontWeight(.bold)
@@ -716,13 +704,13 @@ public struct BipeLiveActivityWidget: Widget {
                         .foregroundColor(.black)
                     } else {
                         let st = context.state.status.lowercased()
-                        let emergencyStatusText = (st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st.isEmpty) ? "EMERGÊNCIA" : context.state.status.uppercased()
+                        let emergencyStatusText = (st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st == "bipe" || st == "bipe_alert" || st.isEmpty) ? "ATENÇÃO" : context.state.status.uppercased()
                         Text(emergencyStatusText)
                             .font(.caption2)
                             .fontWeight(.black)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 3)
-                            .background(Capsule().fill(Color.red))
+                            .background(Capsule().fill(Color.orange))
                             .foregroundColor(.white)
                     }
                 }
@@ -783,7 +771,7 @@ public struct BipeLiveActivityWidget: Widget {
                         HStack(alignment: .center, spacing: 6) {
                             Image(systemName: "mappin.circle.fill")
                                 .font(.title3)
-                                .foregroundColor(.red)
+                                .foregroundColor(.orange)
                             
                             Text(context.state.address)
                                 .font(.footnote)
@@ -803,7 +791,7 @@ public struct BipeLiveActivityWidget: Widget {
                         .foregroundColor(themeColor)
                 } else {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.red)
+                        .foregroundColor(.orange)
                 }
             } compactTrailing: {
                 if isRoutine {
@@ -819,7 +807,7 @@ public struct BipeLiveActivityWidget: Widget {
                     Text(context.state.nickname)
                         .font(.caption2)
                         .fontWeight(.bold)
-                        .foregroundColor(.red)
+                        .foregroundColor(.orange)
                         .lineLimit(1)
                 }
             } minimal: {
@@ -831,7 +819,7 @@ public struct BipeLiveActivityWidget: Widget {
                         .foregroundColor(themeColor)
                 } else {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.red)
+                        .foregroundColor(.orange)
                 }
             }
             .keylineTint(themeColor)
