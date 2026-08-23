@@ -572,6 +572,45 @@ struct DistanceWidgetView: View {
                     )
                 }
             }
+            
+            if let execucaoId = state.execucaoId, !execucaoId.isEmpty {
+                if #available(iOS 17.0, *) {
+                    Button(intent: ConfirmBipeIntent(execucaoId: execucaoId)) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 15, weight: .bold))
+                            Text("CONFIRMAR RECEBIMENTO")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing))
+                        )
+                        .foregroundColor(.white)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+                } else {
+                    Link(destination: URL(string: "bipe://confirm?execucaoId=\(execucaoId)")!) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 15, weight: .bold))
+                            Text("CONFIRMAR RECEBIMENTO")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing))
+                        )
+                        .foregroundColor(.white)
+                    }
+                    .padding(.top, 4)
+                }
+            }
         }
         .padding(12)
         .background(
@@ -871,6 +910,39 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     .foregroundColor(.white)
                             }
                             .padding(.top, 4)
+                        }
+                        
+                        if let execucaoId = context.state.execucaoId, !execucaoId.isEmpty {
+                            if #available(iOS 17.0, *) {
+                                Button(intent: ConfirmBipeIntent(execucaoId: execucaoId)) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 13, weight: .bold))
+                                        Text("CONFIRMAR RECEBIMENTO")
+                                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                                    .background(Capsule().fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing)))
+                                    .foregroundColor(.white)
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.top, 4)
+                            } else {
+                                Link(destination: URL(string: "bipe://confirm?execucaoId=\(execucaoId)")!) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 13, weight: .bold))
+                                        Text("CONFIRMAR RECEBIMENTO")
+                                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                                    .background(Capsule().fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing)))
+                                    .foregroundColor(.white)
+                                }
+                                .padding(.top, 4)
+                            }
                         }
                     } else if isRoutine {
                         HStack(spacing: 6) {

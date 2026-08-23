@@ -576,6 +576,196 @@ struct RoutineWidgetView: View {
     }
 }
 
+// MARK: - Separador Direcional de Distância (Ex: ›—‹ para Aproximar, ‹—› para Afastar)
+
+struct DistanceDirectionSeparatorView: View {
+    let isApproaching: Bool
+    let themeColor: Color
+    var fontSize: CGFloat = 11
+
+    var body: some View {
+        HStack(spacing: 2) {
+            if isApproaching {
+                // › — ‹ (Aproximando)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: fontSize, weight: .bold))
+                Capsule()
+                    .fill(themeColor.opacity(0.7))
+                    .frame(width: 5, height: 2)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: fontSize, weight: .bold))
+            } else {
+                // ‹ — › (Afastando)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: fontSize, weight: .bold))
+                Capsule()
+                    .fill(themeColor.opacity(0.7))
+                    .frame(width: 5, height: 2)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: fontSize, weight: .bold))
+            }
+        }
+        .foregroundColor(themeColor)
+        .padding(.horizontal, 5)
+        .padding(.vertical, 3)
+        .background(
+            Capsule()
+                .fill(themeColor.opacity(0.18))
+        )
+    }
+}
+
+// MARK: - View para Evento de Distância ("distance" / "APROXIMAR" / "AFASTAR") - Compact UI
+
+@available(iOS 16.1, *)
+struct DistanceWidgetView: View {
+    let state: BipeAlertActivityAttributes.ContentState
+    
+    var isApproaching: Bool {
+        let ev = state.event?.lowercased() ?? ""
+        let st = state.status.lowercased()
+        return ev.contains("aproxim") || st.contains("aproxim") || ev == "enter"
+    }
+    
+    var themeColor: Color {
+        isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : Color.orange
+    }
+    
+    var statusTitle: String {
+        isApproaching ? "SE APROXIMOU" : "SE AFASTOU"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // MARK: Header com selo de aproximar/afastar
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(themeColor.opacity(0.18))
+                        .frame(width: 32, height: 32)
+                        .overlay(Circle().stroke(themeColor.opacity(0.4), lineWidth: 1))
+                    
+                    if let firstDev = state.devices?.first, !firstDev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        DeviceBadgeView(item: firstDev, themeColor: themeColor, size: 24)
+                    } else {
+                        Image(systemName: isApproaching ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(themeColor)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(state.nickname)
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    Text("Alerta de Distância")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    Text(statusTitle)
+                        .font(.system(size: 10, weight: .black, design: .rounded))
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(themeColor))
+                .foregroundColor(.black)
+            }
+            
+            // MARK: Linha Compacta: Ícones [Target] / [Alvo] e Distância
+            HStack(spacing: 6) {
+                HStack(spacing: 4) {
+                    if let target = state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        DeviceBadgeView(item: target, themeColor: themeColor, size: 24)
+                    }
+                    
+                    if let target = state.target, !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                       let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        DistanceDirectionSeparatorView(isApproaching: isApproaching, themeColor: themeColor)
+                    }
+                    
+                    if let alvo = state.alvo, !alvo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        DeviceBadgeView(item: alvo, themeColor: themeColor, size: 24)
+                    }
+                }
+                
+                Spacer()
+                
+                if let dist = state.distancia, !dist.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    HStack(spacing: 3) {
+                        Image(systemName: "location.fill")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(themeColor)
+                        Text(dist)
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(Color(UIColor.tertiarySystemGroupedBackground))
+                    )
+                }
+            }
+            
+            if let execucaoId = state.execucaoId, !execucaoId.isEmpty {
+                if #available(iOS 17.0, *) {
+                    Button(intent: ConfirmBipeIntent(execucaoId: execucaoId)) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 15, weight: .bold))
+                            Text("CONFIRMAR RECEBIMENTO")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing))
+                        )
+                        .foregroundColor(.white)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+                } else {
+                    Link(destination: URL(string: "bipe://confirm?execucaoId=\(execucaoId)")!) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 15, weight: .bold))
+                            Text("CONFIRMAR RECEBIMENTO")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing))
+                        )
+                        .foregroundColor(.white)
+                    }
+                    .padding(.top, 4)
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(themeColor.opacity(0.3), lineWidth: 1.5)
+                )
+        )
+        .activityBackgroundTint(Color(UIColor.systemBackground))
+        .activitySystemActionForegroundColor(Color.primary)
+    }
+}
+
 // MARK: - Live Activity Widget Principal
 
 @available(iOS 16.1, *)
@@ -600,6 +790,8 @@ public struct BipeLiveActivityWidget: Widget {
                 EmergencyWidgetView(state: context.state)
             } else if isRoutine {
                 RoutineWidgetView(state: context.state)
+            } else if isDistance {
+                DistanceWidgetView(state: context.state)
             } else if isTransition {
                 TransitionWidgetView(state: context.state)
             } else {
@@ -766,6 +958,52 @@ public struct BipeLiveActivityWidget: Widget {
                                     .foregroundColor(.white)
                             }
                             .padding(.top, 4)
+                        }
+                    } else if isDistance {
+                        if let dist = context.state.distancia {
+                            HStack(spacing: 6) {
+                                Image(systemName: "location.fill")
+                                    .font(.footnote)
+                                    .foregroundColor(themeColor)
+                                Text("Distância: \(dist)")
+                                    .font(.footnote)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.top, 4)
+                        }
+                        
+                        if let execucaoId = context.state.execucaoId, !execucaoId.isEmpty {
+                            if #available(iOS 17.0, *) {
+                                Button(intent: ConfirmBipeIntent(execucaoId: execucaoId)) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 13, weight: .bold))
+                                        Text("CONFIRMAR RECEBIMENTO")
+                                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                                    .background(Capsule().fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing)))
+                                    .foregroundColor(.white)
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.top, 4)
+                            } else {
+                                Link(destination: URL(string: "bipe://confirm?execucaoId=\(execucaoId)")!) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 13, weight: .bold))
+                                        Text("CONFIRMAR RECEBIMENTO")
+                                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                                    .background(Capsule().fill(LinearGradient(colors: [Color.green, Color(red: 0.15, green: 0.70, blue: 0.35)], startPoint: .leading, endPoint: .trailing)))
+                                    .foregroundColor(.white)
+                                }
+                                .padding(.top, 4)
+                            }
                         }
                     } else {
                         HStack(alignment: .center, spacing: 6) {
