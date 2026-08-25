@@ -86,7 +86,15 @@ class RegionsTVC: OwnTracksEditFetchTVC {
         let cell = tableView.dequeueReusableCell(withIdentifier: "region", for: indexPath);
         let region = frc?.object(at: indexPath);
         if region != nil {
-            cell.textLabel?.text = region!.name;
+            let wpId = (region!.uuid != nil && !region!.uuid!.isEmpty) ? region!.uuid! : (region!.andFillRid ?? "")
+            let insecure = UserDefaults.standard.bool(forKey: "insecure_wp_\(wpId)")
+            
+            var nameText = region!.name ?? ""
+            if insecure {
+                nameText = "⚠️ " + nameText
+            }
+            
+            cell.textLabel?.text = nameText;
             cell.detailTextLabel?.text = region!.subtitle;
             
             let clRegion = region!.cLregion;
