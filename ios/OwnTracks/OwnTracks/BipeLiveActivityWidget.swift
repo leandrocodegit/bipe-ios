@@ -879,7 +879,8 @@ public struct BipeLiveActivityWidget: Widget {
             let isExit = ev.contains("exit") || ev.contains("leave") || ev.contains("left") || ev.contains("saida") || ev.contains("saída") || ev.contains("saiu") || ev.contains("out") ||
                          st.contains("exit") || st.contains("leave") || st.contains("left") || st.contains("saida") || st.contains("saída") || st.contains("saiu") || st.contains("out")
             let routineThemeColor = Color(red: 0.55, green: 0.27, blue: 0.80)
-            let themeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .orange : (isDistance ? Color(red: 0.18, green: 0.80, blue: 0.44) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .orange)))
+            let defaultThemeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .orange : (isDistance ? Color(red: 0.18, green: 0.80, blue: 0.44) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .orange)))
+            let themeColor: Color = context.state.insecure == true ? .red : defaultThemeColor
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             let isActive = ev.contains("active") || ev.contains("active")

@@ -851,7 +851,8 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let isApproaching = ev.contains("aproxim") || st.contains("aproxim")
             
             let routineThemeColor = Color(red: 0.55, green: 0.27, blue: 0.80)
-            let themeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .orange : (isDistance ? (isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .orange)))
+            let defaultThemeColor: Color = isRoutine ? routineThemeColor : (isEmergency ? .orange : (isDistance ? (isApproaching ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange) : (isTransition ? (isExit ? .orange : Color(red: 0.18, green: 0.80, blue: 0.44)) : .orange)))
+            let themeColor: Color = context.state.insecure == true ? .red : defaultThemeColor
             let regionName = context.state.way ?? context.state.address
             let devicesList = context.state.devices ?? []
             let isActive = ev.contains("active") || ev.contains("active")
