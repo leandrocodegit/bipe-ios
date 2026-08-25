@@ -28,6 +28,7 @@ import ActivityKit
     var modes: UISegmentedControl? = nil;
     var mapMode: UISegmentedControl? = nil;
     var scaleView: MKScaleView? = nil;
+    var offlineView: UIView? = nil;
     
     var osmRenderer: MKTileOverlayRenderer? = nil;
     var osmCopyright: UITextField? = nil;
@@ -1243,14 +1244,97 @@ import ActivityKit
             webView.load(URLRequest(url: url))
         }
     }
+
+    @objc func showOfflineScreen() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if self.offlineView == nil {
+                let view = UIView(frame: self.view.bounds)
+                view.backgroundColor = UIColor(red: 11.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0)
+                view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                
+                let icon = UIImageView(image: UIImage(systemName: "wifi.slash"))
+                icon.tintColor = .lightGray
+                icon.contentMode = .scaleAspectFit
+                icon.translatesAutoresizingMaskIntoConstraints = false
+                
+                let label = UILabel()
+                label.text = "Sem conexão com a internet"
+                label.textColor = .lightGray
+                label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+                label.textAlignment = .center
+                label.translatesAutoresizingMaskIntoConstraints = false
+                
+                let retryButton = UIButton(type: .system)
+                retryButton.setTitle("Tentar Novamente", for: .normal)
+                retryButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+                retryButton.addTarget(self, action: #selector(self.retryConnection), for: .touchUpInside)
+                retryButton.translatesAutoresizingMaskIntoConstraints = false
+                
+                view.addSubview(icon)
+                view.addSubview(label)
+                view.addSubview(retryButton)
+                
+                NSLayoutConstraint.activate([
+                    icon.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                    icon.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
+                    icon.widthAnchor.constraint(equalToConstant: 60),
+                    icon.heightAnchor.constraint(equalToConstant: 50),
+                    
+                    label.topAnchor.constraint(equalTo: icon.bottomAnchor, constant: 16),
+                    label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                    
+                    retryButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 24),
+                    retryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                ])
+                
+                self.offlineView = view
+                self.view.addSubview(view)
+                self.view.bringSubviewToFront(view)
+            }
+            self.offlineView?.isHidden = false
+        }
+    }
+    
+    @objc func retryConnection() {
+        self.offlineView?.isHidden = true
+        if let webView = webView {
+            if let url = webView.url {
+                webView.load(URLRequest(url: url))
+            } else if let url = URL(string: "https://bipe.simodapp.com/android-setup") {
+                webView.load(URLRequest(url: url))
+            }
+        }
+    }
+    
+    @objc func hideOfflineScreen() {
+        DispatchQueue.main.async { [weak self] in
+            self?.offlineView?.isHidden = true
+        }
+    }
 }
 
 // MARK: - WKWebView Delegates
 extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        hideOfflineScreen()
         notifyWebviewSession()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.notifyWebviewSession()
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        let nsError = error as NSError
+        if nsError.domain == NSURLErrorDomain && (nsError.code == NSURLErrorNotConnectedToInternet || nsError.code == NSURLErrorNetworkConnectionLost || nsError.code == NSURLErrorCannotFindHost || nsError.code == NSURLErrorCannotConnectToHost) {
+            showOfflineScreen()
+        }
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        let nsError = error as NSError
+        if nsError.domain == NSURLErrorDomain && (nsError.code == NSURLErrorNotConnectedToInternet || nsError.code == NSURLErrorNetworkConnectionLost || nsError.code == NSURLErrorCannotFindHost || nsError.code == NSURLErrorCannotConnectToHost) {
+            showOfflineScreen()
         }
     }
     
