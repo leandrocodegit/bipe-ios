@@ -173,6 +173,25 @@ import ActivityKit
         #endif
     }
 
+    // MARK: - Region Helper
+    
+    @objc static func getCurrentRegionName() -> String {
+        guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate,
+              let states = appDelegate.lastRegionStates as? [String: NSNumber] else {
+            return "Bipe.me"
+        }
+        
+        for (identifier, isInside) in states {
+            if isInside.boolValue {
+                let components = identifier.components(separatedBy: "|")
+                if let regionName = components.first, !regionName.isEmpty {
+                    return regionName
+                }
+            }
+        }
+        return "Bipe.me"
+    }
+
     // MARK: - Lifecycle Management
 
     @objc static func startLiveActivityOnAppLaunch() {
@@ -210,7 +229,7 @@ import ActivityKit
                         iconLocalPath: nil,
                         iconUrl: "logo",
                         status: "transition",
-                        way: "Bipe.me",
+                        way: BipeLiveActivityManager.getCurrentRegionName(),
                         devices: nil,
                         event: "active",
                         activityType: "transition"
@@ -819,7 +838,7 @@ import ActivityKit
                             iconLocalPath: nil,
                             iconUrl: iconToUse,
                             status: "transition",
-                            way: "Bipe.me",
+                            way: BipeLiveActivityManager.getCurrentRegionName(),
                             devices: nil,
                             event: "active",
                             activityType: "transition",
@@ -843,7 +862,7 @@ import ActivityKit
                             iconLocalPath: nil,
                             iconUrl: "logo",
                             status: "transition",
-                            way: "Bipe.me",
+                            way: BipeLiveActivityManager.getCurrentRegionName(),
                             devices: nil,
                             event: "active",
                             activityType: "transition",
