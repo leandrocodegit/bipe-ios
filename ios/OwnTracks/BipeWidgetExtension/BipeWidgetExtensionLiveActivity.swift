@@ -150,9 +150,7 @@ struct TransitionWidgetView: View {
     } 
     
     var themeColor: Color {
-        if state.insecure == true {
-            return .red
-        }
+        if state.insecure == true { return .red }
         return isExit ? Color.orange : Color(red: 0.18, green: 0.80, blue: 0.44) // Emerald Green vs Amber Orange
     }
     

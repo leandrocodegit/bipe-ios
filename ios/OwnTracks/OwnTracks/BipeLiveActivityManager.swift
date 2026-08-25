@@ -176,15 +176,11 @@ import ActivityKit
     // MARK: - Region Helper
     
     @objc static func getCurrentRegionName() -> String {
-        guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate,
-              let states = appDelegate.lastRegionStates as? [String: NSNumber] else {
-            return "Bipe.me"
-        }
-        
-        for (identifier, isInside) in states {
-            if isInside.boolValue {
-                let components = identifier.components(separatedBy: "|")
-                if let regionName = components.first, !regionName.isEmpty {
+        let insideRegions = LocationManager.sharedInstance().insideCircularRegions
+        for (identifier, isInside) in insideRegions {
+            if let num = isInside as? NSNumber, num.boolValue {
+                let components = (identifier as? String)?.components(separatedBy: "|")
+                if let regionName = components?.first, !regionName.isEmpty {
                     return regionName
                 }
             }
@@ -193,14 +189,14 @@ import ActivityKit
     }
 
     @objc static func getCurrentRegionInsecure() -> Bool {
-        guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate,
-              let states = appDelegate.lastRegionStates as? [String: NSNumber] else {
+        guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else {
             return false
         }
         
-        for (identifier, isInside) in states {
-            if isInside.boolValue {
-                if appDelegate.isRegionInsecure(identifier) {
+        let insideRegions = LocationManager.sharedInstance().insideCircularRegions
+        for (identifier, isInside) in insideRegions {
+            if let num = isInside as? NSNumber, num.boolValue, let strId = identifier as? String {
+                if appDelegate.isRegionInsecure(strId) {
                     return true
                 }
             }
@@ -460,6 +456,8 @@ import ActivityKit
         let distanciaVal = extractValue(keys: ["distancia", "distance"], userInfo: userInfo, dataDict: dataDict)
         let soundVal = extractValue(keys: ["sound", "soundName", "audio"], userInfo: userInfo, dataDict: dataDict)
         let execucaoIdVal = extractValue(keys: ["execucaoId", "execucao_id", "id"], userInfo: userInfo, dataDict: dataDict)
+        let insecureStr = extractValue(keys: ["insecure"], userInfo: userInfo, dataDict: dataDict)
+        let insecureVal = (insecureStr != nil) ? (insecureStr?.lowercased() == "true" || insecureStr == "1") : BipeLiveActivityManager.getCurrentRegionInsecure()
         
         if let soundVal = soundVal, !soundVal.isEmpty {
             BipeAudioHelper.playSound(named: soundVal)
@@ -511,7 +509,8 @@ import ActivityKit
                     event: nil,
                     activityType: activityTypeToUse,
                     icon: iconUrl,
-                    execucaoId: execucaoIdVal
+                    execucaoId: execucaoIdVal,
+                    insecure: insecureVal
                 )
             } else if isRoutine {
                 NSLog("[BipeLiveActivityManager] Atualizando Live Activity para ROUTINE (nickname: '%@', address: '%@')", nickname, address)
@@ -526,7 +525,8 @@ import ActivityKit
                     devices: nil,
                     event: "routine",
                     activityType: "routine",
-                    icon: iconUrl
+                    icon: iconUrl,
+                    insecure: insecureVal
                 )
             } else if isDistance {
                 let eventDisplay = eventVal ?? (statusLower.contains("afast") ? "AFASTAR" : "APROXIMAR")
@@ -544,7 +544,8 @@ import ActivityKit
                     activityType: "distance",
                     target: targetVal,
                     alvo: alvoVal,
-                    distancia: distanciaVal
+                    distancia: distanciaVal,
+                    insecure: insecureVal
                 )
             } else if isTransition {
                 let way = wayVal ?? extractValue(keys: ["way", "region", "wayName", "locationName", "desc"], userInfo: userInfo, dataDict: dataDict) ?? "Região Cadastrada"
@@ -564,7 +565,8 @@ import ActivityKit
                     devices: devicesList,
                     event: event,
                     activityType: "transition",
-                    icon: iconUrl
+                    icon: iconUrl,
+                    insecure: insecureVal
                 )
             }
         } else {
