@@ -401,7 +401,7 @@ struct EmergencyWidgetView: View {
     }
 
     var badgeText: String {
-        if state.insecure == true { return "ÁREA DE RISCO" }
+        if state.insecure == true { return "CUIDADO" }
         if isProtectedRegion {
             return "ZONA PROTEGIDA"
         }
