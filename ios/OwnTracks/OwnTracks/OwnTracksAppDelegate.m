@@ -1113,9 +1113,11 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     if (myselfForLookup) {
         for (Region *anyRegion in myselfForLookup.hasRegions) {
             if ([region.identifier isEqualToString:anyRegion.CLregion.identifier]) {
-                NSString *wpId = (anyRegion.uuid && anyRegion.uuid.length > 0) ? anyRegion.uuid : anyRegion.andFillRid;
-                if (wpId && wpId.length > 0) {
-                    insecure = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", wpId]];
+                if (anyRegion.uuid && anyRegion.uuid.length > 0) {
+                    insecure = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", anyRegion.uuid]];
+                }
+                if (!insecure && anyRegion.andFillRid && anyRegion.andFillRid.length > 0) {
+                    insecure = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", anyRegion.andFillRid]];
                 }
                 break;
             }

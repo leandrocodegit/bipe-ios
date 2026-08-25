@@ -98,7 +98,13 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.sound = try? container.decode(String.self, forKey: .sound)
             self.execucaoId = (try? container.decode(String.self, forKey: .execucaoId)) ?? (try? altContainer?.decode(String.self, forKey: .execucao_id))
             self.previousEvent = try? container.decode(String.self, forKey: .previousEvent)
-            self.insecure = try? container.decode(Bool.self, forKey: .insecure)
+            if let boolVal = try? container.decode(Bool.self, forKey: .insecure) {
+                self.insecure = boolVal
+            } else if let strVal = try? container.decode(String.self, forKey: .insecure) {
+                self.insecure = (strVal.lowercased() == "true" || strVal == "1")
+            } else {
+                self.insecure = nil
+            }
             
             // Decodificação flexível para timestamp (Double ou String)
             if let doubleVal = try? container.decode(Double.self, forKey: .timestamp) {
