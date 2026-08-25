@@ -674,6 +674,22 @@ static OwnTracking *theInstance = nil;
                                                             error:nil];
     }
     
+    if (waypoint.inRegions && waypoint.inRids) {
+        NSArray *regions = [NSJSONSerialization JSONObjectWithData:waypoint.inRegions options:0 error:nil];
+        NSArray *rids = [NSJSONSerialization JSONObjectWithData:waypoint.inRids options:0 error:nil];
+        
+        if (regions && rids && regions.count == rids.count) {
+            for (NSUInteger i = 0; i < rids.count; i++) {
+                NSString *rid = rids[i];
+                if ([[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", rid]]) {
+                    json[@"insecure"] = @(YES);
+                    json[@"insecureName"] = regions[i];
+                    break;
+                }
+            }
+        }
+    }
+    
     if (waypoint.poi && waypoint.poi.length > 0) {
         json[@"poi"] = waypoint.poi;
     }
