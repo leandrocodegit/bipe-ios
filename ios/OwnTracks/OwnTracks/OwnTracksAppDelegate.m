@@ -1108,9 +1108,23 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     }
     self.lastRegionStates[region.identifier] = @(enter);
     
+    Friend *myselfForLookup = [Friend existsFriendWithTopic:[Settings theGeneralTopicInMOC:moc] inManagedObjectContext:moc];
+    BOOL insecure = NO;
+    if (myselfForLookup) {
+        for (Region *anyRegion in myselfForLookup.hasRegions) {
+            if ([region.identifier isEqualToString:anyRegion.CLregion.identifier]) {
+                NSString *wpId = (anyRegion.uuid && anyRegion.uuid.length > 0) ? anyRegion.uuid : anyRegion.andFillRid;
+                if (wpId && wpId.length > 0) {
+                    insecure = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", wpId]];
+                }
+                break;
+            }
+        }
+    }
+    
     NSArray <NSString *> *initialComponents = [region.identifier componentsSeparatedByString:@"|"];
     if (initialComponents.count > 0) {
-        [BipeLiveActivityManager updateLiveActivityForRegionChangeWithRegionName:initialComponents[0] enter:enter];
+        [BipeLiveActivityManager updateLiveActivityForRegionChangeWithRegionName:initialComponents[0] enter:enter insecure:insecure];
     }
     
     BOOL mute = [Settings boolForKey:@"mute" inMOC:moc];
@@ -1209,6 +1223,8 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                     NSString *wpId = (anyRegion.uuid && anyRegion.uuid.length > 0) ? anyRegion.uuid : anyRegion.andFillRid;
                     if (wpId && wpId.length > 0) {
                         json[@"waypointId"] = wpId;
+                        BOOL insecureWp = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", wpId]];
+                        json[@"insecure"] = @(insecureWp);
                     }
                     
                     [self.connection sendData:[self jsonToData:json]

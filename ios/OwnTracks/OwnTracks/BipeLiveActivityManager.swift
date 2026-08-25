@@ -247,7 +247,7 @@ import ActivityKit
         }
     }
 
-    @objc static func updateLiveActivityForRegionChange(regionName: String, enter: Bool) {
+    @objc static func updateLiveActivityForRegionChange(regionName: String, enter: Bool, insecure: Bool) {
         if #available(iOS 16.1, *) {
             #if canImport(ActivityKit)
             Task { @MainActor in
@@ -286,7 +286,8 @@ import ActivityKit
                     way: regionName,
                     devices: nil,
                     event: enter ? "enter" : "exit",
-                    activityType: "transition"
+                    activityType: "transition",
+                    insecure: insecure
                 )
             }
             #endif
@@ -321,7 +322,8 @@ import ActivityKit
         alvo: String? = nil,
         distancia: String? = nil,
         icon: String? = nil,
-        execucaoId: String? = nil
+        execucaoId: String? = nil,
+        insecure: Bool? = nil
     ) {
         #if canImport(ActivityKit)
         DispatchQueue.main.async {
@@ -340,7 +342,8 @@ import ActivityKit
                 target: target,
                 alvo: alvo,
                 distancia: distancia,
-                execucaoId: execucaoId
+                execucaoId: execucaoId,
+                insecure: insecure
             )
             let content: ActivityContent<BipeAlertActivityAttributes.ContentState>
             if #available(iOS 16.2, *) {

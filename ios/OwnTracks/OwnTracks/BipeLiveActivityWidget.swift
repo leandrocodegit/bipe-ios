@@ -55,11 +55,17 @@ struct TransitionWidgetView: View {
     } 
     
     var themeColor: Color {
-        isExit ? Color.orange : Color(red: 0.18, green: 0.80, blue: 0.44) // Emerald Green vs Amber Orange
+        if state.insecure == true {
+            return .red
+        }
+        return isExit ? Color.orange : Color(red: 0.18, green: 0.80, blue: 0.44) // Emerald Green vs Amber Orange
     }
     
     var eventTitle: String {
-        isExit ? "SAIU DA REGIÃO" : (isActived ? "ATIVO" : "ENTROU NA REGIÃO")
+        if state.insecure == true {
+            return isExit ? "SAIU DE ÁREA DE RISCO" : (isActived ? "ÁREA DE RISCO" : "ENTROU EM ÁREA DE RISCO")
+        }
+        return isExit ? "SAIU DA REGIÃO" : (isActived ? "ATIVO" : "ENTROU NA REGIÃO")
     }
     
     var eventIcon: String {
@@ -79,11 +85,17 @@ struct TransitionWidgetView: View {
     }
     
     var emptyStateText: String {
-        (isInsideRegion && !isExit) ? "Dentro de uma região protegida" : "Aguardando publicação"
+        if isInsideRegion && !isExit {
+            return state.insecure == true ? "Dentro de área de risco" : "Dentro de uma região protegida"
+        }
+        return "Aguardando publicação"
     }
     
     var emptyStateIcon: String {
-        (isInsideRegion && !isExit) ? "shield.checkerboard" : "checkmark.shield.fill"
+        if isInsideRegion && !isExit {
+            return state.insecure == true ? "exclamationmark.triangle.fill" : "shield.checkerboard"
+        }
+        return "checkmark.shield.fill"
     }
 
     var body: some View {

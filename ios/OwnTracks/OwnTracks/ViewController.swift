@@ -1815,6 +1815,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 let minor = (wp["minor"] as? Int32) ?? 0
                 let uuid = (wp["uuid"] as? String) ?? wpId
                 
+                let insecure = (wp["insecure"] as? Bool) ?? false
+                UserDefaults.standard.set(insecure, forKey: "insecure_wp_\(wpId)")
+                
                 let fetchRequest = NSFetchRequest<Region>(entityName: "Region")
                 fetchRequest.predicate = NSPredicate(format: "belongsTo == %@ AND (rid == %@ OR uuid == %@ OR name == %@)", myself, wpId, wpId, name)
                 
