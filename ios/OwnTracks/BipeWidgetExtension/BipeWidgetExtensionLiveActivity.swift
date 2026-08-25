@@ -329,7 +329,21 @@ struct EmergencyWidgetView: View {
         return nil
     }
 
+    var isProtectedRegion: Bool {
+        let st = state.status.lowercased()
+        let isDefault = (st == "start" || st.isEmpty)
+        let hasRegion = state.way != nil && !(state.way!.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        return isDefault && hasRegion
+    }
+
+    var themeColor: Color {
+        return isProtectedRegion ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange
+    }
+
     var badgeText: String {
+        if isProtectedRegion {
+            return "ZONA PROTEGIDA"
+        }
         let st = state.status.lowercased()
         if st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st == "bipe" || st == "bipe_alert" || st.isEmpty {
             return "ATENÇÃO"
@@ -342,7 +356,7 @@ struct EmergencyWidgetView: View {
             HStack(spacing: 12) {
                 HStack(spacing: 8) {
                     if let iconItem = receivedIcon {
-                        DeviceBadgeView(item: iconItem, themeColor: .orange, size: 44)
+                        DeviceBadgeView(item: iconItem, themeColor: themeColor, size: 44)
                     }
                 }
                 
@@ -361,14 +375,25 @@ struct EmergencyWidgetView: View {
                             .fontWeight(.black)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Capsule().fill(Color.orange))
+                            .background(Capsule().fill(themeColor))
                             .foregroundColor(.white)
+                    }
+                    
+                    if isProtectedRegion, let region = state.way {
+                        HStack(alignment: .center, spacing: 4) {
+                            Image(systemName: "shield.checkerboard")
+                                .font(.system(size: 11, weight: .bold))
+                            Text(region)
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                        }
+                        .foregroundColor(themeColor)
+                        .padding(.bottom, 1)
                     }
                     
                     HStack(alignment: .top, spacing: 4) {
                         Image(systemName: "mappin.and.ellipse")
                             .font(.subheadline)
-                            .foregroundColor(.orange)
+                            .foregroundColor(themeColor)
                         
                         Text(state.address)
                             .font(.subheadline)
