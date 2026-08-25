@@ -148,6 +148,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             try container.encodeIfPresent(distancia, forKey: .distancia)
             try container.encodeIfPresent(sound, forKey: .sound)
             try container.encodeIfPresent(execucaoId, forKey: .execucaoId)
+            try container.encodeIfPresent(previousEvent, forKey: .previousEvent)
+            try container.encodeIfPresent(insecure, forKey: .insecure)
         }
     }
 

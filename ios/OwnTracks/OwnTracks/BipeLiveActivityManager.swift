@@ -189,15 +189,18 @@ import ActivityKit
     }
 
     @objc static func getCurrentRegionInsecure() -> Bool {
-        guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else {
-            return false
-        }
-        
         let insideRegions = LocationManager.sharedInstance().insideCircularRegions
         for (identifier, isInside) in insideRegions {
             if let num = isInside as? NSNumber, num.boolValue, let strId = identifier as? String {
-                if appDelegate.isRegionInsecure(strId) {
-                    return true
+                let components = strId.components(separatedBy: "|")
+                if components.count >= 3 {
+                    let rid = components[2]
+                    if !rid.isEmpty {
+                        // Check exact RID
+                        if UserDefaults.standard.bool(forKey: "insecure_wp_\(rid)") {
+                            return true
+                        }
+                    }
                 }
             }
         }
