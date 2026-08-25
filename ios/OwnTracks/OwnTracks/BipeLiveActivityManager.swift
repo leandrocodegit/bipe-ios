@@ -200,12 +200,8 @@ import ActivityKit
         
         for (identifier, isInside) in states {
             if isInside.boolValue {
-                let components = identifier.components(separatedBy: "|")
-                if components.count >= 3 {
-                    let wpId = components[2]
-                    if !wpId.isEmpty && UserDefaults.standard.bool(forKey: "insecure_wp_\(wpId)") {
-                        return true
-                    }
+                if appDelegate.isRegionInsecure(identifier) {
+                    return true
                 }
             }
         }

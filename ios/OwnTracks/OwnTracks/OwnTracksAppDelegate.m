@@ -1093,6 +1093,29 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     [self publishLocation:location trigger:@"v" withPOI:nil withImage:nil withImageName:nil];
 }
 
+- (BOOL)isRegionInsecure:(NSString *)identifier {
+    NSManagedObjectContext *moc = [CoreData sharedInstance].mainMOC;
+    Friend *myselfForLookup = [Friend existsFriendWithTopic:[Settings theGeneralTopicInMOC:moc] inManagedObjectContext:moc];
+    if (myselfForLookup) {
+        for (Region *anyRegion in myselfForLookup.hasRegions) {
+            if ([identifier isEqualToString:anyRegion.CLregion.identifier]) {
+                if (anyRegion.uuid && anyRegion.uuid.length > 0) {
+                    if ([[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", anyRegion.uuid]]) {
+                        return YES;
+                    }
+                }
+                if (anyRegion.andFillRid && anyRegion.andFillRid.length > 0) {
+                    if ([[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", anyRegion.andFillRid]]) {
+                        return YES;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    return NO;
+}
+
 - (void)regionEvent:(CLRegion *)region enter:(BOOL)enter {
     [self background];
     NSManagedObjectContext *moc = CoreData.sharedInstance.mainMOC;
@@ -1108,21 +1131,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     }
     self.lastRegionStates[region.identifier] = @(enter);
     
-    Friend *myselfForLookup = [Friend existsFriendWithTopic:[Settings theGeneralTopicInMOC:moc] inManagedObjectContext:moc];
-    BOOL insecure = NO;
-    if (myselfForLookup) {
-        for (Region *anyRegion in myselfForLookup.hasRegions) {
-            if ([region.identifier isEqualToString:anyRegion.CLregion.identifier]) {
-                if (anyRegion.uuid && anyRegion.uuid.length > 0) {
-                    insecure = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", anyRegion.uuid]];
-                }
-                if (!insecure && anyRegion.andFillRid && anyRegion.andFillRid.length > 0) {
-                    insecure = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"insecure_wp_%@", anyRegion.andFillRid]];
-                }
-                break;
-            }
-        }
-    }
+    BOOL insecure = [self isRegionInsecure:region.identifier];
     
     NSArray <NSString *> *initialComponents = [region.identifier componentsSeparatedByString:@"|"];
     if (initialComponents.count > 0) {
