@@ -192,6 +192,27 @@ import ActivityKit
         return "Bipe.me"
     }
 
+    @objc static func getCurrentRegionInsecure() -> Bool {
+        guard let appDelegate = UIApplication.shared.delegate as? OwnTracksAppDelegate,
+              let states = appDelegate.lastRegionStates as? [String: NSNumber] else {
+            return false
+        }
+        
+        for (identifier, isInside) in states {
+            if isInside.boolValue {
+                let components = identifier.components(separatedBy: "|")
+                if components.count >= 3 {
+                    let wpId = components[2]
+                    if !wpId.isEmpty && UserDefaults.standard.bool(forKey: "insecure_wp_\(wpId)") {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+
     // MARK: - Lifecycle Management
 
     @objc static func startLiveActivityOnAppLaunch() {
@@ -232,7 +253,8 @@ import ActivityKit
                         way: BipeLiveActivityManager.getCurrentRegionName(),
                         devices: nil,
                         event: "active",
-                        activityType: "transition"
+                        activityType: "transition",
+                        insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
                     )
                 } else {
                     if let first = remainingVisible.first {
@@ -892,7 +914,8 @@ import ActivityKit
                             event: "active",
                             activityType: "transition",
                             icon: iconToUse,
-                            execucaoId: nil
+                            execucaoId: nil,
+                            insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
                         )
                     }
                 } else if attemptsRemaining > 0 {
@@ -915,7 +938,8 @@ import ActivityKit
                             devices: nil,
                             event: "active",
                             activityType: "transition",
-                            execucaoId: nil
+                            execucaoId: nil,
+                            insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
                         )
                     }
                 }
