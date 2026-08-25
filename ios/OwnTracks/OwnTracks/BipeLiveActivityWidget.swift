@@ -864,16 +864,8 @@ public struct BipeLiveActivityWidget: Widget {
                                     .foregroundColor(.secondary)
                             }
                         } else {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(.orange)
-                            Text(context.state.nickname)
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .lineLimit(1)
+                            let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "logo")
+                            DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 28)
                         }
                     }
                 }

@@ -850,19 +850,8 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     .lineLimit(1)
                             }
                         } else {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(.orange)
-                            if let iconItem = context.state.icon ?? context.state.iconUrl ?? context.state.target ?? context.state.devices?.first, !iconItem.isEmpty {
-                                DeviceBadgeView(item: iconItem, themeColor: .orange, size: 24)
-                            }
-                            Text(context.state.nickname)
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .lineLimit(1)
+                            let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "logo")
+                            DeviceBadgeView(item: triggerIcon, themeColor: .orange, size: 28)
                         }
                     }
                 }
