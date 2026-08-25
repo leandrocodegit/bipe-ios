@@ -169,6 +169,18 @@ struct TransitionWidgetView: View {
         state.devices ?? []
     }
 
+    var isInsideRegion: Bool {
+        state.way != nil && !(state.way!.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) && state.way != "Bipe.me"
+    }
+    
+    var emptyStateText: String {
+        (isInsideRegion && !isExit) ? "Dentro de uma região protegida" : "Aguardando publicação"
+    }
+    
+    var emptyStateIcon: String {
+        (isInsideRegion && !isExit) ? "shield.checkerboard" : "checkmark.shield.fill"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // MARK: 1. Header com ícone de radar, título da região e badge translúcido
@@ -275,10 +287,10 @@ struct TransitionWidgetView: View {
                     }
                 } else {
                     HStack(spacing: 6) {
-                        Image(systemName: "checkmark.shield.fill")
+                        Image(systemName: emptyStateIcon)
                             .font(.system(size: 13))
                             .foregroundColor(themeColor)
-                        Text("Aguardando publicação")
+                        Text(emptyStateText)
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                     }
