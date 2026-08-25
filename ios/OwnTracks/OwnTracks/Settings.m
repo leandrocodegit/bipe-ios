@@ -734,6 +734,15 @@ static SettingsDefaults *defaults;
             rid = [Region ridFromTst:tst andName:name];
         }
                                 
+        if (doChange) {
+            NSNumber *insecure = waypoint[@"insecure"];
+            if (insecure && [insecure respondsToSelector:@selector(boolValue)]) {
+                [[NSUserDefaults standardUserDefaults] setBool:[insecure boolValue] forKey:[NSString stringWithFormat:@"insecure_wp_%@", rid]];
+            } else {
+                [[NSUserDefaults standardUserDefaults] setBool:NO forKey:[NSString stringWithFormat:@"insecure_wp_%@", rid]];
+            }
+        }
+                                
         NSNumber *lat = waypoint[@"lat"];
         if (!lat) lat = waypoint[@"latitude"];
         CLLocationDegrees latDegrees = (lat && [lat respondsToSelector:@selector(doubleValue)]) ? lat.doubleValue : 0.0;
