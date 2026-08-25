@@ -395,10 +395,12 @@ struct EmergencyWidgetView: View {
     }
 
     var themeColor: Color {
+        if state.insecure == true { return .red }
         return isProtectedRegion ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange
     }
 
     var badgeText: String {
+        if state.insecure == true { return "ÁREA DE RISCO" }
         if isProtectedRegion {
             return "ZONA PROTEGIDA"
         }
