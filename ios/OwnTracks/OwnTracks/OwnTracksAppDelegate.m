@@ -1117,7 +1117,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     BOOL soundWaypoint = [[NSUserDefaults standardUserDefaults] objectForKey:@"soundWaypoint"] == nil ? YES : [Settings boolForKey:@"soundWaypoint" inMOC:moc];
     
     if (!mute && soundWaypoint) {
-        [BipeLiveActivityManager playSoundNamed:@"bipe_routine_ok.mp3"];
+        [BipeAudioHelper playSoundNamed:@"bipe_routine_ok.mp3"];
     }
     
     if ([LocationManager sharedInstance].monitoring != LocationMonitoringQuiet &&
