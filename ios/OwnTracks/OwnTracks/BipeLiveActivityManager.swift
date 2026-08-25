@@ -247,6 +247,52 @@ import ActivityKit
         }
     }
 
+    @objc static func updateLiveActivityForRegionChange(regionName: String, enter: Bool) {
+        if #available(iOS 16.1, *) {
+            #if canImport(ActivityKit)
+            Task { @MainActor in
+                let currentVisible = Activity<BipeAlertActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
+                if let singleActiveActivity = currentVisible.first {
+                    let st = singleActiveActivity.content.state.status.lowercased()
+                    let act = singleActiveActivity.content.state.activityType?.lowercased() ?? ""
+                    let ev = singleActiveActivity.content.state.event?.lowercased() ?? ""
+                    
+                    let isBipe = act == "bipe" || act == "bipe_alert" || st == "bipe" || st == "bipe_alert" || ev == "bipe" || ev == "bipe_alert"
+                    let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+                    let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
+                    let hasValidTarget = (singleActiveActivity.content.state.target != nil && !(singleActiveActivity.content.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
+                    let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
+                    
+                    if isEmergency || isDistance || isRoutine {
+                        NSLog("[BipeLiveActivityManager] updateLiveActivityForRegionChange ignorado, status prioritario ativo.")
+                        return
+                    }
+                }
+                
+                let moc = CoreData.sharedInstance().mainMOC
+                var nickname: String = "Bipe.me"
+                moc.performAndWait {
+                    if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
+                        nickname = name
+                    }
+                }
+                
+                startLiveActivity(
+                    nickname: nickname,
+                    address: "Monitorando em tempo real",
+                    iconLocalPath: nil,
+                    iconUrl: "logo",
+                    status: "transition",
+                    way: regionName,
+                    devices: nil,
+                    event: enter ? "enter" : "exit",
+                    activityType: "transition"
+                )
+            }
+            #endif
+        }
+    }
+
     @objc static func checkPendingBipeConfirmationFromAppGroup() {
         if let sharedDefaults = UserDefaults(suiteName: appGroupSuite),
            let pendingExecId = sharedDefaults.string(forKey: "pending_bipe_confirm_execucao_id"),

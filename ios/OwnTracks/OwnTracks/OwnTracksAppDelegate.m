@@ -1108,6 +1108,18 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
     }
     self.lastRegionStates[region.identifier] = @(enter);
     
+    NSArray <NSString *> *initialComponents = [region.identifier componentsSeparatedByString:@"|"];
+    if (initialComponents.count > 0) {
+        [BipeLiveActivityManager updateLiveActivityForRegionChangeWithRegionName:initialComponents[0] enter:enter];
+    }
+    
+    BOOL mute = [Settings boolForKey:@"mute" inMOC:moc];
+    BOOL soundWaypoint = [[NSUserDefaults standardUserDefaults] objectForKey:@"soundWaypoint"] == nil ? YES : [Settings boolForKey:@"soundWaypoint" inMOC:moc];
+    
+    if (!mute && soundWaypoint) {
+        [BipeLiveActivityManager playSoundNamed:@"bipe_routine_ok.mp3"];
+    }
+    
     if ([LocationManager sharedInstance].monitoring != LocationMonitoringQuiet &&
         [Settings validIdsInMOC:moc]) {
         

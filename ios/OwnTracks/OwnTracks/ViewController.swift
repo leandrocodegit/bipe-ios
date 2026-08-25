@@ -1488,6 +1488,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+                configDict["soundWaypoint"] = UserDefaults.standard.object(forKey: "soundWaypoint") != nil ? Settings.bool(forKey: "soundWaypoint", inMOC: moc) : true
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
             let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -1721,6 +1722,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         }
                         if let locked = config["locked"] as? Bool {
                             Settings.setBool(locked, forKey: "locked", inMOC: moc)
+                        }
+                        if let soundWaypoint = config["soundWaypoint"] as? Bool {
+                            Settings.setBool(soundWaypoint, forKey: "soundWaypoint", inMOC: moc)
                         }
                         if let opMode = config["opMode"] as? Int {
                             Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
