@@ -1082,28 +1082,13 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             .font(.system(size: 10, weight: .black))
                             .foregroundColor(themeColor)
                     }
-                } else if isRoutine {
-                    Text("ROTINA")
-                        .font(.system(size: 10, weight: .black, design: .rounded))
-                        .foregroundColor(themeColor)
-                } else if isTransition {
+                } else {
                     if let firstDev = devicesList.first {
                         DeviceBadgeView(item: firstDev, themeColor: themeColor)
-                    } else if !regionName.lowercased().contains("monitora") {
-                        Text(regionName)
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                            .foregroundColor(themeColor)
-                            .lineLimit(1)
                     } else {
                         let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "logo")
                         DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 20)
                     }
-                } else {
-                    Text(context.state.nickname)
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
-                        .lineLimit(1)
                 }
             } minimal: {
                 if isDistance {

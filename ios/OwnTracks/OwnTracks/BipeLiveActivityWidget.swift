@@ -1050,22 +1050,8 @@ public struct BipeLiveActivityWidget: Widget {
                         .foregroundColor(.orange)
                 }
             } compactTrailing: {
-                if isRoutine {
-                    Text("ROTINA")
-                        .font(.system(size: 10, weight: .black, design: .rounded))
-                        .foregroundColor(themeColor)
-                } else if isTransition {
-                    Text(regionName)
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundColor(themeColor)
-                        .lineLimit(1)
-                } else {
-                    Text(context.state.nickname)
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
-                        .lineLimit(1)
-                }
+                let triggerIcon = (context.state.icon != nil && !context.state.icon!.isEmpty) ? context.state.icon! : ((context.state.iconUrl != nil && !context.state.iconUrl!.isEmpty) ? context.state.iconUrl! : "logo")
+                DeviceBadgeView(item: triggerIcon, themeColor: themeColor, size: 20)
             } minimal: {
                 if isRoutine {
                     Image(systemName: "clock.badge.exclamationmark")
