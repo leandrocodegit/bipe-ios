@@ -27,6 +27,7 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
         public var sound: String?
         public var execucaoId: String?
         public var previousEvent: String?
+        public var insecure: Bool?
         
         public init(
             address: String = "Localização atual",
@@ -45,7 +46,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             distancia: String? = nil,
             sound: String? = nil,
             execucaoId: String? = nil,
-            previousEvent: String? = nil
+            previousEvent: String? = nil,
+            insecure: Bool? = nil
         ) {
             self.address = address
             self.way = way
@@ -64,11 +66,12 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.sound = sound
             self.execucaoId = execucaoId
             self.previousEvent = previousEvent
+            self.insecure = insecure
         }
 
         public enum CodingKeys: String, CodingKey {
             case address, way, event, devices, activityType, nickname, status
-            case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound, execucaoId
+            case iconUrl, iconLocalPath, icon, timestamp, target, alvo, distancia, sound, execucaoId, previousEvent, insecure
         }
 
         public enum AltCodingKeys: String, CodingKey {
@@ -94,6 +97,8 @@ public struct BipeAlertActivityAttributes: ActivityAttributes {
             self.distancia = try? container.decode(String.self, forKey: .distancia)
             self.sound = try? container.decode(String.self, forKey: .sound)
             self.execucaoId = (try? container.decode(String.self, forKey: .execucaoId)) ?? (try? altContainer?.decode(String.self, forKey: .execucao_id))
+            self.previousEvent = try? container.decode(String.self, forKey: .previousEvent)
+            self.insecure = try? container.decode(Bool.self, forKey: .insecure)
             
             // Decodificação flexível para timestamp (Double ou String)
             if let doubleVal = try? container.decode(Double.self, forKey: .timestamp) {
