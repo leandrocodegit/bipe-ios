@@ -395,18 +395,26 @@ struct EmergencyWidgetView: View {
         return isDefault && hasRegion
     }
 
+    var isEmergencyState: Bool {
+        let st = state.status.lowercased()
+        let act = state.activityType?.lowercased() ?? ""
+        return st == "emergency" || st == "emergencia" || st == "emergência" || act == "emergency"
+    }
+
     var themeColor: Color {
+        if isEmergencyState { return .red }
         if state.insecure == true { return .red }
         return isProtectedRegion ? Color(red: 0.18, green: 0.80, blue: 0.44) : .orange
     }
 
     var badgeText: String {
+        if isEmergencyState { return "EMERGÊNCIA" }
         if state.insecure == true { return "CUIDADO" }
         if isProtectedRegion {
             return "ZONA PROTEGIDA"
         }
         let st = state.status.lowercased()
-        if st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st == "bipe" || st == "bipe_alert" || st.isEmpty {
+        if st == "start" || st == "bipe" || st == "bipe_alert" || st.isEmpty {
             return "ATENÇÃO"
         }
         return state.status.uppercased()
