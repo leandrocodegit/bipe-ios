@@ -266,7 +266,7 @@ struct TransitionWidgetView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     HStack(spacing: 5) {
-                        Text(devicesList.isEmpty ? LocalizedStringKey("PERÍMETRO ATIVO") : LocalizedStringKey("DISPOSITIVOS NA ZONA"))
+                        Text(devicesList.isEmpty ? LocalizedStringKey("PERÍMETRO ATIVO") : LocalizedStringKey("DISPOSITIVOS PRÓXIMOS"))
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(.secondary)
                             .tracking(0.5)

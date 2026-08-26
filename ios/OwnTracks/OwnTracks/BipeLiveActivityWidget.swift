@@ -175,7 +175,7 @@ struct TransitionWidgetView: View {
                             .font(.system(size: 11, weight: .medium))
                             .foregroundColor(themeColor)
                         
-                        Text(devicesList.isEmpty ? LocalizedStringKey("PERÍMETRO ATIVO") : LocalizedStringKey("DISPOSITIVOS NA ZONA"))
+                        Text(devicesList.isEmpty ? LocalizedStringKey("PERÍMETRO ATIVO") : LocalizedStringKey("DISPOSITIVOS PRÓXIMOS"))
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(.secondary)
                             .tracking(0.5)
