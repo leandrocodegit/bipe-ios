@@ -429,16 +429,27 @@ struct EmergencyWidgetView: View {
                         .padding(.bottom, 1)
                     }
                     
-                    HStack(alignment: .top, spacing: 4) {
-                        Image(systemName: "mappin.and.ellipse")
-                            .font(.subheadline)
-                            .foregroundColor(themeColor)
-                        
-                        Text(state.address)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
+                    Text(state.address)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    if let proxStr = state.prox, !proxStr.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        let parts = proxStr.split(separator: ",", omittingEmptySubsequences: false).map(String.init)
+                        if parts.count >= 2 {
+                            let proxIcon = parts[0]
+                            let proxDist = parts[1]
+                            let proxNick = parts.count > 2 ? parts[2] : ""
+                            
+                            HStack(alignment: .center, spacing: 6) {
+                                DeviceBadgeView(item: proxIcon, themeColor: .gray, size: 20)
+                                Text("\(proxNick.isEmpty ? "Mais próximo" : proxNick) a \(proxDist)")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundColor(themeColor)
+                            }
+                            .padding(.top, 1)
+                        }
                     }
                     
                     if let prev = state.previousEvent, !prev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
