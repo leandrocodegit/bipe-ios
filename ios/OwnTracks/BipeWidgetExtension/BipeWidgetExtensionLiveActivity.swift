@@ -388,7 +388,14 @@ struct EmergencyWidgetView: View {
             HStack(spacing: 12) {
                 HStack(spacing: 8) {
                     if let iconItem = receivedIcon {
-                        DeviceBadgeView(item: iconItem, themeColor: themeColor, size: 44)
+                        ZStack {
+                            DeviceBadgeView(item: iconItem, themeColor: themeColor, size: 44)
+                            if isEmergencyState {
+                                Circle()
+                                    .stroke(Color.red, lineWidth: 2)
+                                    .frame(width: 48, height: 48)
+                            }
+                        }
                     }
                 }
                 
@@ -489,10 +496,10 @@ struct EmergencyWidgetView: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .fill(isEmergencyState ? Color.red.opacity(0.15) : Color(UIColor.secondarySystemGroupedBackground))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.red.opacity(0.3), lineWidth: 1.5)
+                        .stroke(isEmergencyState ? Color.red.opacity(0.6) : Color.clear, lineWidth: 1.5)
                 )
         )
         .activityBackgroundTint(Color(UIColor.systemBackground))
@@ -823,7 +830,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let ev = context.state.event?.lowercased() ?? ""
             
             let isBipe = act == "bipe" || act == "bipe_alert" || st == "bipe" || st == "bipe_alert" || ev == "bipe" || ev == "bipe_alert"
-            let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+            let isEmergency = act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
@@ -848,7 +855,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let ev = context.state.event?.lowercased() ?? ""
             
             let isBipe = act == "bipe" || act == "bipe_alert" || st == "bipe" || st == "bipe_alert" || ev == "bipe" || ev == "bipe_alert"
-            let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+            let isEmergency = act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))

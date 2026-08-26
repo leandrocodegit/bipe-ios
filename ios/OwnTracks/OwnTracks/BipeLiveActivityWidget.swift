@@ -425,7 +425,14 @@ struct EmergencyWidgetView: View {
             HStack(spacing: 12) {
                 HStack(spacing: 8) {
                     if let iconItem = receivedIcon {
-                        DeviceBadgeView(item: iconItem, themeColor: themeColor, size: 44)
+                        ZStack {
+                            DeviceBadgeView(item: iconItem, themeColor: themeColor, size: 44)
+                            if isEmergencyState {
+                                Circle()
+                                    .stroke(Color.red, lineWidth: 2)
+                                    .frame(width: 48, height: 48)
+                            }
+                        }
                     }
                 }
                 
@@ -526,10 +533,10 @@ struct EmergencyWidgetView: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .fill(isEmergencyState ? Color.red.opacity(0.15) : Color(UIColor.secondarySystemGroupedBackground))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.red.opacity(0.3), lineWidth: 1.5)
+                        .stroke(isEmergencyState ? Color.red.opacity(0.6) : Color.clear, lineWidth: 1.5)
                 )
         )
         .activityBackgroundTint(Color(UIColor.systemBackground))
