@@ -385,7 +385,7 @@ struct EmergencyWidgetView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
                 HStack(spacing: 8) {
                     if let iconItem = receivedIcon {
                         ZStack {
