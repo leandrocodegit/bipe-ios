@@ -51,23 +51,29 @@ struct TransitionWidgetView: View {
 
     var isActived: Bool {
         let ev = state.event?.lowercased() ?? "" 
-        return ev.contains("active") || ev.contains("active")
+        return ev.contains("active") || ev.contains("ativo")
     } 
+    
+    var isMove: Bool {
+        let ev = state.event?.lowercased() ?? ""
+        let st = state.status.lowercased()
+        return ev.contains("move") || ev.contains("movimento") || st.contains("move") || st.contains("movimento")
+    }
     
     var themeColor: Color {
         if state.insecure == true { return .red }
-        return isExit ? Color.orange : Color(red: 0.18, green: 0.80, blue: 0.44) // Emerald Green vs Amber Orange
+        return isExit ? Color.orange : (isMove ? Color.blue : Color(red: 0.18, green: 0.80, blue: 0.44))
     }
     
     var eventTitle: String {
         if state.insecure == true {
-            return isExit ? "SAIU DE ÁREA DE RISCO" : (isActived ? "ÁREA DE RISCO" : "ENTROU EM ÁREA DE RISCO")
+            return isExit ? String(localized: "SAIU DE ÁREA DE RISCO") : (isActived ? String(localized: "ÁREA DE RISCO") : (isMove ? String(localized: "MOVIMENTOU EM ÁREA DE RISCO") : String(localized: "ENTROU EM ÁREA DE RISCO")))
         }
-        return isExit ? "SAIU DA REGIÃO" : (isActived ? "ATIVO" : "ENTROU NA REGIÃO")
+        return isExit ? String(localized: "SAIU DA REGIÃO") : (isActived ? String(localized: "ATIVO") : (isMove ? String(localized: "EM MOVIMENTO") : String(localized: "ENTROU NA REGIÃO")))
     }
     
     var eventIcon: String {
-        isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact"
+        isExit ? "arrow.left.to.line.compact" : (isMove ? "location.fill" : "arrow.right.to.line.compact")
     }
     
     var regionName: String {
@@ -169,7 +175,7 @@ struct TransitionWidgetView: View {
                             .font(.system(size: 11, weight: .medium))
                             .foregroundColor(themeColor)
                         
-                        Text(devicesList.isEmpty ? "PERÍMETRO ATIVO" : "DISPOSITIVOS NA ZONA")
+                        Text(devicesList.isEmpty ? LocalizedStringKey("PERÍMETRO ATIVO") : LocalizedStringKey("DISPOSITIVOS NA ZONA"))
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(.secondary)
                             .tracking(0.5)
@@ -178,7 +184,7 @@ struct TransitionWidgetView: View {
                     Spacer()
                     
                     if !devicesList.isEmpty {
-                        Text("\(devicesList.count) \(devicesList.count == 1 ? "dispositivo" : "dispositivos")")
+                        Text("\(devicesList.count) \(devicesList.count == 1 ? String(localized: "dispositivo") : String(localized: "dispositivos"))")
                             .font(.system(size: 10, weight: .semibold, design: .rounded))
                             .foregroundColor(themeColor)
                             .padding(.horizontal, 7)
@@ -408,14 +414,14 @@ struct EmergencyWidgetView: View {
     }
 
     var badgeText: String {
-        if isEmergencyState { return "EMERGÊNCIA" }
-        if state.insecure == true { return "CUIDADO" }
+        if isEmergencyState { return String(localized: "EMERGÊNCIA") }
+        if state.insecure == true { return String(localized: "CUIDADO") }
         if isProtectedRegion {
-            return "ZONA PROTEGIDA"
+            return String(localized: "ZONA PROTEGIDA")
         }
         let st = state.status.lowercased()
         if st == "start" || st == "bipe" || st == "bipe_alert" || st.isEmpty {
-            return "ATENÇÃO"
+            return String(localized: "ATENÇÃO")
         }
         return state.status.uppercased()
     }
@@ -481,7 +487,7 @@ struct EmergencyWidgetView: View {
                             
                             HStack(alignment: .center, spacing: 6) {
                                 DeviceBadgeView(item: proxIcon, themeColor: .gray, size: 20)
-                                Text("\(proxNick.isEmpty ? "Mais próximo" : proxNick) a \(proxDist)")
+                                Text("\(proxNick.isEmpty ? String(localized: "Mais próximo") : proxNick) a \(proxDist)")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(themeColor)
                             }
@@ -962,7 +968,7 @@ public struct BipeLiveActivityWidget: Widget {
                         HStack(spacing: 4) {
                             Image(systemName: isExit ? "arrow.left.to.line.compact" : "arrow.right.to.line.compact")
                                 .font(.system(size: 10, weight: .bold))
-                            Text(isExit ? "SAIU" : "ENTROU")
+                            Text(isExit ? LocalizedStringKey("SAIU") : LocalizedStringKey("ENTROU"))
                                 .font(.system(size: 11, weight: .black, design: .rounded))
                         }
                         .padding(.horizontal, 9)
@@ -982,7 +988,7 @@ public struct BipeLiveActivityWidget: Widget {
                         .foregroundColor(.black)
                     } else {
                         let st = context.state.status.lowercased()
-                        let emergencyStatusText = (st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st == "bipe" || st == "bipe_alert" || st.isEmpty) ? "ATENÇÃO" : context.state.status.uppercased()
+                        let emergencyStatusText = (st == "start" || st == "emergency" || st == "emergencia" || st == "emergência" || st == "bipe" || st == "bipe_alert" || st.isEmpty) ? String(localized: "ATENÇÃO") : context.state.status.uppercased()
                         Text(emergencyStatusText)
                             .font(.caption2)
                             .fontWeight(.black)

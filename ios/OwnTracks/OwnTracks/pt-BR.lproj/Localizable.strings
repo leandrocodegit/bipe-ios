@@ -407,3 +407,36 @@
 "Configurando dispositivo…" = "Configurando dispositivo…";
 "Erro desconhecido" = "Erro desconhecido";
 "Falha no login" = "Falha no login";
+
+// Live Activities & Widgets
+"SAIU DE ÁREA DE RISCO" = "SAIU DE ÁREA DE RISCO";
+"ÁREA DE RISCO" = "ÁREA DE RISCO";
+"ENTROU EM ÁREA DE RISCO" = "ENTROU EM ÁREA DE RISCO";
+"SAIU DA REGIÃO" = "SAIU DA REGIÃO";
+"ATIVO" = "ATIVO";
+"ENTROU NA REGIÃO" = "ENTROU NA REGIÃO";
+"ZONA DE MONITORAMENTO" = "ZONA DE MONITORAMENTO";
+"PERÍMETRO ATIVO" = "PERÍMETRO ATIVO";
+"DISPOSITIVOS NA ZONA" = "DISPOSITIVOS NA ZONA";
+"dispositivo" = "dispositivo";
+"dispositivos" = "dispositivos";
+"EMERGÊNCIA" = "EMERGÊNCIA";
+"CUIDADO" = "CUIDADO";
+"ZONA PROTEGIDA" = "ZONA PROTEGIDA";
+"ATENÇÃO" = "ATENÇÃO";
+"Último evento: %@" = "Último evento: %@";
+"Mais próximo" = "Mais próximo";
+"CONFIRMAR BIPE" = "CONFIRMAR BIPE";
+"Alerta de Distância" = "Alerta de Distância";
+"CONFIRMAR RECEBIMENTO" = "CONFIRMAR RECEBIMENTO";
+"SAIU" = "SAIU";
+"ENTROU" = "ENTROU";
+"APROXIMAR" = "APROXIMAR";
+"AFASTAR" = "AFASTAR";
+"APROX" = "APROX";
+"AFAST" = "AFAST";
+"Monitorando em tempo real" = "Monitorando em tempo real";
+
+"EM MOVIMENTO" = "EM MOVIMENTO";
+"MOVIMENTOU EM ÁREA DE RISCO" = "MOVIMENTOU EM ÁREA DE RISCO";
+"MOVEU" = "MOVEU";

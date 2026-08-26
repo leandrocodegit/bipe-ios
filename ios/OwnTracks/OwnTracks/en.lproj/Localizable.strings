@@ -407,3 +407,36 @@
 "Configurando dispositivo…" = "Setting up device…";
 "Erro desconhecido" = "Unknown error";
 "Falha no login" = "Login failed";
+
+// Live Activities & Widgets
+"SAIU DE ÁREA DE RISCO" = "LEFT HIGH RISK AREA";
+"ÁREA DE RISCO" = "HIGH RISK AREA";
+"ENTROU EM ÁREA DE RISCO" = "ENTERED HIGH RISK AREA";
+"SAIU DA REGIÃO" = "LEFT REGION";
+"ATIVO" = "ACTIVE";
+"ENTROU NA REGIÃO" = "ENTERED REGION";
+"ZONA DE MONITORAMENTO" = "MONITORING ZONE";
+"PERÍMETRO ATIVO" = "ACTIVE PERIMETER";
+"DISPOSITIVOS NA ZONA" = "DEVICES IN ZONE";
+"dispositivo" = "device";
+"dispositivos" = "devices";
+"EMERGÊNCIA" = "EMERGENCY";
+"CUIDADO" = "WARNING";
+"ZONA PROTEGIDA" = "PROTECTED ZONE";
+"ATENÇÃO" = "ATTENTION";
+"Último evento: %@" = "Last event: %@";
+"Mais próximo" = "Closest";
+"CONFIRMAR BIPE" = "CONFIRM BEEP";
+"Alerta de Distância" = "Distance Alert";
+"CONFIRMAR RECEBIMENTO" = "ACKNOWLEDGE";
+"SAIU" = "LEFT";
+"ENTROU" = "ENTERED";
+"APROXIMAR" = "APPROACHING";
+"AFASTAR" = "MOVING AWAY";
+"APROX" = "APPR";
+"AFAST" = "AWAY";
+"Monitorando em tempo real" = "Real-time monitoring";
+
+"EM MOVIMENTO" = "MOVING";
+"MOVIMENTOU EM ÁREA DE RISCO" = "MOVED IN HIGH RISK AREA";
+"MOVEU" = "MOVED";
