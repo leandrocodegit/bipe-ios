@@ -847,7 +847,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let ev = context.state.event?.lowercased() ?? ""
             
             let isBipe = act == "bipe" || act == "bipe_alert" || st == "bipe" || st == "bipe_alert" || ev == "bipe" || ev == "bipe_alert"
-            let isEmergency = act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+            let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
@@ -872,7 +872,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
             let ev = context.state.event?.lowercased() ?? ""
             
             let isBipe = act == "bipe" || act == "bipe_alert" || st == "bipe" || st == "bipe_alert" || ev == "bipe" || ev == "bipe_alert"
-            let isEmergency = act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
+            let isEmergency = isBipe || act.contains("emergency") || st.contains("emergency") || st.contains("emergencia") || st.contains("emergência")
             let isRoutine = !isEmergency && (act.contains("routine") || act.contains("rotina") || st.contains("routine") || st.contains("rotina") || ev.contains("routine") || ev.contains("rotina"))
             let hasValidTarget = (context.state.target != nil && !(context.state.target?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
             let isDistance = !isEmergency && !isRoutine && (act.contains("distance") || st.contains("distance") || hasValidTarget || ev.contains("aproxim") || ev.contains("afast"))
