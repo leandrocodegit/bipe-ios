@@ -891,7 +891,7 @@ import ActivityKit
             iconUrl: iconToUse,
             status: "CONFIRMADO",
             way: currentRegion,
-            devices: BipeLiveActivityManager.getCurrentDevicesInRegion(),
+            devices: nil,
             event: "bipe",
             activityType: "bipe",
             icon: iconToUse,
