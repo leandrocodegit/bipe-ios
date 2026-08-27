@@ -69,7 +69,7 @@ struct TransitionWidgetView: View {
         if state.insecure == true {
             return isExit ? String(localized: "SAIU DE ÁREA DE RISCO") : (isActived ? String(localized: "ÁREA DE RISCO") : (isMove ? String(localized: "MOVIMENTOU EM ÁREA DE RISCO") : String(localized: "ENTROU EM ÁREA DE RISCO")))
         }
-        return isExit ? String(localized: "SAIU DA REGIÃO") : (isActived ? String(localized: "ATIVO") : (isMove ? String(localized: "EM MOVIMENTO") : String(localized: "ENTROU NA REGIÃO")))
+        return isExit ? String(localized: "SAIU DA REGIÃO") : (isActived ? String(localized: "ATIVO") : (isMove ? String(localized: "SE MOVEU") : String(localized: "ENTROU NA REGIÃO")))
     }
     
     var eventIcon: String {
