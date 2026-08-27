@@ -24,7 +24,7 @@ struct ConfirmBipeIntent: LiveActivityIntent {
     }
     
     func perform() async throws -> some IntentResult {
-        BipeLiveActivityManager.sendBipeConfirmation(execucaoId: execucaoId)
+        await BipeLiveActivityManager.sendBipeConfirmationAsync(execucaoId: execucaoId)
         return .result()
     }
 }
