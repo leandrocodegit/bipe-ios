@@ -886,14 +886,14 @@ import ActivityKit
         let nickToUse = nickname ?? "Bipe.me"
         startLiveActivity(
             nickname: nickToUse,
-            address: String(localized: "Monitorando em tempo real"),
+            address: String(localized: "Bipe Confirmado"),
             iconLocalPath: nil,
             iconUrl: iconToUse,
-            status: "transition",
+            status: "CONFIRMADO",
             way: currentRegion,
             devices: BipeLiveActivityManager.getCurrentDevicesInRegion(),
-            event: "active",
-            activityType: "transition",
+            event: "bipe",
+            activityType: "bipe",
             icon: iconToUse,
             execucaoId: nil,
             insecure: insecureRegion
@@ -980,14 +980,14 @@ import ActivityKit
                         let iconToUse = (deviceIcon != nil && !deviceIcon!.isEmpty) ? deviceIcon : "logo"
                         startLiveActivity(
                             nickname: nickToUse,
-                            address: "Monitorando em tempo real",
+                            address: String(localized: "Bipe Confirmado"),
                             iconLocalPath: nil,
                             iconUrl: iconToUse,
-                            status: "transition",
+                            status: "CONFIRMADO",
                             way: BipeLiveActivityManager.getCurrentRegionName(),
                             devices: nil,
-                            event: "active",
-                            activityType: "transition",
+                            event: "bipe",
+                            activityType: "bipe",
                             icon: iconToUse,
                             execucaoId: nil,
                             insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
@@ -1005,14 +1005,14 @@ import ActivityKit
                         let nickToUse = nickname ?? "Bipe.me"
                         startLiveActivity(
                             nickname: nickToUse,
-                            address: "Monitorando em tempo real",
+                            address: String(localized: "Bipe Confirmado"),
                             iconLocalPath: nil,
                             iconUrl: "logo",
-                            status: "transition",
+                            status: "CONFIRMADO",
                             way: BipeLiveActivityManager.getCurrentRegionName(),
                             devices: nil,
-                            event: "active",
-                            activityType: "transition",
+                            event: "bipe",
+                            activityType: "bipe",
                             execucaoId: nil,
                             insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
                         )
