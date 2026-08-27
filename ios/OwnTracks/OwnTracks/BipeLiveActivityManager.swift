@@ -315,14 +315,7 @@ import ActivityKit
             sharedDefaults.removeObject(forKey: "pending_bipe_confirm_execucao_id")
             sharedDefaults.synchronize()
             NSLog("[BipeLiveActivityManager] Processando confirmacao de bipe pendente via AppGroup execucaoId: %@", pendingExecId)
-            
-            if #available(iOS 16.1, *) {
-                Task {
-                    await sendBipeConfirmationAsync(execucaoId: pendingExecId)
-                }
-            } else {
-                sendBipeConfirmation(execucaoId: pendingExecId)
-            }
+            sendBipeConfirmation(execucaoId: pendingExecId)
         }
     }
 
