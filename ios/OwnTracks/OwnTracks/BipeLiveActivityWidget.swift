@@ -508,7 +508,7 @@ struct EmergencyWidgetView: View {
             let st = state.status.lowercased()
             let ev = state.event?.lowercased() ?? ""
             let isBipeAlert = act == "bipe" || act == "bipe_alert" || st == "bipe" || st == "bipe_alert" || ev == "bipe" || ev == "bipe_alert"
-            if isBipeAlert {
+            if isBipeAlert && st != "confirmado" {
                 if #available(iOS 17.0, *) {
                     Button(intent: ConfirmBipeIntent(execucaoId: state.execucaoId)) {
                         HStack(spacing: 6) {

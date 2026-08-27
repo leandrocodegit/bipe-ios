@@ -471,7 +471,7 @@ struct EmergencyWidgetView: View {
             let st = state.status.lowercased()
             let ev = state.event?.lowercased() ?? ""
             let isBipeAlert = act == "bipe" || act == "bipe_alert" || st == "bipe" || st == "bipe_alert" || ev == "bipe" || ev == "bipe_alert"
-            if isBipeAlert {
+            if isBipeAlert && st != "confirmado" {
                 if #available(iOS 17.0, *) {
                     Button(intent: ConfirmBipeIntent(execucaoId: state.execucaoId)) {
                         HStack(spacing: 6) {
@@ -1091,7 +1091,8 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             }
                             
                             let isBipeAlert = context.state.status.lowercased() == "bipe" || context.state.status.lowercased() == "bipe_alert" || context.state.activityType?.lowercased() == "bipe" || context.state.activityType?.lowercased() == "bipe_alert" || context.state.event?.lowercased() == "bipe" || context.state.event?.lowercased() == "bipe_alert"
-                            if isBipeAlert {
+                            let isConfirmed = context.state.status.lowercased() == "confirmado"
+                            if isBipeAlert && !isConfirmed {
                                 if #available(iOS 17.0, *) {
                                     Button(intent: ConfirmBipeIntent(execucaoId: context.state.execucaoId)) {
                                         HStack(spacing: 4) {
