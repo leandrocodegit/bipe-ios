@@ -1207,6 +1207,17 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
                 json[@"color"] = color;
             }
             
+            NSString *langId = [[NSLocale preferredLanguages] firstObject];
+            if (langId && langId.length > 0) {
+                if ([langId hasPrefix:@"pt"]) {
+                    json[@"lang"] = @"pt-br";
+                } else if ([langId hasPrefix:@"es"]) {
+                    json[@"lang"] = @"es";
+                } else {
+                    json[@"lang"] = @"en";
+                }
+            }
+            
             json[@"lat"] = [NSNumber doubleValueWithSixDecimals:location.coordinate.latitude];
             
             json[@"lon"] = [NSNumber doubleValueWithSixDecimals:location.coordinate.longitude];
