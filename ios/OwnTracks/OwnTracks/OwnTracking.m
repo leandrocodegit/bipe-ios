@@ -585,6 +585,17 @@ static OwnTracking *theInstance = nil;
     if (color && color.length > 0) {
         json[@"color"] = color;
     }
+    
+    NSString *langId = [[NSLocale preferredLanguages] firstObject];
+    if (langId && langId.length > 0) {
+        if ([langId hasPrefix:@"pt"]) {
+            json[@"lang"] = @"pt-br";
+        } else if ([langId hasPrefix:@"es"]) {
+            json[@"lang"] = @"es";
+        } else {
+            json[@"lang"] = @"en";
+        }
+    }
 
     if (waypoint.trigger) {
         json[@"t"] = waypoint.trigger;
