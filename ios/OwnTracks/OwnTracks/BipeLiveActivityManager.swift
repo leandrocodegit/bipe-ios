@@ -721,6 +721,9 @@ import ActivityKit
             if let deviceId = deviceId, !deviceId.isEmpty {
                 payloadDict["deviceId"] = deviceId
             }
+            if let fcmToken = UserDefaults.standard.string(forKey: "fcm_token"), !fcmToken.isEmpty {
+                payloadDict["fcmToken"] = fcmToken
+            }
             
             let authHeader = bearerToken.hasPrefix("Bearer ") ? bearerToken : "Bearer \(bearerToken)"
             
