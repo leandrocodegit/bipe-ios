@@ -14,6 +14,7 @@ import UserNotifications
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
+import FirebaseMessaging
 
 // MARK: - BipeAudioHelper (Gerenciamento e Reprodução de Áudio de Notificação)
 
@@ -116,6 +117,17 @@ import ActivityKit
                     let tokenHex = tokenData.map { String(format: "%02x", $0) }.joined()
                     NSLog("[BipeLiveActivityManager] Push-to-Start Token registrado/atualizado: %@", tokenHex)
                     SetupService.shared.syncPushToStartTokenWithServer(tokenHex)
+                }
+            }
+        }
+        
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("FCMToken"), object: nil, queue: .main) { _ in
+            NSLog("[BipeLiveActivityManager] Notificação FCMToken recebida. Re-sincronizando tokens das Live Activities...")
+            if #available(iOS 16.1, *) {
+                for activity in Activity<BipeAlertActivityAttributes>.activities {
+                    if activity.activityState == .active || activity.activityState == .stale {
+                        observeActivityToken(activity)
+                    }
                 }
             }
         }
@@ -721,8 +733,10 @@ import ActivityKit
             if let deviceId = deviceId, !deviceId.isEmpty {
                 payloadDict["deviceId"] = deviceId
             }
-            if let fcmToken = UserDefaults.standard.string(forKey: "fcm_token"), !fcmToken.isEmpty {
-                payloadDict["fcmToken"] = fcmToken
+            
+            let fcmToken = Messaging.messaging().fcmToken ?? UserDefaults.standard.string(forKey: "fcm_token")
+            if let fcmTokenStr = fcmToken, !fcmTokenStr.isEmpty {
+                payloadDict["fcmToken"] = fcmTokenStr
             }
             
             let authHeader = bearerToken.hasPrefix("Bearer ") ? bearerToken : "Bearer \(bearerToken)"
