@@ -238,7 +238,7 @@ import ActivityKit
                     }
                     startLiveActivity(
                         nickname: nickname,
-                        address: "Monitorando em tempo real",
+                        address: String(localized: "Monitorando em tempo real"),
                         iconLocalPath: nil,
                         iconUrl: "logo",
                         status: "transition",
@@ -293,7 +293,7 @@ import ActivityKit
                 
                 startLiveActivity(
                     nickname: nickname,
-                    address: "Monitorando em tempo real",
+                    address: String(localized: "Monitorando em tempo real"),
                     iconLocalPath: nil,
                     iconUrl: "logo",
                     status: "transition",
@@ -427,11 +427,11 @@ import ActivityKit
         if #available(iOS 16.1, *) {
             startLiveActivity(
                 nickname: "Bipe.me",
-                address: "Região Monitorada",
+                address: String(localized: "Região Monitorada"),
                 iconLocalPath: nil,
                 iconUrl: nil,
                 status: "transition",
-                way: "Casa da Vovó",
+                way: String(localized: "Casa da Vovó"),
                 devices: ["iPhone do João", "Carro da Maria"],
                 event: "enter",
                 activityType: "transition"
