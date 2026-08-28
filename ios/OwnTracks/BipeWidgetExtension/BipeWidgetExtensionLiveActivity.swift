@@ -185,9 +185,9 @@ struct TransitionWidgetView: View {
     
     var emptyStateText: String {
         if isInsideRegion && !isExit {
-            return state.insecure == true ? "Dentro de área de risco" : "Dentro de uma região protegida"
+            return state.insecure == true ? String(localized: "Dentro de área de risco") : String(localized: "Dentro de uma região protegida")
         }
-        return "Aguardando publicação"
+        return String(localized: "Aguardando publicação")
     }
     
     var emptyStateIcon: String {
@@ -234,7 +234,7 @@ struct TransitionWidgetView: View {
                             .shadow(color: themeColor, radius: 3)
                     }
                     
-                    Text("Monitorando em tempo real")
+                    Text(String(localized: "Monitorando em tempo real"))
                         .font(.system(size: 10, weight: .heavy, design: .rounded))
                         .foregroundColor(.secondary)
                         .tracking(0.5)
@@ -459,7 +459,7 @@ struct EmergencyWidgetView: View {
                     }
                     
                     if let prev = state.previousEvent, !prev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text("Último evento: \(prev)")
+                        Text("\(String(localized: "Último evento:")) \(prev)")
                             .font(.system(size: 11, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary.opacity(0.8))
                             .lineLimit(1)
@@ -477,7 +477,7 @@ struct EmergencyWidgetView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 15, weight: .bold))
-                            Text("CONFIRMAR BIPE")
+                            Text(String(localized: "CONFIRMAR BIPE"))
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                         }
                         .frame(maxWidth: .infinity)
@@ -495,7 +495,7 @@ struct EmergencyWidgetView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 15, weight: .bold))
-                            Text("CONFIRMAR BIPE")
+                            Text(String(localized: "CONFIRMAR BIPE"))
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                         }
                         .frame(maxWidth: .infinity)
@@ -607,12 +607,12 @@ struct DistanceWidgetView: View {
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                         .lineLimit(1)
-                    Text("Alerta de Distância")
+                    Text(String(localized: "Alerta de Distância"))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.secondary)
                         
                     if let prev = state.previousEvent, !prev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text("Último evento: \(prev)")
+                        Text("\(String(localized: "Último evento:")) \(prev)")
                             .font(.system(size: 10, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary.opacity(0.8))
                             .lineLimit(1)
@@ -674,7 +674,7 @@ struct DistanceWidgetView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 15, weight: .bold))
-                            Text("CONFIRMAR RECEBIMENTO")
+                            Text(String(localized: "CONFIRMAR RECEBIMENTO"))
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                         }
                         .frame(maxWidth: .infinity)
@@ -692,7 +692,7 @@ struct DistanceWidgetView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 15, weight: .bold))
-                            Text("CONFIRMAR RECEBIMENTO")
+                            Text(String(localized: "CONFIRMAR RECEBIMENTO"))
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                         }
                         .frame(maxWidth: .infinity)
@@ -775,7 +775,7 @@ struct RoutineWidgetView: View {
                         .lineLimit(1)
                         
                     if let prev = state.previousEvent, !prev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text("Último evento: \(prev)")
+                        Text("\(String(localized: "Último evento:")) \(prev)")
                             .font(.system(size: 11, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary.opacity(0.8))
                             .lineLimit(1)
@@ -788,7 +788,7 @@ struct RoutineWidgetView: View {
                 HStack(spacing: 5) {
                     Image(systemName: "clock.badge.exclamationmark")
                         .font(.system(size: 11, weight: .bold))
-                    Text("ROTINA")
+                    Text(String(localized: "ROTINA"))
                         .font(.system(size: 11, weight: .black, design: .rounded))
                 }
                 .padding(.horizontal, 10)
@@ -962,7 +962,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                         HStack(spacing: 4) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 10, weight: .bold))
-                            Text("ATIVO")
+                            Text(String(localized: "ATIVO"))
                                 .font(.system(size: 11, weight: .black, design: .rounded))
                         }
                         .padding(.horizontal, 9)
@@ -973,7 +973,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                         HStack(spacing: 5) {
                             Image(systemName: "clock.badge.exclamationmark")
                                 .font(.system(size: 10, weight: .bold))
-                            Text("ROTINA")
+                            Text(String(localized: "ROTINA"))
                                 .font(.system(size: 11, weight: .black, design: .rounded))
                         }
                         .padding(.horizontal, 9)
@@ -1000,7 +1000,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                 Image(systemName: "location.fill")
                                     .font(.footnote)
                                     .foregroundColor(themeColor)
-                                Text("Distância: \(dist)")
+                                Text("\(String(localized: "Distância:")) \(dist)")
                                     .font(.footnote)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
@@ -1014,7 +1014,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     HStack(spacing: 4) {
                                         Image(systemName: "checkmark.circle.fill")
                                             .font(.system(size: 13, weight: .bold))
-                                        Text("CONFIRMAR RECEBIMENTO")
+                                        Text(String(localized: "CONFIRMAR RECEBIMENTO"))
                                             .font(.system(size: 12, weight: .bold, design: .rounded))
                                     }
                                     .frame(maxWidth: .infinity)
@@ -1029,7 +1029,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                     HStack(spacing: 4) {
                                         Image(systemName: "checkmark.circle.fill")
                                             .font(.system(size: 13, weight: .bold))
-                                        Text("CONFIRMAR RECEBIMENTO")
+                                        Text(String(localized: "CONFIRMAR RECEBIMENTO"))
                                             .font(.system(size: 12, weight: .bold, design: .rounded))
                                     }
                                     .frame(maxWidth: .infinity)
@@ -1045,7 +1045,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                             Image(systemName: "clock.badge.exclamationmark")
                                 .font(.footnote)
                                 .foregroundColor(themeColor)
-                            Text("Rotina não atendida")
+                            Text(String(localized: "Rotina não atendida"))
                                 .font(.footnote)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -1098,7 +1098,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                         HStack(spacing: 4) {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .font(.system(size: 13, weight: .bold))
-                                            Text("CONFIRMAR BIPE")
+                                            Text(String(localized: "CONFIRMAR BIPE"))
                                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                                         }
                                         .frame(maxWidth: .infinity)
@@ -1112,7 +1112,7 @@ public struct BipeWidgetExtensionLiveActivity: Widget {
                                         HStack(spacing: 4) {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .font(.system(size: 13, weight: .bold))
-                                            Text("CONFIRMAR BIPE")
+                                            Text(String(localized: "CONFIRMAR BIPE"))
                                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                                         }
                                         .frame(maxWidth: .infinity)
