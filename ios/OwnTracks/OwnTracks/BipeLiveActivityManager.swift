@@ -88,6 +88,7 @@ import FirebaseMessaging
     private static let tokenEndpoint = "https://dev.simodapp.com:2087/bipe/live-activity/token"
     private static let activityEndpointPrefix = "https://dev.simodapp.com:2087/bipe/live-activity/activity/"
     private static let appGroupSuite = "group.br.com.bipe.me"
+    private static var lastSentTokens: [String: String] = [:]
 
     // MARK: - Register Push-to-Start & Token Listeners
 
@@ -723,6 +724,17 @@ import FirebaseMessaging
                 deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc)
             }
             
+            let fcmToken = Messaging.messaging().fcmToken ?? UserDefaults.standard.string(forKey: "fcm_token")
+            let fcmTokenStr = fcmToken ?? ""
+            let cacheKey = "\(token)|\(fcmTokenStr)"
+            
+            if lastSentTokens[activityId] == cacheKey {
+                NSLog("[BipeLiveActivityManager] Token %@ com FCM %@ para Activity %@ já foi enviado recentemente. Ignorando envio duplicado.", token, fcmTokenStr, activityId)
+                finishBgTaskIfNeeded()
+                return
+            }
+            lastSentTokens[activityId] = cacheKey
+            
             var payloadDict: [String: Any] = [
                 "token": token,
                 "activityId": activityId
@@ -733,9 +745,7 @@ import FirebaseMessaging
             if let deviceId = deviceId, !deviceId.isEmpty {
                 payloadDict["deviceId"] = deviceId
             }
-            
-            let fcmToken = Messaging.messaging().fcmToken ?? UserDefaults.standard.string(forKey: "fcm_token")
-            if let fcmTokenStr = fcmToken, !fcmTokenStr.isEmpty {
+            if !fcmTokenStr.isEmpty {
                 payloadDict["fcmToken"] = fcmTokenStr
             }
             
