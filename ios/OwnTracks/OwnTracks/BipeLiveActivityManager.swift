@@ -14,7 +14,6 @@ import UserNotifications
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
-import FirebaseMessaging
 
 // MARK: - BipeAudioHelper (Gerenciamento e Reprodução de Áudio de Notificação)
 
@@ -722,10 +721,8 @@ import FirebaseMessaging
             if let deviceId = deviceId, !deviceId.isEmpty {
                 payloadDict["deviceId"] = deviceId
             }
-            
-            let fcmToken = Messaging.messaging().fcmToken ?? UserDefaults.standard.string(forKey: "fcm_token")
-            if let tokenFcm = fcmToken, !tokenFcm.isEmpty {
-                payloadDict["tokenFcm"] = tokenFcm
+            if let fcmToken = UserDefaults.standard.string(forKey: "fcm_token"), !fcmToken.isEmpty {
+                payloadDict["fcmToken"] = fcmToken
             }
             
             let authHeader = bearerToken.hasPrefix("Bearer ") ? bearerToken : "Bearer \(bearerToken)"
