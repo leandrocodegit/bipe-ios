@@ -100,7 +100,7 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "15 dispositivos, 100 waypoints, 100 rotinas, retenção 60 dias.",
+              "description" : "15 dispositivos, 10 waypoints, 100 rotinas, retenção 60 dias.",
               "displayName" : "Quantity",
               "locale" : "pt_BR"
             }
