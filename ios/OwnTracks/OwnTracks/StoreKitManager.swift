@@ -52,9 +52,18 @@ import StoreKit
         do {
             let storeProducts = try await Product.products(for: StoreKitManager.defaultSubscriptionIds)
             self.availableProducts = storeProducts
-            print("[StoreKitManager] Carregados \(storeProducts.count) produtos da App Store.")
+            if storeProducts.isEmpty {
+                print("[StoreKitManager] ⚠️ ATENÇÃO: App Store retornou 0 produtos. Verifique:")
+                print("[StoreKitManager]   1. Os produtos estão em 'Prepare for Submission' (não disponíveis ainda)")
+                print("[StoreKitManager]   2. O Bundle ID do app corresponde ao app no App Store Connect")
+                print("[StoreKitManager]   3. Uma build foi submetida e associada aos produtos")
+                print("[StoreKitManager]   IDs buscados: \(StoreKitManager.defaultSubscriptionIds)")
+            } else {
+                print("[StoreKitManager] ✅ Carregados \(storeProducts.count) produtos da App Store:")
+                storeProducts.forEach { print("[StoreKitManager]   - id: \($0.id) | displayName: \($0.displayName)") }
+            }
         } catch {
-            print("[StoreKitManager] Erro ao carregar produtos da App Store: \(error.localizedDescription)")
+            print("[StoreKitManager] ❌ Erro ao carregar produtos da App Store: \(error.localizedDescription)")
         }
     }
 
@@ -105,21 +114,25 @@ import StoreKit
     @objc func purchasePlan(_ planId: String, completion: @escaping (Bool, String?) -> Void) {
         Task { @MainActor in
             let targetId = planId.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-            
+            print("[StoreKitManager] 🔍 Buscando produto: '\(targetId)' | Disponíveis: \(availableProducts.map { $0.id })")
+
             var product = availableProducts.first { $0.id.lowercased() == targetId }
             if product == nil {
                 product = availableProducts.first { $0.id.lowercased().contains(targetId) }
             }
             if product == nil {
+                print("[StoreKitManager] 🔄 Produto não encontrado em cache, recarregando da App Store...")
                 await loadProducts()
+                print("[StoreKitManager] 🔍 Após reload, disponíveis: \(availableProducts.map { $0.id })")
                 product = availableProducts.first { $0.id.lowercased() == targetId }
                     ?? availableProducts.first { $0.id.lowercased().contains(targetId) }
                     ?? availableProducts.first
             }
 
             guard let productToPurchase = product else {
-                let msg = "Plano '\(planId)' não encontrado na App Store. Verifique a configuração no App Store Connect."
-                print("[StoreKitManager] \(msg)")
+                let available = availableProducts.isEmpty ? "nenhum (App Store retornou 0 produtos - verifique status no App Store Connect)" : availableProducts.map { $0.id }.joined(separator: ", ")
+                let msg = "Plano '\(planId)' não encontrado. Produtos disponíveis: \(available)"
+                print("[StoreKitManager] ❌ \(msg)")
                 completion(false, msg)
                 return
             }
