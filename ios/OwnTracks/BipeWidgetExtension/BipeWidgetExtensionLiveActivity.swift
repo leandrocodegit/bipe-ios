@@ -234,10 +234,12 @@ struct TransitionWidgetView: View {
                             .shadow(color: themeColor, radius: 3)
                     }
                     
-                    Text(String(localized: "Monitorando em tempo real"))
+                    let nick = state.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+                    Text(nick.isEmpty || nick == "Bipe.me" ? String(localized: "Monitorando em tempo real") : nick)
                         .font(.system(size: 10, weight: .heavy, design: .rounded))
                         .foregroundColor(.secondary)
                         .tracking(0.5)
+                        .lineLimit(1)
                 }
                 
                 Spacer()
