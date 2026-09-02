@@ -17,6 +17,8 @@ import StoreKit
 
     @objc static let defaultSubscriptionIds: [String] = [
         "2_start",
+        "2_quantity",
+        "2_super",
         "plano_start",
         "plano_quantity",
         "plano_super",
