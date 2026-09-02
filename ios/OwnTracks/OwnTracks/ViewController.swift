@@ -1709,7 +1709,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 if #available(iOS 15.0, *) {
-                    StoreKitManager.shared.restorePurchases { success, errorMessage in
+                    StoreKitManager.shared.restorePurchases { (success: Bool, errorMessage: String?) in
                         DispatchQueue.main.async {
                             let title = success ? "Compras Restauradas" : "Erro ao Restaurar"
                             let message = success ? "Suas compras e assinaturas ativas foram sincronizadas." : (errorMessage ?? "Não foi possível restaurar compras.")
