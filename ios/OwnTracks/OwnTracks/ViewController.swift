@@ -1193,7 +1193,7 @@ import ActivityKit
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1679,6 +1679,21 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         case "disableBiometrics":
             BiometricAuthManager.shared.isBiometricsEnabled = false
+        case "refreshSessionToken":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                AuthManager.shared.loginWithRefreshToken { success, error in
+                    DispatchQueue.main.async {
+                        if success, let token = AuthManager.shared.getAccessToken() {
+                            let script = "window.dispatchEvent(new CustomEvent('onTokenRefreshed', { detail: { accessToken: '\(token)' } }));"
+                            self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                        } else {
+                            let script = "window.dispatchEvent(new CustomEvent('onTokenRefreshed', { detail: { error: 'Failed to refresh token' } }));"
+                            self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                        }
+                    }
+                }
+            }
         case "openQRScanner", "scanQRCode":
             openNativeQRScanner()
         case "subscribePlan":
