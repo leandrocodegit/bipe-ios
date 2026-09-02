@@ -19,6 +19,7 @@
 		6ABFBB2C3016436400E5BFF1 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		6ABFE1603016BE78000DCACE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6ABFE15F3016BE78000DCACE /* FirebaseMessaging */; };
 		77B1BE0012F8000010000001 /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B1BE0012F8000010000002 /* BiometricAuthManager.swift */; };
+		77B1BE0012F8000010000003 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B1BE0012F8000010000004 /* StoreKitManager.swift */; };
 		84001C141C78982800413E5B /* Queue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 84001C111C78982800413E5B /* Queue+CoreDataProperties.m */; };
 		8400D9731D83825E00DEA134 /* HTTP.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8400D9721D83825E00DEA134 /* HTTP.plist */; };
 		8405CB602F14EBEF008C2580 /* CreateCardTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405CB5F2F14EBEF008C2580 /* CreateCardTVC.swift */; };
@@ -194,6 +195,7 @@
 		6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
 		6AB1BE0012F80000100000C2 /* QRCodeScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScannerViewController.swift; sourceTree = "<group>"; };
 		77B1BE0012F8000010000002 /* BiometricAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthManager.swift; sourceTree = "<group>"; };
+		77B1BE0012F8000010000004 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		84001C0D1C78729200413E5B /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		84001C0F1C78976100413E5B /* Model 9.0.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 9.0.2.xcdatamodel"; sourceTree = "<group>"; };
 		84001C101C78982800413E5B /* Queue+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Queue+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -609,6 +611,7 @@
 				84B1BE0012F800001000006 /* LoginViewController.swift */,
 				84B1BE0012F80000100009A /* BipeConfirmationViewController.swift */,
 				77B1BE0012F8000010000002 /* BiometricAuthManager.swift */,
+		77B1BE0012F8000010000004 /* StoreKitManager.swift */,
 				6AB1BE0012F80000100000A2 /* PermissionsViewController.swift */,
 				84B1BE0012F8000010000102 /* BipeAlertActivityAttributes.swift */,
 				84B1BE0012F8000010000104 /* BipeLiveActivityWidget.swift */,
@@ -1122,6 +1125,7 @@
 				84B1BE0012F800001000005 /* LoginViewController.swift in Sources */,
 				84B1BE0012F800001000099 /* BipeConfirmationViewController.swift in Sources */,
 				77B1BE0012F8000010000001 /* BiometricAuthManager.swift in Sources */,
+		77B1BE0012F8000010000003 /* StoreKitManager.swift in Sources */,
 				6AB1BE0012F80000100000A1 /* PermissionsViewController.swift in Sources */,
 				84B1BE0012F8000010000101 /* BipeAlertActivityAttributes.swift in Sources */,
 				84B1BE0012F8000010000103 /* BipeLiveActivityWidget.swift in Sources */,

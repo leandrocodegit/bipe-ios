@@ -1136,6 +1136,8 @@ import ActivityKit
 
         let scriptSource = """
         window.Android = {
+            isAndroidApp: function() { return true; },
+            isIosApp: function() { return true; },
             getDeviceId: function() { return "\(deviceId)"; },
             getFcmToken: function() { return window.prompt("get_fcm_token", ""); },
             getLanguage: function() { return "\(langCode)"; },
@@ -1174,13 +1176,24 @@ import ActivityKit
             openQRScanner: function() { if (window.webkit && window.webkit.messageHandlers.openQRScanner) window.webkit.messageHandlers.openQRScanner.postMessage({}); else window.prompt("open_qr_scanner", ""); },
             scanQRCode: function() { if (window.webkit && window.webkit.messageHandlers.scanQRCode) window.webkit.messageHandlers.scanQRCode.postMessage({}); else window.prompt("open_qr_scanner", ""); }
         };
+        window.iOS = {
+            isIosApp: function() { return true; },
+            subscribePlan: function(planId) { if (window.webkit && window.webkit.messageHandlers.subscribePlan) window.webkit.messageHandlers.subscribePlan.postMessage(planId || "2_start"); },
+            subscribeMonthlyPlan: function() { if (window.webkit && window.webkit.messageHandlers.subscribePlan) window.webkit.messageHandlers.subscribePlan.postMessage("2_start"); },
+            restorePurchases: function() { if (window.webkit && window.webkit.messageHandlers.restorePurchases) window.webkit.messageHandlers.restorePurchases.postMessage({}); },
+            getSubscriptionStatus: function() { return window.prompt("get_subscription_status", ""); }
+        };
+        window.Android.subscribePlan = window.iOS.subscribePlan;
+        window.Android.subscribeMonthlyPlan = window.iOS.subscribeMonthlyPlan;
+        window.Android.restorePurchases = window.iOS.restorePurchases;
+        window.Android.getSubscriptionStatus = window.iOS.getSubscriptionStatus;
         """
 
         let userScript = WKUserScript(source: scriptSource, injectionTime: .atDocumentStart, forMainFrameOnly: false)
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1561,6 +1574,13 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             openNativeQRScanner()
             completionHandler("{\"status\": \"opened\"}")
             return
+        } else if prompt == "get_subscription_status" {
+            if #available(iOS 15.0, *) {
+                completionHandler(StoreKitManager.shared.getSubscriptionStatusJSON())
+            } else {
+                completionHandler("{\"isSubscribed\":false,\"isConnected\":false}")
+            }
+            return
         }
 
         completionHandler(nil)
@@ -1661,6 +1681,51 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             BiometricAuthManager.shared.isBiometricsEnabled = false
         case "openQRScanner", "scanQRCode":
             openNativeQRScanner()
+        case "subscribePlan":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let planId = (message.body as? String) ?? "2_start"
+                if #available(iOS 15.0, *) {
+                    StoreKitManager.shared.purchasePlan(planId) { success, errorMessage in
+                        DispatchQueue.main.async {
+                            if success {
+                                let alert = UIAlertController(title: "Assinatura Concluída", message: "Sua assinatura do plano foi processada com sucesso!", preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                                self.present(alert, animated: true)
+                            } else if let error = errorMessage {
+                                let alert = UIAlertController(title: "Erro na Assinatura", message: error, preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                                self.present(alert, animated: true)
+                            }
+                        }
+                    }
+                } else {
+                    let alert = UIAlertController(title: "Não Suportado", message: "Compras in-app requerem o iOS 15.0 ou superior.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(alert, animated: true)
+                }
+            }
+        case "restorePurchases":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                if #available(iOS 15.0, *) {
+                    StoreKitManager.shared.restorePurchases { success, errorMessage in
+                        DispatchQueue.main.async {
+                            let title = success ? "Compras Restauradas" : "Erro ao Restaurar"
+                            let message = success ? "Suas compras e assinaturas ativas foram sincronizadas." : (errorMessage ?? "Não foi possível restaurar compras.")
+                            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "OK", style: .default))
+                            self.present(alert, animated: true)
+                        }
+                    }
+                }
+            }
+        case "getSubscriptionStatus":
+            if #available(iOS 15.0, *) {
+                let statusJSON = StoreKitManager.shared.getSubscriptionStatusJSON()
+                let script = "if (window.onSubscriptionStatusReceived) { window.onSubscriptionStatusReceived(\(statusJSON)); }"
+                webView?.evaluateJavaScript(script, completionHandler: nil)
+            }
         case "startVoiceCall":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
