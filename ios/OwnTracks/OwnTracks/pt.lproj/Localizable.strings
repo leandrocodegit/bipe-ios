@@ -80,7 +80,7 @@
 "Friend" = "Friend";
 
 /* CNAuthorizationStatusDenied */
-"has been denied by user. If you allow OwnTracks to access your contacts, you can link your devices to contacts. OwnTracks will then display the contact name and image instead of the device Id. No information of your address book will be uploaded to any server. Go to Settings/Privacy/Contacts to change" = "has been denied by user. If you allow OwnTracks to access your contacts, you can link your devices to contacts. OwnTracks will then display the contact name and image instead of the device Id. No information of your address book will be uploaded to any server. Go to Settings/Privacy/Contacts to change";
+"has been denied by user. If you allow OwnTracks to access your contacts, you can link your devices to contacts. OwnTracks will then display the contact name and image instead of the device Id. No information of your address book will be uploaded to any server. Go to Settings/Privacy/Contacts to change" = "has been denied by user. If you allow Bipe.me to access your contacts, you can link your devices to contacts. Bipe.me will then display the contact name and image instead of the device Id. No information of your address book will be uploaded to any server. Go to Settings/Privacy/Contacts to change";
 
 /* CNAuthorizationStatusRestricted */
 "has been restricted, possibly due to restrictions such as parental controls." = "has been restricted, possibly due to restrictions such as parental controls.";
@@ -134,7 +134,7 @@
 "Setup" = "Setup";
 
 /* Text explaining the Setup */
-"You need to setup your own OwnTracks server and edit your configuration for full privacy protection. Detailed info on https://owntracks.org/booklet" = "You need to setup your own OwnTracks server and edit your configuration for full privacy protection. Detailed info on https://owntracks.org/booklet";
+"You need to setup your own OwnTracks server and edit your configuration for full privacy protection. Detailed info on https://owntracks.org/booklet" = "You need to setup your own Bipe.me server and edit your configuration for full privacy protection. Detailed info on https://owntracks.org/booklet";
 
 /* Manual */
 "Manual" = "Manual";
@@ -242,13 +242,13 @@
 "You disabled background fetch" = "You disabled background fetch";
 
 /* MQTT Description Text */
-"Setup your own OwnTracks server for full privacy protection. More Info on https://owntracks.org/booklet" = "Setup your own OwnTracks server for full privacy protection. More Info on https://owntracks.org/booklet";
+"Setup your own OwnTracks server for full privacy protection. More Info on https://owntracks.org/booklet" = "Setup your own Bipe.me server for full privacy protection. More Info on https://owntracks.org/booklet";
 
 /* HTTP Description Text */
 "Similar to MQTT mode, except data transmission uses HTTP, not MQTT." = "Similar to MQTT mode, except data transmission uses HTTP, not MQTT.";
 /* Please Note Text */
 
-"When switching between modes, all OwnTracks data will be deleted for privacy reasons." = "When switching between modes, all OwnTracks data will be deleted for privacy reasons.";
+"When switching between modes, all OwnTracks data will be deleted for privacy reasons." = "When switching between modes, all Bipe.me data will be deleted for privacy reasons.";
 
 /* Title map interaction */
 "Map Interaction" = "Map Interaction";
