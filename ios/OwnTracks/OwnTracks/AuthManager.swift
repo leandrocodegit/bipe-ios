@@ -226,6 +226,65 @@ import SafariServices
         }
     }
 
+    /// Faz a requisição HTTP bruta (raw) direto para o endpoint de token do Keycloak
+    /// contornando o AppAuth para evitar conflitos de estado de refresh token rotation.
+    @objc func refreshAccessTokenRaw(completion: @escaping (String?, Error?) -> Void) {
+        let tokenToUse = getRefreshToken() ?? BiometricAuthManager.shared.getStoredRefreshToken()
+        guard let refreshToken = tokenToUse, !refreshToken.isEmpty else {
+            completion(nil, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Nenhum refresh token disponível"]))
+            return
+        }
+
+        guard let url = URL(string: "\(AuthManager.issuerURI)/protocol/openid-connect/token") else {
+            completion(nil, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "URL inválida"]))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+
+        let bodyParams = [
+            "client_id": AuthManager.clientID,
+            "grant_type": "refresh_token",
+            "refresh_token": refreshToken
+        ]
+        
+        let bodyString = bodyParams.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0.value)" }.joined(separator: "&")
+        request.httpBody = bodyString.data(using: .utf8)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+
+            guard let data = data else {
+                completion(nil, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Sem dados na resposta"]))
+                return
+            }
+
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                    if let newAccessToken = json["access_token"] as? String {
+                        if let newRefreshToken = json["refresh_token"] as? String {
+                            BiometricAuthManager.shared.saveRefreshToken(newRefreshToken)
+                        }
+                        completion(newAccessToken, nil)
+                    } else if let errorDesc = json["error_description"] as? String {
+                        completion(nil, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: errorDesc]))
+                    } else {
+                        completion(nil, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Resposta inválida do Keycloak"]))
+                    }
+                } else {
+                    completion(nil, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Falha no parse do JSON"]))
+                }
+            } catch {
+                completion(nil, error)
+            }
+        }.resume()
+    }
+
     /// Remove todos os tokens e estado salvo
     @objc func logout() {
         authState = nil
