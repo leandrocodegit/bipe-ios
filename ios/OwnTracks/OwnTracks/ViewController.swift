@@ -1682,14 +1682,26 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         case "refreshSessionToken":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
-                AuthManager.shared.loginWithRefreshToken { success, error in
+                // Tenta usar o fluxo oficial do AppAuth que gerencia o estado e a rotação de tokens automaticamente
+                AuthManager.shared.getBearerToken { bearer in
                     DispatchQueue.main.async {
-                        if success, let token = AuthManager.shared.getAccessToken() {
+                        if let bearer = bearer, bearer.hasPrefix("Bearer ") {
+                            let token = String(bearer.dropFirst(7))
                             let script = "window.dispatchEvent(new CustomEvent('onTokenRefreshed', { detail: { accessToken: '\(token)' } }));"
                             self.webView?.evaluateJavaScript(script, completionHandler: nil)
                         } else {
-                            let script = "window.dispatchEvent(new CustomEvent('onTokenRefreshed', { detail: { error: 'Failed to refresh token' } }));"
-                            self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                            // Se o AppAuth não conseguiu (ex: estado perdido), tentamos forçar o hard refresh
+                            AuthManager.shared.loginWithRefreshToken { success, _ in
+                                DispatchQueue.main.async {
+                                    if success, let token = AuthManager.shared.getAccessToken() {
+                                        let script = "window.dispatchEvent(new CustomEvent('onTokenRefreshed', { detail: { accessToken: '\(token)' } }));"
+                                        self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                                    } else {
+                                        let script = "window.dispatchEvent(new CustomEvent('onTokenRefreshed', { detail: { error: 'Failed to refresh token' } }));"
+                                        self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
