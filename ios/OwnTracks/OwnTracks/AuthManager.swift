@@ -76,7 +76,7 @@ import SafariServices
             )
 
             DispatchQueue.main.async {
-                guard let externalUserAgent = OIDExternalUserAgentIOS(presenting: viewController, prefersEphemeralSession: false) ?? OIDExternalUserAgentIOS(presenting: viewController) else {
+                guard let externalUserAgent = OIDExternalUserAgentIOS(presenting: viewController, prefersEphemeralSession: true) ?? OIDExternalUserAgentIOS(presenting: viewController) else {
                     completion(false, NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Falha ao inicializar OIDExternalUserAgentIOS"]))
                     return
                 }
