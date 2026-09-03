@@ -368,8 +368,8 @@
 "full" = "full";
 
 /* "Please keep OwnTracks running to ensure the desired functionality" */
-"Please keep Bipe.me running to ensure the desired functionality" = "Por favor, mantenha o Bipe.me em execuÃ§Ã£o para garantir o funcionamento desejado.";
-"Please keep OwnTracks running to ensure the desired functionality" = "Por favor, mantenha o Bipe.me em execuÃ§Ã£o para garantir o funcionamento desejado.";
+"Please keep Bipe.me running to ensure the desired functionality" = "Por favor, mantenha o Bipe.me em execucao para garantir o funcionamento desejado.";
+"Please keep OwnTracks running to ensure the desired functionality" = "Por favor, mantenha o Bipe.me em execucao para garantir o funcionamento desejado.";
 
 /* Permissions Screen */
 "PermissÃµes" = "PermissÃµes";
@@ -440,19 +440,19 @@
 "SE MOVEU" = "SE MOVEU";
 "MOVIMENTOU EM ÃREA DE RISCO" = "MOVIMENTOU EM ÃREA DE RISCO";
 "MOVEU" = "MOVEU";
-"Dentro de uma região protegida" = "Dentro de uma região protegida";
-"Dentro de área de risco" = "Dentro de área de risco";
-"Aguardando publicação" = "Aguardando publicação";
+"Dentro de uma regiï¿½o protegida" = "Dentro de uma regiï¿½o protegida";
+"Dentro de ï¿½rea de risco" = "Dentro de ï¿½rea de risco";
+"Aguardando publicaï¿½ï¿½o" = "Aguardando publicaï¿½ï¿½o";
 "Monitorando em tempo real" = "Monitorando em tempo real";
 "ZONA DE MONITORAMENTO" = "ZONA DE MONITORAMENTO";
-"Último evento:" = "Último evento:";
+"ï¿½ltimo evento:" = "ï¿½ltimo evento:";
 "CONFIRMAR BIPE" = "CONFIRMAR BIPE";
 "CONFIRMAR RECEBIMENTO" = "CONFIRMAR RECEBIMENTO";
 "ROTINA" = "ROTINA";
 "ATIVO" = "ATIVO";
-"Alerta de Distância" = "Alerta de Distância";
+"Alerta de Distï¿½ncia" = "Alerta de Distï¿½ncia";
 "Zona Monitorada" = "Zona Monitorada";
-"Rotina não atendida" = "Rotina não atendida";
-"Distância:" = "Distância:";
-"Região Monitorada" = "Região Monitorada";
-"Casa da Vovó" = "Casa da Vovó";
+"Rotina nï¿½o atendida" = "Rotina nï¿½o atendida";
+"Distï¿½ncia:" = "Distï¿½ncia:";
+"Regiï¿½o Monitorada" = "Regiï¿½o Monitorada";
+"Casa da Vovï¿½" = "Casa da Vovï¿½";
