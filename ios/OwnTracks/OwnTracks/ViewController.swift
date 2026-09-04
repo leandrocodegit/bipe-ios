@@ -1660,20 +1660,19 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     
                     // 3. Limpa completamente o banco do OwnTracks (CoreData: Waypoints, Friends, Settings, Locations)
                     let context = CoreData.sharedInstance().mainMOC
-                    if let psc = CoreData.sharedInstance().psc {
-                        for entity in psc.managedObjectModel.entities {
-                            if let entityName = entity.name {
-                                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-                                let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-                                deleteRequest.resultType = .resultTypeObjectIDs
-                                do {
-                                    let result = try psc.execute(deleteRequest, with: context) as? NSBatchDeleteResult
-                                    if let objectIDs = result?.result as? [NSManagedObjectID] {
-                                        NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
-                                    }
-                                } catch {
-                                    print("Erro ao limpar CoreData entidade \(entityName): \(error)")
+                    let psc = CoreData.sharedInstance().psc
+                    for entity in psc.managedObjectModel.entities {
+                        if let entityName = entity.name {
+                            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+                            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+                            deleteRequest.resultType = .resultTypeObjectIDs
+                            do {
+                                let result = try psc.execute(deleteRequest, with: context) as? NSBatchDeleteResult
+                                if let objectIDs = result?.result as? [NSManagedObjectID] {
+                                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
                                 }
+                            } catch {
+                                print("Erro ao limpar CoreData entidade \(entityName): \(error)")
                             }
                         }
                     }
