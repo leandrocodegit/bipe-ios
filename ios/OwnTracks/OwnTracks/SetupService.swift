@@ -71,25 +71,25 @@ enum SetupError: LocalizedError {
     @objc static let setupCompletedKey = "setupCompleted"
 
     @objc var isSetupCompleted: Bool {
-        if UserDefaults.standard.bool(forKey: SetupService.setupCompletedKey) {
-            return true
-        }
-
         let moc = CoreData.sharedInstance().mainMOC
-        var hasDeviceId = false
+        var hasValidDeviceId = false
+        
         moc.performAndWait {
             if let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc),
-               !deviceId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                hasDeviceId = true
+               !deviceId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+               deviceId != "device" {
+                hasValidDeviceId = true
             }
         }
 
-        if hasDeviceId {
+        if hasValidDeviceId {
             markSetupCompleted()
             return true
+        } else {
+            // Se perdeu o deviceId por algum motivo, garante que a flag volte para false
+            UserDefaults.standard.removeObject(forKey: SetupService.setupCompletedKey)
+            return false
         }
-
-        return false
     }
 
     @objc func markSetupCompleted() {
