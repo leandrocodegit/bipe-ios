@@ -1640,19 +1640,43 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 self.isAuthenticating = false
                 self.removeBiometricOverlay()
                 
-                // Limpa completamente os dados da WKWebView
+                // 1. Limpa dados web
                 let dataStore = WKWebsiteDataStore.default()
                 let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
                 dataStore.removeData(ofTypes: dataTypes, modifiedSince: Date(timeIntervalSince1970: 0)) {}
                 
-                // Limpa completamente todos os ajustes locais (UserDefaults)
+                // 2. Limpa completamente todos os ajustes (UserDefaults - o que inclui qualquer flag extra)
                 if let bundleID = Bundle.main.bundleIdentifier {
                     UserDefaults.standard.removePersistentDomain(forName: bundleID)
                 }
                 UserDefaults.standard.synchronize()
                 
-                AuthManager.shared.logout()
+                // 3. Limpa completamente o banco do OwnTracks (CoreData: Waypoints, Friends, Settings, Locations)
+                let context = CoreData.sharedInstance().mainMOC
+                if let psc = CoreData.sharedInstance().psc {
+                    for entity in psc.managedObjectModel.entities {
+                        if let entityName = entity.name {
+                            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+                            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+                            deleteRequest.resultType = .resultTypeObjectIDs
+                            do {
+                                let result = try psc.execute(deleteRequest, with: context) as? NSBatchDeleteResult
+                                if let objectIDs = result?.result as? [NSManagedObjectID] {
+                                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
+                                }
+                            } catch {
+                                print("Erro ao limpar CoreData entidade \(entityName): \(error)")
+                            }
+                        }
+                    }
+                }
+                context.reset()
                 
+                // 4. Limpa credenciais nativas
+                AuthManager.shared.logout()
+                SetupService.shared.resetSetup()
+                
+                // 5. Redireciona
                 if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
                     delegate.presentLoginViewController()
                 }
