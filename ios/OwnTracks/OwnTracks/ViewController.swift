@@ -1193,7 +1193,7 @@ import ActivityKit
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "deleteAccount", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1633,6 +1633,31 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     delegate.presentLoginViewController()
                 }
             }
+        case "deleteAccount":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.isBiometricUnlocked = false
+                self.isAuthenticating = false
+                self.removeBiometricOverlay()
+                
+                // Limpa completamente os dados da WKWebView
+                let dataStore = WKWebsiteDataStore.default()
+                let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
+                dataStore.removeData(ofTypes: dataTypes, modifiedSince: Date(timeIntervalSince1970: 0)) {}
+                
+                // Limpa completamente todos os ajustes locais (UserDefaults)
+                if let bundleID = Bundle.main.bundleIdentifier {
+                    UserDefaults.standard.removePersistentDomain(forName: bundleID)
+                }
+                UserDefaults.standard.synchronize()
+                
+                AuthManager.shared.logout()
+                
+                if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                    delegate.presentLoginViewController()
+                }
+            }
+
         case "openPermissions":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
