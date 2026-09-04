@@ -1636,50 +1636,75 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         case "deleteAccount":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
-                self.isBiometricUnlocked = false
-                self.isAuthenticating = false
-                self.removeBiometricOverlay()
                 
-                // 1. Limpa dados web
-                let dataStore = WKWebsiteDataStore.default()
-                let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
-                dataStore.removeData(ofTypes: dataTypes, modifiedSince: Date(timeIntervalSince1970: 0)) {}
+                let alert = UIAlertController(title: "Conta Excluída",
+                                              message: "Sua conta foi excluída com sucesso. É necessário limpar todos os dados do aplicativo para finalizar.",
+                                              preferredStyle: .alert)
                 
-                // 2. Limpa completamente todos os ajustes (UserDefaults - o que inclui qualquer flag extra)
-                if let bundleID = Bundle.main.bundleIdentifier {
-                    UserDefaults.standard.removePersistentDomain(forName: bundleID)
-                }
-                UserDefaults.standard.synchronize()
-                
-                // 3. Limpa completamente o banco do OwnTracks (CoreData: Waypoints, Friends, Settings, Locations)
-                let context = CoreData.sharedInstance().mainMOC
-                if let psc = CoreData.sharedInstance().psc {
-                    for entity in psc.managedObjectModel.entities {
-                        if let entityName = entity.name {
-                            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-                            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-                            deleteRequest.resultType = .resultTypeObjectIDs
-                            do {
-                                let result = try psc.execute(deleteRequest, with: context) as? NSBatchDeleteResult
-                                if let objectIDs = result?.result as? [NSManagedObjectID] {
-                                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
+                let limparAction = UIAlertAction(title: "Limpar Dados", style: .destructive) { [weak self] _ in
+                    guard let self = self else { return }
+                    self.isBiometricUnlocked = false
+                    self.isAuthenticating = false
+                    self.removeBiometricOverlay()
+                    
+                    // 1. Limpa dados web
+                    let dataStore = WKWebsiteDataStore.default()
+                    let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
+                    dataStore.removeData(ofTypes: dataTypes, modifiedSince: Date(timeIntervalSince1970: 0)) {}
+                    
+                    // 2. Limpa completamente todos os ajustes (UserDefaults - o que inclui qualquer flag extra)
+                    if let bundleID = Bundle.main.bundleIdentifier {
+                        UserDefaults.standard.removePersistentDomain(forName: bundleID)
+                    }
+                    UserDefaults.standard.synchronize()
+                    
+                    // 3. Limpa completamente o banco do OwnTracks (CoreData: Waypoints, Friends, Settings, Locations)
+                    let context = CoreData.sharedInstance().mainMOC
+                    if let psc = CoreData.sharedInstance().psc {
+                        for entity in psc.managedObjectModel.entities {
+                            if let entityName = entity.name {
+                                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+                                let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+                                deleteRequest.resultType = .resultTypeObjectIDs
+                                do {
+                                    let result = try psc.execute(deleteRequest, with: context) as? NSBatchDeleteResult
+                                    if let objectIDs = result?.result as? [NSManagedObjectID] {
+                                        NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
+                                    }
+                                } catch {
+                                    print("Erro ao limpar CoreData entidade \(entityName): \(error)")
                                 }
-                            } catch {
-                                print("Erro ao limpar CoreData entidade \(entityName): \(error)")
                             }
                         }
                     }
+                    context.reset()
+                    
+                    // 4. Limpa arquivos sqlite locais na força bruta (apenas para garantir)
+                    let fileManager = FileManager.default
+                    if let docsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
+                        let storeURL = docsURL.appendingPathComponent("OwnTracks")
+                        do {
+                            let fileURLs = try fileManager.contentsOfDirectory(at: storeURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+                            for fileURL in fileURLs where fileURL.pathExtension.hasPrefix("sqlite") {
+                                try? fileManager.removeItem(at: fileURL)
+                            }
+                        } catch {
+                            // Ignora erros
+                        }
+                    }
+                    
+                    // 5. Limpa credenciais nativas
+                    AuthManager.shared.logout()
+                    SetupService.shared.resetSetup()
+                    
+                    // 6. Redireciona
+                    if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                        delegate.presentLoginViewController()
+                    }
                 }
-                context.reset()
                 
-                // 4. Limpa credenciais nativas
-                AuthManager.shared.logout()
-                SetupService.shared.resetSetup()
-                
-                // 5. Redireciona
-                if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
-                    delegate.presentLoginViewController()
-                }
+                alert.addAction(limparAction)
+                self.present(alert, animated: true)
             }
 
         case "openPermissions":
