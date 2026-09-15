@@ -16,11 +16,11 @@ import SafariServices
 @objc class AuthManager: NSObject {
 
     // MARK: - Constantes
-    private static let issuerURI   = "https://auth.simodapp.com:8443/realms/bipe.simodapp.com"
+    private static let issuerURI   = "https://auth.simodapp.com/realms/bipe.simodapp.com"
     private static let clientID    = "bipe.simodapp.com"
     private static let redirectURI = "bipe.me://auth"
     private static let scope       = "openid profile email"
-    private static let accountURL  = "https://auth.simodapp.com:8443/realms/bipe.simodapp.com/account/#/security/signing-in"
+    private static let accountURL  = "https://auth.simodapp.com/realms/bipe.simodapp.com/account/#/security/signing-in"
 
     // MARK: - Persistência
     private static let authStateKey = "OIDAuthState"
