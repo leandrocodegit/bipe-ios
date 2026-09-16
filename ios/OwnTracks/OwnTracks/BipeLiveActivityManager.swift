@@ -245,7 +245,9 @@ import FirebaseMessaging
                     let moc = CoreData.sharedInstance().mainMOC
                     var nickname: String = "Bipe.me"
                     moc.performAndWait {
-                        if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
+                        if let name = Settings.string(forKey: "device_name_preference", inMOC: moc), !name.isEmpty {
+                            nickname = name
+                        } else if let name = Settings.string(forKey: "nickname_preference", inMOC: moc), !name.isEmpty {
                             nickname = name
                         }
                     }
@@ -299,7 +301,9 @@ import FirebaseMessaging
                 let moc = CoreData.sharedInstance().mainMOC
                 var nickname: String = "Bipe.me"
                 moc.performAndWait {
-                    if let name = Settings.string(forKey: "user_preference", inMOC: moc), !name.isEmpty {
+                    if let name = Settings.string(forKey: "device_name_preference", inMOC: moc), !name.isEmpty {
+                        nickname = name
+                    } else if let name = Settings.string(forKey: "nickname_preference", inMOC: moc), !name.isEmpty {
                         nickname = name
                     }
                 }
@@ -497,7 +501,8 @@ import FirebaseMessaging
         if #available(iOS 16.1, *) {
             let moc = CoreData.sharedInstance().mainMOC
             let nickname = extractValue(keys: ["nickname", "name", "userName"], userInfo: userInfo, dataDict: dataDict)
-                ?? Settings.string(forKey: "user_preference", inMOC: moc)
+                ?? Settings.string(forKey: "device_name_preference", inMOC: moc)
+                ?? Settings.string(forKey: "nickname_preference", inMOC: moc)
                 ?? "Bipe.me"
             
             let address = extractValue(keys: ["address", "endereco", "locationName", "desc", "text", "location"], userInfo: userInfo, dataDict: dataDict)
