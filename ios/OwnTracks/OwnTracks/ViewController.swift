@@ -1779,10 +1779,16 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     StoreKitManager.shared.purchasePlan(planId) { success, errorMessage in
                         DispatchQueue.main.async {
                             if success {
+                                let script = "window.dispatchEvent(new CustomEvent('onSubscriptionCompleted', { detail: { success: true } }));"
+                                self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                                
                                 let alert = UIAlertController(title: "Assinatura Concluída", message: "Sua assinatura do plano foi processada com sucesso!", preferredStyle: .alert)
                                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                                 self.present(alert, animated: true)
                             } else if let error = errorMessage {
+                                let script = "window.dispatchEvent(new CustomEvent('onSubscriptionCompleted', { detail: { success: false, error: '\(error)' } }));"
+                                self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                                
                                 let alert = UIAlertController(title: "Erro na Assinatura", message: error, preferredStyle: .alert)
                                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                                 self.present(alert, animated: true)
