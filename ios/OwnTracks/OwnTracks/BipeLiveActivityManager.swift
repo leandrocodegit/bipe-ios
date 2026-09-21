@@ -908,6 +908,25 @@ import FirebaseMessaging
             if let face = face, !face.isEmpty { json["face"] = face }
             if let color = color, !color.isEmpty { json["color"] = color }
             
+            if autoResetLiveActivity, #available(iOS 16.1, *) {
+                let nickToUse = nickname ?? "Bipe.me"
+                let iconToUse = (face != nil && !face!.isEmpty) ? face : "logo"
+                startLiveActivity(
+                    nickname: nickToUse,
+                    address: String(localized: "Bipe Confirmado"),
+                    iconLocalPath: nil,
+                    iconUrl: iconToUse,
+                    status: "CONFIRMADO",
+                    way: BipeLiveActivityManager.getCurrentRegionName(),
+                    devices: nil,
+                    event: "bipe",
+                    activityType: "bipe",
+                    icon: iconToUse,
+                    execucaoId: nil,
+                    insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
+                )
+            }
+            
             guard let payload = try? JSONSerialization.data(withJSONObject: json, options: []) else { return }
             
             if appDelegate.connection == nil {
@@ -930,29 +949,6 @@ import FirebaseMessaging
                 if currentState == 3 {
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
                     NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado com sucesso (topico: '%@', execucaoId: %@)", status, topic, execucaoId ?? "nil")
-                    if autoResetLiveActivity, #available(iOS 16.1, *) {
-                        let nickToUse = nickname ?? "Bipe.me"
-                        let moc = CoreData.sharedInstance().mainMOC
-                        var deviceIcon: String? = nil
-                        moc.performAndWait {
-                            deviceIcon = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc)
-                        }
-                        let iconToUse = (deviceIcon != nil && !deviceIcon!.isEmpty) ? deviceIcon : "logo"
-                        startLiveActivity(
-                            nickname: nickToUse,
-                            address: String(localized: "Bipe Confirmado"),
-                            iconLocalPath: nil,
-                            iconUrl: iconToUse,
-                            status: "CONFIRMADO",
-                            way: BipeLiveActivityManager.getCurrentRegionName(),
-                            devices: nil,
-                            event: "bipe",
-                            activityType: "bipe",
-                            icon: iconToUse,
-                            execucaoId: nil,
-                            insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
-                        )
-                    }
                 } else if attemptsRemaining > 0 {
                     appDelegate.connection?.connectToLast()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -961,22 +957,6 @@ import FirebaseMessaging
                 } else {
                     appDelegate.connection?.send(payload, topic: topic, topicAlias: nil, qos: qos, retain: false)
                     NSLog("[BipeLiveActivityManager] MQTT bipe status '%@' enviado no fallback final com execucaoId: %@", status, execucaoId ?? "nil")
-                    if autoResetLiveActivity, #available(iOS 16.1, *) {
-                        let nickToUse = nickname ?? "Bipe.me"
-                        startLiveActivity(
-                            nickname: nickToUse,
-                            address: String(localized: "Bipe Confirmado"),
-                            iconLocalPath: nil,
-                            iconUrl: "logo",
-                            status: "CONFIRMADO",
-                            way: BipeLiveActivityManager.getCurrentRegionName(),
-                            devices: nil,
-                            event: "bipe",
-                            activityType: "bipe",
-                            execucaoId: nil,
-                            insecure: BipeLiveActivityManager.getCurrentRegionInsecure()
-                        )
-                    }
                 }
             }
             
