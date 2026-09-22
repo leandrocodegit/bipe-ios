@@ -79,7 +79,8 @@
     NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption: @YES,
                               NSInferMappingModelAutomaticallyOption: @YES,
                               NSSQLiteAnalyzeOption: @YES,
-                              NSSQLiteManualVacuumOption: @YES
+                              NSSQLiteManualVacuumOption: @YES,
+                              NSPersistentStoreFileProtectionKey: NSFileProtectionNone
                               };
 
     if (![persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
