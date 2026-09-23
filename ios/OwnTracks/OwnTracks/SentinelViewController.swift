@@ -857,8 +857,10 @@ import ContactsUI
             emergencyBannerTextLabel.topAnchor.constraint(equalTo: emergencyBannerIconView.bottomAnchor, constant: 8),
             emergencyBannerTextLabel.leadingAnchor.constraint(equalTo: emergencyBannerView.leadingAnchor, constant: 14),
             emergencyBannerTextLabel.trailingAnchor.constraint(equalTo: emergencyBannerView.trailingAnchor, constant: -14),
-            emergencyBannerTextLabel.bottomAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: -14),
+            emergencyBannerTextLabel.bottomAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: -14)
+        ])
 
+        NSLayoutConstraint.activate([
             // Status Card
             statusCardView.topAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: 16),
             statusCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -927,8 +929,10 @@ import ContactsUI
             cancelGraceButton.leadingAnchor.constraint(equalTo: gracePeriodCardView.leadingAnchor, constant: 18),
             cancelGraceButton.trailingAnchor.constraint(equalTo: gracePeriodCardView.trailingAnchor, constant: -18),
             cancelGraceButton.heightAnchor.constraint(equalToConstant: 46),
-            cancelGraceButton.bottomAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: -18),
+            cancelGraceButton.bottomAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: -18)
+        ])
 
+        NSLayoutConstraint.activate([
             // AI Card (topAnchor é controlado dinamicamente por aiCardTopToGraceConstraint e aiCardTopToMeterConstraint)
             aiCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             aiCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -1020,8 +1024,10 @@ import ContactsUI
             addContactButton.leadingAnchor.constraint(equalTo: contactsCardView.leadingAnchor, constant: 16),
             addContactButton.trailingAnchor.constraint(equalTo: contactsCardView.trailingAnchor, constant: -16),
             addContactButton.heightAnchor.constraint(equalToConstant: 44),
-            addContactButton.bottomAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: -16),
+            addContactButton.bottomAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: -16)
+        ])
 
+        NSLayoutConstraint.activate([
             // Guidelines Card
             guidelinesCardView.topAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: 16),
             guidelinesCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
