@@ -957,9 +957,10 @@ import ContactsUI
 
             aiBadgesStackView.topAnchor.constraint(equalTo: aiSubtitleLabel.bottomAnchor, constant: 12),
             aiBadgesStackView.leadingAnchor.constraint(equalTo: aiCardView.leadingAnchor, constant: 16),
-            aiBadgesStackView.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
-            aiBadgesStackView.bottomAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: -16),
+            aiBadgesStackView.bottomAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: -16)
+        ])
 
+        NSLayoutConstraint.activate([
             // Custom Keywords Card
             keywordsCardView.topAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: 16),
             keywordsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -991,8 +992,10 @@ import ContactsUI
             addKeywordButton.leadingAnchor.constraint(equalTo: keywordsCardView.leadingAnchor, constant: 16),
             addKeywordButton.trailingAnchor.constraint(equalTo: keywordsCardView.trailingAnchor, constant: -16),
             addKeywordButton.heightAnchor.constraint(equalToConstant: 44),
-            addKeywordButton.bottomAnchor.constraint(equalTo: keywordsCardView.bottomAnchor, constant: -16),
+            addKeywordButton.bottomAnchor.constraint(equalTo: keywordsCardView.bottomAnchor, constant: -16)
+        ])
 
+        NSLayoutConstraint.activate([
             // Contacts Card
             contactsCardView.topAnchor.constraint(equalTo: keywordsCardView.bottomAnchor, constant: 16),
             contactsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -1062,8 +1065,10 @@ import ContactsUI
             batteryDescLabel.topAnchor.constraint(equalTo: batteryIconView.bottomAnchor, constant: 6),
             batteryDescLabel.leadingAnchor.constraint(equalTo: guidelinesCardView.leadingAnchor, constant: 16),
             batteryDescLabel.trailingAnchor.constraint(equalTo: guidelinesCardView.trailingAnchor, constant: -16),
-            batteryDescLabel.bottomAnchor.constraint(equalTo: guidelinesCardView.bottomAnchor, constant: -16),
+            batteryDescLabel.bottomAnchor.constraint(equalTo: guidelinesCardView.bottomAnchor, constant: -16)
+        ])
 
+        NSLayoutConstraint.activate([
             // Slider Card
             sliderCardView.topAnchor.constraint(equalTo: guidelinesCardView.bottomAnchor, constant: 16),
             sliderCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -1101,8 +1106,10 @@ import ContactsUI
             thresholdSlider.topAnchor.constraint(equalTo: sliderTitleLabel.bottomAnchor, constant: 14),
             thresholdSlider.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
             thresholdSlider.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
-            thresholdSlider.bottomAnchor.constraint(equalTo: sliderCardView.bottomAnchor, constant: -16),
+            thresholdSlider.bottomAnchor.constraint(equalTo: sliderCardView.bottomAnchor, constant: -16)
+        ])
 
+        NSLayoutConstraint.activate([
             // Privacy Card
             privacyCardView.topAnchor.constraint(equalTo: sliderCardView.bottomAnchor, constant: 16),
             privacyCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -1478,6 +1485,13 @@ import ContactsUI
             statusDotView.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
             shieldImageView.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
             toggleSwitch.isOn = true
+
+        case .attentionMode:
+            statusLabel.text = NSLocalizedString("Atenção (Modo Silencioso)", comment: "")
+            statusDotView.backgroundColor = .systemYellow
+            shieldImageView.tintColor = .systemYellow
+            toggleSwitch.isOn = true
+
 
         case .gracePeriod:
             let reason = SentinelAcousticMonitor.shared.lastTriggerReason
