@@ -312,6 +312,7 @@ import ContactsUI
         label.text = NSLocalizedString("Detecção Inteligente On-Device", comment: "")
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
@@ -969,14 +970,15 @@ import ContactsUI
             aiIconView.heightAnchor.constraint(equalToConstant: 22),
 
             aiTitleLabel.leadingAnchor.constraint(equalTo: aiIconView.trailingAnchor, constant: 10),
-            aiTitleLabel.centerYAnchor.constraint(equalTo: aiIconView.centerYAnchor),
+            aiTitleLabel.topAnchor.constraint(equalTo: aiCardView.topAnchor, constant: 16),
+            aiTitleLabel.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
 
-            aiBadgeLabel.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
-            aiBadgeLabel.centerYAnchor.constraint(equalTo: aiIconView.centerYAnchor),
+            aiBadgeLabel.topAnchor.constraint(equalTo: aiTitleLabel.bottomAnchor, constant: 6),
+            aiBadgeLabel.leadingAnchor.constraint(equalTo: aiTitleLabel.leadingAnchor),
             aiBadgeLabel.heightAnchor.constraint(equalToConstant: 22),
-            aiBadgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 110),
+            aiBadgeLabel.widthAnchor.constraint(equalToConstant: 116),
 
-            aiSubtitleLabel.topAnchor.constraint(equalTo: aiIconView.bottomAnchor, constant: 8),
+            aiSubtitleLabel.topAnchor.constraint(equalTo: aiBadgeLabel.bottomAnchor, constant: 10),
             aiSubtitleLabel.leadingAnchor.constraint(equalTo: aiCardView.leadingAnchor, constant: 16),
             aiSubtitleLabel.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
 
@@ -997,6 +999,7 @@ import ContactsUI
 
             keywordsTitleLabel.leadingAnchor.constraint(equalTo: keywordsIconView.trailingAnchor, constant: 10),
             keywordsTitleLabel.centerYAnchor.constraint(equalTo: keywordsIconView.centerYAnchor),
+            keywordsTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: keywordsBadgeLabel.leadingAnchor, constant: -8),
 
             keywordsBadgeLabel.trailingAnchor.constraint(equalTo: keywordsCardView.trailingAnchor, constant: -16),
             keywordsBadgeLabel.centerYAnchor.constraint(equalTo: keywordsIconView.centerYAnchor),
@@ -1029,6 +1032,7 @@ import ContactsUI
 
             contactsTitleLabel.leadingAnchor.constraint(equalTo: contactsIconView.trailingAnchor, constant: 10),
             contactsTitleLabel.centerYAnchor.constraint(equalTo: contactsIconView.centerYAnchor),
+            contactsTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: contactsBadgeLabel.leadingAnchor, constant: -8),
 
             contactsBadgeLabel.trailingAnchor.constraint(equalTo: contactsCardView.trailingAnchor, constant: -16),
             contactsBadgeLabel.centerYAnchor.constraint(equalTo: contactsIconView.centerYAnchor),
