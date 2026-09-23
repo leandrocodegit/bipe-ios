@@ -239,12 +239,33 @@ import ContactsUI
         return label
     }()
 
+    private let graceReasonContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 45/255, green: 10/255, blue: 15/255, alpha: 0.95)
+        view.layer.cornerRadius = 10
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 0.8).cgColor
+        return view
+    }()
+
+    private let graceReasonLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("🚨 DETECÇÃO ATIVADA", comment: "")
+        label.font = .systemFont(ofSize: 13, weight: .bold)
+        label.textColor = UIColor(red: 254/255, green: 202/255, blue: 202/255, alpha: 1.0)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
+
     private let graceDescriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = NSLocalizedString("RUÍDO FORTE DETECTADO!\nAlerta de emergência e localização serão enviados se não houver cancelamento.", comment: "")
-        label.font = .systemFont(ofSize: 13, weight: .bold)
-        label.textColor = .white
+        label.text = NSLocalizedString("Alerta de emergência e localização serão enviados aos contatos se não houver cancelamento.", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.textColor = UIColor(red: 229/255, green: 231/255, blue: 235/255, alpha: 1.0)
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
@@ -258,6 +279,145 @@ import ContactsUI
         btn.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
         btn.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
         btn.layer.cornerRadius = 12
+        return btn
+    }()
+
+    // MARK: - AI On-Device Intelligence Card
+    private let aiCardView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 22/255, green: 34/255, blue: 38/255, alpha: 1.0)
+        view.layer.cornerRadius = 16
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0).cgColor
+        return view
+    }()
+
+    private let aiIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "sparkles") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let aiTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Detecção Inteligente On-Device", comment: "")
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let aiBadgeLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("100% no Aparelho", comment: "")
+        label.font = .systemFont(ofSize: 11, weight: .bold)
+        label.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        label.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.15)
+        label.layer.cornerRadius = 6
+        label.layer.masksToBounds = true
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let aiSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Rede neural local que analisa o espectro sonoro e fonemas em tempo real sem transmitir conversas:", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let aiBadgesStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.distribution = .fill
+        return stack
+    }()
+
+    // MARK: - Custom Distress Keywords Card (Até 3 frases)
+    private let keywordsCardView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 22/255, green: 34/255, blue: 38/255, alpha: 1.0)
+        view.layer.cornerRadius = 16
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0).cgColor
+        return view
+    }()
+
+    private let keywordsIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "quote.bubble.fill") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let keywordsTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Frases de Alerta Personalizadas", comment: "")
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let keywordsBadgeLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "0/3"
+        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        label.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.15)
+        label.layer.cornerRadius = 6
+        label.layer.masksToBounds = true
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let keywordsSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Cadastre até 3 frases ou palavras-código personalizadas que ativarão o Sentinela se ouvidas pelo celular.", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let keywordsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.distribution = .fill
+        return stack
+    }()
+
+    private let addKeywordButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle(NSLocalizedString("+ Adicionar Frase Personalizada", comment: ""), for: .normal)
+        btn.setTitleColor(UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0), for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
+        btn.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.1)
+        btn.layer.cornerRadius = 10
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.3).cgColor
         return btn
     }()
 
@@ -499,18 +659,21 @@ import ContactsUI
         configureCallbacks()
         syncStateWithMonitor()
         refreshContactsUI()
+        refreshKeywordsUI()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         syncStateWithMonitor()
         refreshContactsUI()
+        refreshKeywordsUI()
     }
 
     deinit {
         SentinelAcousticMonitor.shared.onStateChange = nil
         SentinelAcousticMonitor.shared.onDecibelUpdate = nil
         SentinelAcousticMonitor.shared.onGracePeriodTick = nil
+        SentinelAcousticMonitor.shared.onIntelligentDetection = nil
     }
 
     // MARK: - Setup Navigation
@@ -544,6 +707,8 @@ import ContactsUI
         contentView.addSubview(statusCardView)
         contentView.addSubview(meterCardView)
         contentView.addSubview(gracePeriodCardView)
+        contentView.addSubview(aiCardView)
+        contentView.addSubview(keywordsCardView)
         contentView.addSubview(contactsCardView)
         contentView.addSubview(guidelinesCardView)
         contentView.addSubview(sliderCardView)
@@ -583,8 +748,26 @@ import ContactsUI
 
         // Grace Period Card Subviews
         gracePeriodCardView.addSubview(graceCountdownLabel)
+        gracePeriodCardView.addSubview(graceReasonContainerView)
+        graceReasonContainerView.addSubview(graceReasonLabel)
         gracePeriodCardView.addSubview(graceDescriptionLabel)
         gracePeriodCardView.addSubview(cancelGraceButton)
+
+        // AI Card Subviews
+        aiCardView.addSubview(aiIconView)
+        aiCardView.addSubview(aiTitleLabel)
+        aiCardView.addSubview(aiBadgeLabel)
+        aiCardView.addSubview(aiSubtitleLabel)
+        aiCardView.addSubview(aiBadgesStackView)
+        setupAIBadges()
+
+        // Keywords Card Subviews
+        keywordsCardView.addSubview(keywordsIconView)
+        keywordsCardView.addSubview(keywordsTitleLabel)
+        keywordsCardView.addSubview(keywordsBadgeLabel)
+        keywordsCardView.addSubview(keywordsSubtitleLabel)
+        keywordsCardView.addSubview(keywordsStackView)
+        keywordsCardView.addSubview(addKeywordButton)
 
         // Contacts Card Subviews
         contactsCardView.addSubview(contactsIconView)
@@ -705,18 +888,86 @@ import ContactsUI
             graceCountdownLabel.topAnchor.constraint(equalTo: gracePeriodCardView.topAnchor, constant: 18),
             graceCountdownLabel.centerXAnchor.constraint(equalTo: gracePeriodCardView.centerXAnchor),
 
-            graceDescriptionLabel.topAnchor.constraint(equalTo: graceCountdownLabel.bottomAnchor, constant: 8),
+            graceReasonContainerView.topAnchor.constraint(equalTo: graceCountdownLabel.bottomAnchor, constant: 10),
+            graceReasonContainerView.leadingAnchor.constraint(equalTo: gracePeriodCardView.leadingAnchor, constant: 14),
+            graceReasonContainerView.trailingAnchor.constraint(equalTo: gracePeriodCardView.trailingAnchor, constant: -14),
+
+            graceReasonLabel.topAnchor.constraint(equalTo: graceReasonContainerView.topAnchor, constant: 8),
+            graceReasonLabel.leadingAnchor.constraint(equalTo: graceReasonContainerView.leadingAnchor, constant: 10),
+            graceReasonLabel.trailingAnchor.constraint(equalTo: graceReasonContainerView.trailingAnchor, constant: -10),
+            graceReasonLabel.bottomAnchor.constraint(equalTo: graceReasonContainerView.bottomAnchor, constant: -8),
+
+            graceDescriptionLabel.topAnchor.constraint(equalTo: graceReasonContainerView.bottomAnchor, constant: 10),
             graceDescriptionLabel.leadingAnchor.constraint(equalTo: gracePeriodCardView.leadingAnchor, constant: 16),
             graceDescriptionLabel.trailingAnchor.constraint(equalTo: gracePeriodCardView.trailingAnchor, constant: -16),
 
-            cancelGraceButton.topAnchor.constraint(equalTo: graceDescriptionLabel.bottomAnchor, constant: 16),
+            cancelGraceButton.topAnchor.constraint(equalTo: graceDescriptionLabel.bottomAnchor, constant: 14),
             cancelGraceButton.leadingAnchor.constraint(equalTo: gracePeriodCardView.leadingAnchor, constant: 18),
             cancelGraceButton.trailingAnchor.constraint(equalTo: gracePeriodCardView.trailingAnchor, constant: -18),
             cancelGraceButton.heightAnchor.constraint(equalToConstant: 46),
             cancelGraceButton.bottomAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: -18),
 
+            // AI Card
+            aiCardView.topAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: 16),
+            aiCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            aiCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            aiIconView.leadingAnchor.constraint(equalTo: aiCardView.leadingAnchor, constant: 16),
+            aiIconView.topAnchor.constraint(equalTo: aiCardView.topAnchor, constant: 16),
+            aiIconView.widthAnchor.constraint(equalToConstant: 22),
+            aiIconView.heightAnchor.constraint(equalToConstant: 22),
+
+            aiTitleLabel.leadingAnchor.constraint(equalTo: aiIconView.trailingAnchor, constant: 10),
+            aiTitleLabel.centerYAnchor.constraint(equalTo: aiIconView.centerYAnchor),
+
+            aiBadgeLabel.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
+            aiBadgeLabel.centerYAnchor.constraint(equalTo: aiIconView.centerYAnchor),
+            aiBadgeLabel.heightAnchor.constraint(equalToConstant: 22),
+            aiBadgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 110),
+
+            aiSubtitleLabel.topAnchor.constraint(equalTo: aiIconView.bottomAnchor, constant: 8),
+            aiSubtitleLabel.leadingAnchor.constraint(equalTo: aiCardView.leadingAnchor, constant: 16),
+            aiSubtitleLabel.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
+
+            aiBadgesStackView.topAnchor.constraint(equalTo: aiSubtitleLabel.bottomAnchor, constant: 12),
+            aiBadgesStackView.leadingAnchor.constraint(equalTo: aiCardView.leadingAnchor, constant: 16),
+            aiBadgesStackView.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
+            aiBadgesStackView.bottomAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: -16),
+
+            // Custom Keywords Card
+            keywordsCardView.topAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: 16),
+            keywordsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            keywordsCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            keywordsIconView.leadingAnchor.constraint(equalTo: keywordsCardView.leadingAnchor, constant: 16),
+            keywordsIconView.topAnchor.constraint(equalTo: keywordsCardView.topAnchor, constant: 16),
+            keywordsIconView.widthAnchor.constraint(equalToConstant: 22),
+            keywordsIconView.heightAnchor.constraint(equalToConstant: 22),
+
+            keywordsTitleLabel.leadingAnchor.constraint(equalTo: keywordsIconView.trailingAnchor, constant: 10),
+            keywordsTitleLabel.centerYAnchor.constraint(equalTo: keywordsIconView.centerYAnchor),
+
+            keywordsBadgeLabel.trailingAnchor.constraint(equalTo: keywordsCardView.trailingAnchor, constant: -16),
+            keywordsBadgeLabel.centerYAnchor.constraint(equalTo: keywordsIconView.centerYAnchor),
+            keywordsBadgeLabel.widthAnchor.constraint(equalToConstant: 36),
+            keywordsBadgeLabel.heightAnchor.constraint(equalToConstant: 22),
+
+            keywordsSubtitleLabel.topAnchor.constraint(equalTo: keywordsIconView.bottomAnchor, constant: 8),
+            keywordsSubtitleLabel.leadingAnchor.constraint(equalTo: keywordsCardView.leadingAnchor, constant: 16),
+            keywordsSubtitleLabel.trailingAnchor.constraint(equalTo: keywordsCardView.trailingAnchor, constant: -16),
+
+            keywordsStackView.topAnchor.constraint(equalTo: keywordsSubtitleLabel.bottomAnchor, constant: 14),
+            keywordsStackView.leadingAnchor.constraint(equalTo: keywordsCardView.leadingAnchor, constant: 16),
+            keywordsStackView.trailingAnchor.constraint(equalTo: keywordsCardView.trailingAnchor, constant: -16),
+
+            addKeywordButton.topAnchor.constraint(equalTo: keywordsStackView.bottomAnchor, constant: 12),
+            addKeywordButton.leadingAnchor.constraint(equalTo: keywordsCardView.leadingAnchor, constant: 16),
+            addKeywordButton.trailingAnchor.constraint(equalTo: keywordsCardView.trailingAnchor, constant: -16),
+            addKeywordButton.heightAnchor.constraint(equalToConstant: 44),
+            addKeywordButton.bottomAnchor.constraint(equalTo: keywordsCardView.bottomAnchor, constant: -16),
+
             // Contacts Card
-            contactsCardView.topAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: 16),
+            contactsCardView.topAnchor.constraint(equalTo: keywordsCardView.bottomAnchor, constant: 16),
             contactsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             contactsCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
@@ -827,6 +1078,7 @@ import ContactsUI
         thresholdSlider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         cancelGraceButton.addTarget(self, action: #selector(cancelGraceTapped), for: .touchUpInside)
         addContactButton.addTarget(self, action: #selector(addContactTapped), for: .touchUpInside)
+        addKeywordButton.addTarget(self, action: #selector(addKeywordTapped), for: .touchUpInside)
         emergencyCall190Button.addTarget(self, action: #selector(call190Tapped), for: .touchUpInside)
         emergencyCall180Button.addTarget(self, action: #selector(call180Tapped), for: .touchUpInside)
     }
@@ -904,6 +1156,12 @@ import ContactsUI
         SentinelAcousticMonitor.shared.onGracePeriodTick = { [weak self] remaining in
             DispatchQueue.main.async {
                 self?.graceCountdownLabel.text = "\(remaining)s"
+            }
+        }
+
+        SentinelAcousticMonitor.shared.onIntelligentDetection = { [weak self] reason in
+            DispatchQueue.main.async {
+                self?.graceReasonLabel.text = "🚨 \(reason)"
             }
         }
     }
@@ -1124,12 +1382,18 @@ import ContactsUI
             gracePeriodCardView.isHidden = true
 
         case .gracePeriod:
-            statusLabel.text = NSLocalizedString("Atenção: Ruído Detectado!", comment: "")
+            let reason = SentinelAcousticMonitor.shared.lastTriggerReason
+            statusLabel.text = NSLocalizedString("Atenção: Detecção Ativada!", comment: "")
             statusDotView.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
             shieldImageView.tintColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
             toggleSwitch.isOn = true
             gracePeriodCardView.isHidden = false
             graceCountdownLabel.text = "\(SentinelAcousticMonitor.shared.gracePeriodRemainingSeconds)s"
+            if !reason.isEmpty {
+                graceReasonLabel.text = "🚨 \(reason)"
+            } else {
+                graceReasonLabel.text = "🚨 " + NSLocalizedString("Ruído de emergência detectado", comment: "")
+            }
 
         case .emergencyDispatched:
             statusLabel.text = NSLocalizedString("Alerta de Emergência Disparado", comment: "")
@@ -1157,7 +1421,193 @@ import ContactsUI
         }
     }
 
-    private func updateMeter(db: Float) {
+    // MARK: - AI Badges Setup
+
+    private func setupAIBadges() {
+        aiBadgesStackView.addArrangedSubview(createAIRow(
+            icon: "🪟",
+            title: NSLocalizedString("Vidro Quebrando & Impactos", comment: ""),
+            subtitle: NSLocalizedString("Classifica estilhaçamento de janelas, garrafas e quebra de portas.", comment: "")
+        ))
+        aiBadgesStackView.addArrangedSubview(createAIRow(
+            icon: "🔊",
+            title: NSLocalizedString("Gritos & Pânico Acústico", comment: ""),
+            subtitle: NSLocalizedString("Classifica berros, gritos de socorro agudos e gemidos de agressão.", comment: "")
+        ))
+        aiBadgesStackView.addArrangedSubview(createAIRow(
+            icon: "🗣️",
+            title: NSLocalizedString("Frases de Socorro (PT, EN, ES)", comment: ""),
+            subtitle: NSLocalizedString("\"Não me bate\", \"Socorro\", \"Me ajuda\", \"Help me\", \"No me pegues\".", comment: "")
+        ))
+    }
+
+    private func createAIRow(icon: String, title: String, subtitle: String) -> UIView {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.backgroundColor = UIColor(red: 28/255, green: 42/255, blue: 47/255, alpha: 1.0)
+        container.layer.cornerRadius = 10
+        container.layer.borderWidth = 1
+        container.layer.borderColor = UIColor(red: 40/255, green: 60/255, blue: 67/255, alpha: 1.0).cgColor
+
+        let iconLabel = UILabel()
+        iconLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconLabel.text = icon
+        iconLabel.font = .systemFont(ofSize: 18)
+
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 13, weight: .bold)
+        titleLabel.textColor = .white
+
+        let subLabel = UILabel()
+        subLabel.translatesAutoresizingMaskIntoConstraints = false
+        subLabel.text = subtitle
+        subLabel.font = .systemFont(ofSize: 11, weight: .regular)
+        subLabel.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        subLabel.numberOfLines = 0
+
+        let vStack = UIStackView(arrangedSubviews: [titleLabel, subLabel])
+        vStack.translatesAutoresizingMaskIntoConstraints = false
+        vStack.axis = .vertical
+        vStack.spacing = 2
+
+        container.addSubview(iconLabel)
+        container.addSubview(vStack)
+
+        NSLayoutConstraint.activate([
+            iconLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            iconLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            iconLabel.widthAnchor.constraint(equalToConstant: 24),
+
+            vStack.leadingAnchor.constraint(equalTo: iconLabel.trailingAnchor, constant: 10),
+            vStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
+            vStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
+            vStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10)
+        ])
+
+        return container
+    }
+
+    // MARK: - Custom Keywords Management UI
+
+    private func refreshKeywordsUI() {
+        for view in keywordsStackView.arrangedSubviews {
+            keywordsStackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+
+        let keywords = SentinelAcousticMonitor.shared.getCustomKeywords()
+        keywordsBadgeLabel.text = "\(keywords.count)/3"
+
+        if keywords.isEmpty {
+            let emptyLabel = UILabel()
+            emptyLabel.text = NSLocalizedString("Nenhuma frase personalizada cadastrada ainda.", comment: "")
+            emptyLabel.font = .systemFont(ofSize: 12, weight: .italic)
+            emptyLabel.textColor = UIColor(red: 120/255, green: 135/255, blue: 140/255, alpha: 1.0)
+            keywordsStackView.addArrangedSubview(emptyLabel)
+        } else {
+            for (index, keyword) in keywords.enumerated() {
+                let row = createKeywordRow(keyword: keyword, index: index)
+                keywordsStackView.addArrangedSubview(row)
+            }
+        }
+
+        addKeywordButton.isHidden = keywords.count >= 3
+    }
+
+    private func createKeywordRow(keyword: String, index: Int) -> UIView {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.backgroundColor = UIColor(red: 28/255, green: 42/255, blue: 47/255, alpha: 1.0)
+        container.layer.cornerRadius = 10
+        container.layer.borderWidth = 1
+        container.layer.borderColor = UIColor(red: 40/255, green: 60/255, blue: 67/255, alpha: 1.0).cgColor
+
+        let quoteIcon = UIImageView()
+        quoteIcon.translatesAutoresizingMaskIntoConstraints = false
+        quoteIcon.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "quote.opening") {
+            quoteIcon.image = img
+        }
+        quoteIcon.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "\"\(keyword)\""
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .white
+
+        let deleteBtn = UIButton(type: .system)
+        deleteBtn.translatesAutoresizingMaskIntoConstraints = false
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "trash") {
+            deleteBtn.setImage(img, for: .normal)
+        } else {
+            deleteBtn.setTitle("✕", for: .normal)
+        }
+        deleteBtn.tintColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 0.8)
+        deleteBtn.tag = index
+        deleteBtn.addTarget(self, action: #selector(deleteKeywordTapped(_:)), for: .touchUpInside)
+
+        container.addSubview(quoteIcon)
+        container.addSubview(label)
+        container.addSubview(deleteBtn)
+
+        NSLayoutConstraint.activate([
+            container.heightAnchor.constraint(equalToConstant: 44),
+
+            quoteIcon.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            quoteIcon.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            quoteIcon.widthAnchor.constraint(equalToConstant: 16),
+            quoteIcon.heightAnchor.constraint(equalToConstant: 16),
+
+            label.leadingAnchor.constraint(equalTo: quoteIcon.trailingAnchor, constant: 8),
+            label.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            label.trailingAnchor.constraint(equalTo: deleteBtn.leadingAnchor, constant: -8),
+
+            deleteBtn.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
+            deleteBtn.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            deleteBtn.widthAnchor.constraint(equalToConstant: 30),
+            deleteBtn.heightAnchor.constraint(equalToConstant: 30)
+        ])
+
+        return container
+    }
+
+    @objc private func addKeywordTapped() {
+        guard SentinelAcousticMonitor.shared.getCustomKeywords().count < 3 else {
+            let alert = UIAlertController(title: NSLocalizedString("Limite Atingido", comment: ""),
+                                          message: NSLocalizedString("Você já cadastrou o número máximo de 3 frases personalizadas.", comment: ""),
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true)
+            return
+        }
+
+        let alert = UIAlertController(title: NSLocalizedString("Nova Frase de Alerta", comment: ""),
+                                      message: NSLocalizedString("Digite uma palavra-código ou frase de emergência (ex: 'socorro amigos', 'código vermelho').", comment: ""),
+                                      preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.placeholder = NSLocalizedString("Ex: não me machuca, socorro", comment: "")
+            tf.autocapitalizationType = .none
+        }
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancelar", comment: ""), style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Salvar", comment: ""), style: .default, handler: { [weak self] _ in
+            let text = alert.textFields?[0].text ?? ""
+            if SentinelAcousticMonitor.shared.addCustomKeyword(text) {
+                self?.refreshKeywordsUI()
+            }
+        }))
+
+        present(alert, animated: true)
+    }
+
+    @objc private func deleteKeywordTapped(_ sender: UIButton) {
+        let index = sender.tag
+        SentinelAcousticMonitor.shared.removeCustomKeyword(at: index)
+        refreshKeywordsUI()
+    }
         guard SentinelAcousticMonitor.shared.isMonitoring else {
             dbValueLabel.text = "-- dB"
             progressBarWidthConstraint?.constant = 0

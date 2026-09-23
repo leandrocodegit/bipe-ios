@@ -2075,6 +2075,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 ] }
             }
             
+            let triggerReason = SentinelAcousticMonitor.shared.lastTriggerReason
+            if !triggerReason.isEmpty {
+                payload["triggerReason"] = triggerReason
+            }
+            
             // Garante que a conexão MQTT esteja instanciada e conectada
             if delegate.connection == nil {
                 delegate.connection = Connection()

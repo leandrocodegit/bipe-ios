@@ -10,6 +10,8 @@ import Foundation
 import AVFoundation
 import UIKit
 import CoreLocation
+import SoundAnalysis
+import Speech
 
 @objc enum SentinelState: Int {
     case idle
@@ -31,6 +33,12 @@ import CoreLocation
         case .error: return "Erro"
         }
     }
+}
+
+struct DistressPhrase {
+    let normalized: String
+    let display: String
+    let lang: String
 }
 
 @objc class SentinelAcousticMonitor: NSObject {
@@ -66,6 +74,9 @@ import CoreLocation
     /// Tempo restante no Grace Period atual (segundos)
     @objc private(set) var gracePeriodRemainingSeconds: Int = 10
     
+    /// Causa detalhada do último disparo inteligente (ex: "Grito detectado", "Frase: 'não me bate'")
+    @objc public private(set) var lastTriggerReason: String = ""
+    
     // MARK: - Estado
     
     @objc private(set) var currentState: SentinelState = .idle
@@ -79,19 +90,74 @@ import CoreLocation
     var onStateChange: ((SentinelState) -> Void)?
     var onGracePeriodTick: ((Int) -> Void)?
     var onDecibelUpdate: ((Float) -> Void)?
+    var onIntelligentDetection: ((String) -> Void)?
     
-    // MARK: - Propriedades Privadas
+    // MARK: - Propriedades Privadas de Áudio e IA
     
     private let audioEngine = AVAudioEngine()
     private var gracePeriodTimer: Timer?
     private var wasListeningBeforeInterruption: Bool = false
     private let feedbackGenerator = UINotificationFeedbackGenerator()
     
+    // SoundAnalysis (Apple CoreML On-Device Sound Classifier)
+    private var soundAnalyzer: SNAudioStreamAnalyzer?
+    private var soundClassifyRequest: SNClassifySoundRequest?
+    
+    // Speech Recognition (Apple On-Device Speech Recognizer)
+    private var speechRecognizer: SFSpeechRecognizer?
+    private var speechRequest: SFSpeechAudioBufferRecognitionRequest?
+    private var speechTask: SFSpeechRecognitionTask?
+    private var isRestartingSpeech: Bool = false
+    private var recordingFormat: AVAudioFormat?
+    
+    // MARK: - Dicionário Multilíngue de Frases Nativas (PT, EN, ES)
+    
+    private let defaultDistressPhrases: [DistressPhrase] = [
+        // Português (PT)
+        DistressPhrase(normalized: "nao me bate", display: "Não me bate", lang: "PT"),
+        DistressPhrase(normalized: "nao me machuca", display: "Não me machuca", lang: "PT"),
+        DistressPhrase(normalized: "nao me agrida", display: "Não me agrida", lang: "PT"),
+        DistressPhrase(normalized: "socorro me ajuda", display: "Socorro, me ajuda", lang: "PT"),
+        DistressPhrase(normalized: "socorro", display: "Socorro", lang: "PT"),
+        DistressPhrase(normalized: "me ajuda", display: "Me ajuda", lang: "PT"),
+        DistressPhrase(normalized: "ajuda por favor", display: "Ajuda por favor", lang: "PT"),
+        DistressPhrase(normalized: "para com isso", display: "Para com isso", lang: "PT"),
+        DistressPhrase(normalized: "para por favor", display: "Para, por favor", lang: "PT"),
+        DistressPhrase(normalized: "chama a policia", display: "Chama a polícia", lang: "PT"),
+        DistressPhrase(normalized: "policia", display: "Polícia", lang: "PT"),
+        DistressPhrase(normalized: "sai daqui", display: "Sai daqui", lang: "PT"),
+        
+        // English (EN)
+        DistressPhrase(normalized: "dont hit me", display: "Don't hit me", lang: "EN"),
+        DistressPhrase(normalized: "dont hurt me", display: "Don't hurt me", lang: "EN"),
+        DistressPhrase(normalized: "help me", display: "Help me", lang: "EN"),
+        DistressPhrase(normalized: "help", display: "Help", lang: "EN"),
+        DistressPhrase(normalized: "please stop", display: "Please stop", lang: "EN"),
+        DistressPhrase(normalized: "stop it", display: "Stop it", lang: "EN"),
+        DistressPhrase(normalized: "call the police", display: "Call the police", lang: "EN"),
+        DistressPhrase(normalized: "leave me alone", display: "Leave me alone", lang: "EN"),
+        DistressPhrase(normalized: "get away from me", display: "Get away from me", lang: "EN"),
+        
+        // Español (ES)
+        DistressPhrase(normalized: "no me pegues", display: "No me pegues", lang: "ES"),
+        DistressPhrase(normalized: "no me hagas dano", display: "No me hagas daño", lang: "ES"),
+        DistressPhrase(normalized: "no me toques", display: "No me toques", lang: "ES"),
+        DistressPhrase(normalized: "ayudame", display: "Ayúdame", lang: "ES"),
+        DistressPhrase(normalized: "ayuda", display: "Ayuda", lang: "ES"),
+        DistressPhrase(normalized: "socorro", display: "Socorro", lang: "ES"),
+        DistressPhrase(normalized: "para por favor", display: "Para, por favor", lang: "ES"),
+        DistressPhrase(normalized: "basta ya", display: "Basta ya", lang: "ES"),
+        DistressPhrase(normalized: "llama a la policia", display: "Llama a la policía", lang: "ES"),
+        DistressPhrase(normalized: "dejame en paz", display: "Déjame en paz", lang: "ES"),
+        DistressPhrase(normalized: "vete de aqui", display: "Vete de aquí", lang: "ES")
+    ]
+    
     // MARK: - Inicializador
     
     private override init() {
         super.init()
         setupNotifications()
+        setupSpeechRecognizer()
     }
     
     deinit {
@@ -136,7 +202,7 @@ import CoreLocation
     
     // MARK: - Controle de Monitoramento
     
-    /// Inicia o monitoramento acústico passivo on-device
+    /// Inicia o monitoramento acústico passivo e inteligente on-device
     @objc public func startMonitoring() {
         guard !isMonitoring else {
             NSLog("[SentinelAcousticMonitor] Monitoramento já está em execução.")
@@ -182,6 +248,15 @@ import CoreLocation
             audioEngine.stop()
         }
         
+        soundAnalyzer = nil
+        soundClassifyRequest = nil
+        speechTask?.cancel()
+        speechTask = nil
+        speechRequest?.endAudio()
+        speechRequest = nil
+        isRestartingSpeech = false
+        lastTriggerReason = ""
+        
         do {
             try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         } catch {
@@ -192,35 +267,41 @@ import CoreLocation
         NSLog("[SentinelAcousticMonitor] Monitoramento acústico encerrado.")
     }
     
-    // MARK: - Configuração da Engine de Áudio
+    // MARK: - Configuração da Engine de Áudio e IA
     
     private func activateAudioEngine() {
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            // .playAndRecord com mode .measurement garante calibração linear sem AGC (Automatic Gain Control)
-            // .mixWithOthers permite que músicas continuem tocando em segundo plano
             try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.mixWithOthers, .allowBluetooth])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             
             let inputNode = audioEngine.inputNode
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
+            let recFormat = inputNode.outputFormat(forBus: 0)
+            self.recordingFormat = recFormat
             
-            guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
-                NSLog("[SentinelAcousticMonitor] Formato de microfone inválido: %@", recordingFormat.description)
+            guard recFormat.sampleRate > 0 && recFormat.channelCount > 0 else {
+                NSLog("[SentinelAcousticMonitor] Formato de microfone inválido: %@", recFormat.description)
                 transition(to: .error)
                 return
             }
             
+            // 1. Configurar SoundAnalysis (Detecção de gritos e vidro quebrando)
+            setupSoundAnalysis(format: recFormat)
+            
+            // 2. Configurar Reconhecimento de Fala On-Device
+            startSpeechSession(format: recFormat)
+            
+            // 3. Instalar Tap de Áudio em RAM
             inputNode.removeTap(onBus: 0)
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] (buffer, _) in
-                self?.processAudioBuffer(buffer: buffer)
+            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recFormat) { [weak self] (buffer, time) in
+                self?.processAudioBuffer(buffer: buffer, time: time)
             }
             
             audioEngine.prepare()
             try audioEngine.start()
             
             transition(to: .listening)
-            NSLog("[SentinelAcousticMonitor] Escuta passiva iniciada com sucesso (SampleRate: %.0f Hz).", recordingFormat.sampleRate)
+            NSLog("[SentinelAcousticMonitor] Escuta inteligente iniciada com sucesso (SampleRate: %.0f Hz).", recFormat.sampleRate)
             
         } catch {
             NSLog("[SentinelAcousticMonitor] Falha ao iniciar AVAudioEngine: %@", error.localizedDescription)
@@ -228,24 +309,131 @@ import CoreLocation
         }
     }
     
+    // MARK: - SoundAnalysis Setup
+    
+    private func setupSoundAnalysis(format: AVAudioFormat) {
+        if #available(iOS 14.0, *) {
+            do {
+                let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
+                request.overlapFactor = 0.5
+                soundClassifyRequest = request
+                
+                let analyzer = SNAudioStreamAnalyzer(format: format)
+                try analyzer.add(request, withObserver: self)
+                self.soundAnalyzer = analyzer
+                NSLog("[SentinelAcousticMonitor] SoundAnalysis (.version1) configurado.")
+            } catch {
+                NSLog("[SentinelAcousticMonitor] Falha ao inicializar SoundAnalysis: %@", error.localizedDescription)
+            }
+        }
+    }
+    
+    // MARK: - Speech Recognition Setup (On-Device)
+    
+    private func setupSpeechRecognizer() {
+        let preferred = Locale.preferredLanguages.first?.lowercased() ?? ""
+        let locale: Locale
+        if preferred.hasPrefix("en") {
+            locale = Locale(identifier: "en-US")
+        } else if preferred.hasPrefix("es") {
+            locale = Locale(identifier: "es-ES")
+        } else {
+            locale = Locale(identifier: "pt-BR")
+        }
+        speechRecognizer = SFSpeechRecognizer(locale: locale) ?? SFSpeechRecognizer(locale: Locale(identifier: "pt-BR"))
+    }
+    
+    private func startSpeechSession(format: AVAudioFormat) {
+        SFSpeechRecognizer.requestAuthorization { [weak self] status in
+            guard status == .authorized else {
+                NSLog("[SentinelAcousticMonitor] Reconhecimento de fala não autorizado (%ld).", status.rawValue)
+                return
+            }
+            DispatchQueue.main.async {
+                self?.launchSpeechTask(format: format)
+            }
+        }
+    }
+    
+    private func launchSpeechTask(format: AVAudioFormat) {
+        guard currentState == .listening else { return }
+        speechTask?.cancel()
+        speechTask = nil
+        
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+        if #available(iOS 13.0, *), speechRecognizer?.supportsOnDeviceRecognition == true {
+            request.requiresOnDeviceRecognition = true
+        }
+        self.speechRequest = request
+        
+        speechTask = speechRecognizer?.recognitionTask(with: request) { [weak self] (result, error) in
+            guard let self = self else { return }
+            if let result = result {
+                let transcription = result.bestTranscription.formattedString
+                self.evaluateSpeechTranscription(transcription)
+            }
+            if error != nil || (result?.isFinal ?? false) {
+                if self.isMonitoring && self.currentState == .listening {
+                    self.restartSpeechSessionAfterDelay(format: format)
+                }
+            }
+        }
+    }
+    
+    private func restartSpeechSessionAfterDelay(format: AVAudioFormat) {
+        guard !isRestartingSpeech else { return }
+        isRestartingSpeech = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.isRestartingSpeech = false
+            if self.isMonitoring && self.currentState == .listening {
+                self.launchSpeechTask(format: format)
+            }
+        }
+    }
+    
+    private func evaluateSpeechTranscription(_ text: String) {
+        guard currentState == .listening else { return }
+        let normalized = text.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+        
+        // 1. Verifica Frases Personalizadas do Usuário (até 3)
+        for custom in getCustomKeywords() {
+            let normCustom = custom.folding(options: .diacriticInsensitive, locale: .current).lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            if !normCustom.isEmpty && normalized.contains(normCustom) {
+                let reason = "Frase personalizada detectada: \"\(custom)\""
+                NSLog("[SentinelAcousticMonitor] MATCH PERSONALIZADO: %@", reason)
+                triggerIntelligentEmergency(reason: reason)
+                return
+            }
+        }
+        
+        // 2. Verifica Frases de Socorro Nativas (PT, EN, ES)
+        for phrase in defaultDistressPhrases {
+            if normalized.contains(phrase.normalized) {
+                let reason = "Frase de socorro detectada (\(phrase.lang)): \"\(phrase.display)\""
+                NSLog("[SentinelAcousticMonitor] MATCH NATIVO: %@", reason)
+                triggerIntelligentEmergency(reason: reason)
+                return
+            }
+        }
+    }
+    
     // MARK: - Processamento Acústico On-Device (RAM Apenas)
     
-    private func processAudioBuffer(buffer: AVAudioPCMBuffer) {
+    private func processAudioBuffer(buffer: AVAudioPCMBuffer, time: AVAudioTime) {
         guard currentState == .listening else { return }
         guard let channelData = buffer.floatChannelData?[0] else { return }
         let frameLength = Int(buffer.frameLength)
         guard frameLength > 0 else { return }
         
-        // Cálculo de RMS: raiz quadrada da média dos quadrados das amostras
+        // 1. Cálculo de RMS e dB
         var sumSquares: Float = 0.0
         for i in 0..<frameLength {
             let sample = channelData[i]
             sumSquares += sample * sample
         }
         let rms = sqrt(sumSquares / Float(frameLength))
-        
-        // Conversão para dB SPL digital (calibração linear on-device)
-        // 1e-7 previne log10 de zero
         let clampedRMS = max(rms, 1e-7)
         let db = max(0.0, 20.0 * log10(clampedRMS) + 120.0)
         
@@ -254,13 +442,32 @@ import CoreLocation
             self.onDecibelUpdate?(db)
             
             if db >= self.thresholdDB && self.currentState == .listening {
-                NSLog("[SentinelAcousticMonitor] Limiar excedido: %.1f dB >= %.1f dB", db, self.thresholdDB)
-                self.triggerGracePeriod()
+                NSLog("[SentinelAcousticMonitor] Limiar acústico excedido: %.1f dB >= %.1f dB", db, self.thresholdDB)
+                self.triggerIntelligentEmergency(reason: String(format: "Limiar acústico excedido: %.0f dB", db))
             }
         }
+        
+        // 2. Alimentar SoundAnalysis (Classificação Neural On-Device)
+        if #available(iOS 14.0, *), let analyzer = soundAnalyzer, time.isSampleTimeValid {
+            analyzer.analyze(buffer, atAudioFramePosition: time.sampleTime)
+        }
+        
+        // 3. Alimentar Reconhecimento de Fala On-Device
+        speechRequest?.append(buffer)
     }
     
-    // MARK: - Grace Period & Prevenção de Falso Positivo
+    // MARK: - Gatilho Inteligente & Grace Period
+    
+    @objc public func triggerIntelligentEmergency(reason: String) {
+        guard currentState == .listening else { return }
+        lastTriggerReason = reason
+        NSLog("[SentinelAcousticMonitor] GATILHO INTELIGENTE DISPARADO: %@", reason)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.onIntelligentDetection?(reason)
+            self.triggerGracePeriod()
+        }
+    }
     
     private func triggerGracePeriod() {
         guard currentState == .listening else { return }
@@ -290,12 +497,13 @@ import CoreLocation
         }
     }
     
-    /// Cancela o Grace Period caso tenha sido um falso alarme (toque na tela, cancelamento do usuário)
+    /// Cancela o Grace Period caso tenha sido um falso alarme
     @objc public func cancelGracePeriod() {
         guard currentState == .gracePeriod else { return }
         
         stopGracePeriodTimers()
         feedbackGenerator.notificationOccurred(.success)
+        lastTriggerReason = ""
         NSLog("[SentinelAcousticMonitor] Grace Period cancelado pelo usuário. Retomando escuta passiva.")
         
         transition(to: .listening)
@@ -312,7 +520,7 @@ import CoreLocation
         stopGracePeriodTimers()
         transition(to: .emergencyDispatched)
         
-        NSLog("[SentinelAcousticMonitor] DISPARO DE EMERGÊNCIA ATIVADO! Sem intervenção durante o Grace Period.")
+        NSLog("[SentinelAcousticMonitor] DISPARO DE EMERGÊNCIA ATIVADO! Motivo: %@", lastTriggerReason)
         
         // 1. Despacho pelo canal de emergência Bipe (MQTT /bipe)
         BipeEmergencyHelper.sendEmergencyAlert { success in
@@ -343,7 +551,6 @@ import CoreLocation
     private func isBatteryCritical() -> Bool {
         let level = UIDevice.current.batteryLevel
         let state = UIDevice.current.batteryState
-        // level < 0 indica que o monitoramento de bateria não pôde ser determinado (simulador etc.)
         if level >= 0.0 && level <= 0.15 && state != .charging && state != .full {
             return true
         }
@@ -359,7 +566,6 @@ import CoreLocation
     }
     
     @objc private func batteryStateDidChange() {
-        // Se foi conectado ao carregador e estava em bateria crítica, pode voltar a monitorar se desejado
         if !isBatteryCritical() && currentState == .batteryCritical {
             NSLog("[SentinelAcousticMonitor] Aparelho conectado à energia. Pronto para retomar.")
             transition(to: .idle)
@@ -377,7 +583,7 @@ import CoreLocation
         
         switch type {
         case .began:
-            NSLog("[SentinelAcousticMonitor] Interrupção de áudio iniciada (ex: chamada telefônica).")
+            NSLog("[SentinelAcousticMonitor] Interrupção de áudio iniciada (ex: chamada).")
             wasListeningBeforeInterruption = isMonitoring
             if isMonitoring {
                 audioEngine.pause()
@@ -392,7 +598,7 @@ import CoreLocation
                 do {
                     try AVAudioSession.sharedInstance().setActive(true)
                     try audioEngine.start()
-                    NSLog("[SentinelAcousticMonitor] Escuta retomada com sucesso após interrupção.")
+                    NSLog("[SentinelAcousticMonitor] Escuta retomada após interrupção.")
                 } catch {
                     NSLog("[SentinelAcousticMonitor] Erro ao retomar após interrupção: %@", error.localizedDescription)
                 }
@@ -412,12 +618,40 @@ import CoreLocation
         }
         
         if reason == .oldDeviceUnavailable && isMonitoring {
-            // Fone de ouvido desconectado, reiniciar engine suavemente
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 guard let self = self, self.isMonitoring else { return }
                 self.activateAudioEngine()
             }
         }
+    }
+    
+    // MARK: - Gestão de Palavras-Chave Personalizadas (Até 3)
+    
+    private let customKeywordsKey = "sentinel_custom_keywords"
+    
+    @objc func getCustomKeywords() -> [String] {
+        return UserDefaults.standard.stringArray(forKey: customKeywordsKey) ?? []
+    }
+    
+    @objc func addCustomKeyword(_ keyword: String) -> Bool {
+        var list = getCustomKeywords()
+        guard list.count < 3 else { return false }
+        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
+        let normalized = trimmed.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+        if list.contains(where: { $0.folding(options: .diacriticInsensitive, locale: .current).lowercased() == normalized }) {
+            return false
+        }
+        list.append(trimmed)
+        UserDefaults.standard.set(Array(list.prefix(3)), forKey: customKeywordsKey)
+        return true
+    }
+    
+    @objc func removeCustomKeyword(at index: Int) {
+        var list = getCustomKeywords()
+        guard index >= 0 && index < list.count else { return }
+        list.remove(at: index)
+        UserDefaults.standard.set(list, forKey: customKeywordsKey)
     }
     
     // MARK: - Gestão de Contatos de Confiança (Máximo: 3)
@@ -469,6 +703,39 @@ import CoreLocation
             guard let self = self else { return }
             self.onStateChange?(self.currentState)
         }
+    }
+}
+
+// MARK: - SoundAnalysis Observer (Apple Neural Sound Classifier)
+
+@available(iOS 14.0, *)
+extension SentinelAcousticMonitor: SNResultsObserving {
+    public func request(_ request: SNRequest, didProduce result: SNResult) {
+        guard let classificationResult = result as? SNClassificationResult else { return }
+        guard currentState == .listening else { return }
+        
+        for classification in classificationResult.classifications {
+            let identifier = classification.identifier.lowercased()
+            let confidence = classification.confidence
+            
+            // Vidro quebrando / Shatter (confiança >= 0.50)
+            if (identifier.contains("shatter") || identifier.contains("glass") || identifier.contains("breaking")) && confidence >= 0.50 {
+                let reason = String(format: "Vidro quebrando detectado (certeza: %.0f%%)", confidence * 100)
+                triggerIntelligentEmergency(reason: reason)
+                return
+            }
+            
+            // Gritos / Berros de pânico (confiança >= 0.55)
+            if (identifier.contains("screaming") || identifier.contains("shouting") || identifier.contains("groan")) && confidence >= 0.55 {
+                let reason = String(format: "Grito ou pedido de pânico detectado (certeza: %.0f%%)", confidence * 100)
+                triggerIntelligentEmergency(reason: reason)
+                return
+            }
+        }
+    }
+    
+    public func request(_ request: SNRequest, didFailWithError error: Error) {
+        NSLog("[SentinelAcousticMonitor] SoundAnalysis falhou: %@", error.localizedDescription)
     }
 }
 
