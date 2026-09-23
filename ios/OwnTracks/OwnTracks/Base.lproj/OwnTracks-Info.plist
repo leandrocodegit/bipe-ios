@@ -135,9 +135,9 @@ No information of your address book will be uploaded to any server.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>OwnTracks delivers your step count, floors climbed, distance walked and activty on request</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>O Modo Sentinela analisa níveis sonoros em tempo real para detecção preventiva de emergência. A sua privacidade está garantida: nenhum áudio é gravado, salvo em disco ou transmitido para a nuvem.</string>
+	<string>Sentinel Mode analyzes sound levels in real-time for preventive emergency detection. Your privacy is guaranteed: no audio is recorded, saved to disk, or streamed to the cloud.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>O Modo Sentinela analisa comandos de voz e pedidos de socorro diretamente no aparelho (sem envio para a nuvem) para proteção e segurança preventiva contra violência.</string>
+	<string>Sentinel Mode analyzes voice commands and distress phrases strictly on-device (zero cloud streaming) for preventive safety and personal protection.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>OwnTracksChangeMonitoringIntent</string>

@@ -27,3 +27,10 @@
 
 /* Privacy - Motion Usage Description */
 "NSMotionUsageDescription" = "Bipe.me proporciona su recuento de pasos y distancia recorrida.";
+
+/* Privacy - Microphone Usage Description */
+NSMicrophoneUsageDescription = "El Modo Centinela analiza niveles sonoros en tiempo real para detección preventiva de emergencia. Su privacidad está garantizada: ningún audio se graba, guarda en disco ni se transmite a la nube.";
+
+/* Privacy - Speech Recognition Usage Description */
+NSSpeechRecognitionUsageDescription = "El Modo Centinela analiza comandos de voz y frases de auxilio directamente en el dispositivo (sin envío a la nube) para protección y seguridad preventiva contra la violencia.";
+

@@ -1269,7 +1269,7 @@ import ContactsUI
         SentinelAcousticMonitor.shared.thresholdDB = rounded
         sliderCurrentValueLabel.text = String(format: "%.0f dB", rounded)
         if SentinelAcousticMonitor.shared.detectImpacts {
-            thresholdMarkerLabel.text = String(format: "Limiar de Gatilho: %.0f dB", rounded)
+            thresholdMarkerLabel.text = String(format: NSLocalizedString("Limiar de Gatilho: %.0f dB", comment: ""), rounded)
         }
     }
 
