@@ -68,6 +68,19 @@ struct DistressPhrase {
     /// Limiar em dB SPL digital para ativação da contagem regressiva
     @objc var thresholdDB: Float = 75.0
     
+    /// Habilita ou desabilita a detecção de impactos físicos e limiar de volume (para ambientes com ruído)
+    @objc public var detectImpacts: Bool {
+        get {
+            if UserDefaults.standard.object(forKey: "sentinel_detect_impacts") == nil {
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: "sentinel_detect_impacts")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "sentinel_detect_impacts")
+        }
+    }
+    
     /// Duração do Grace Period em segundos antes do disparo do alarme
     @objc var gracePeriodDuration: TimeInterval = 10.0
     
@@ -441,7 +454,7 @@ struct DistressPhrase {
             guard let self = self else { return }
             self.onDecibelUpdate?(db)
             
-            if db >= self.thresholdDB && self.currentState == .listening {
+            if self.detectImpacts && db >= self.thresholdDB && self.currentState == .listening {
                 NSLog("[SentinelAcousticMonitor] Limiar acústico excedido: %.1f dB >= %.1f dB", db, self.thresholdDB)
                 self.triggerIntelligentEmergency(reason: String(format: "Limiar acústico excedido: %.0f dB", db))
             }
@@ -718,8 +731,8 @@ extension SentinelAcousticMonitor: SNResultsObserving {
             let identifier = classification.identifier.lowercased()
             let confidence = classification.confidence
             
-            // Vidro quebrando / Shatter (confiança >= 0.50)
-            if (identifier.contains("shatter") || identifier.contains("glass") || identifier.contains("breaking")) && confidence >= 0.50 {
+            // Vidro quebrando / Shatter (confiança >= 0.50) - apenas se detecção de impactos estiver ativa
+            if detectImpacts && (identifier.contains("shatter") || identifier.contains("glass") || identifier.contains("breaking")) && confidence >= 0.50 {
                 let reason = String(format: "Vidro quebrando detectado (certeza: %.0f%%)", confidence * 100)
                 triggerIntelligentEmergency(reason: reason)
                 return

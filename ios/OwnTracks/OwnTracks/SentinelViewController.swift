@@ -590,6 +590,51 @@ import ContactsUI
         return view
     }()
 
+    private let impactsIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "burst.fill") ?? UIImage(systemName: "waveform") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let impactsTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Detectar Impactos", comment: "")
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let impactsSwitch: UISwitch = {
+        let sw = UISwitch()
+        sw.translatesAutoresizingMaskIntoConstraints = false
+        sw.onTintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        sw.isOn = true
+        return sw
+    }()
+
+    private let impactsSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Desative para usar em ambientes barulhentos. Ignora picos de volume e estilhaços físicos, mantendo ativas palavras de socorro e gritos.", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let impactsDividerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0)
+        return view
+    }()
+
     private let sliderTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -780,6 +825,11 @@ import ContactsUI
         contactsCardView.addSubview(addContactButton)
 
         // Slider Card Subviews
+        sliderCardView.addSubview(impactsIconView)
+        sliderCardView.addSubview(impactsTitleLabel)
+        sliderCardView.addSubview(impactsSwitch)
+        sliderCardView.addSubview(impactsSubtitleLabel)
+        sliderCardView.addSubview(impactsDividerView)
         sliderCardView.addSubview(sliderTitleLabel)
         sliderCardView.addSubview(sliderCurrentValueLabel)
         sliderCardView.addSubview(thresholdSlider)
@@ -1040,7 +1090,30 @@ import ContactsUI
             sliderCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             sliderCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
-            sliderTitleLabel.topAnchor.constraint(equalTo: sliderCardView.topAnchor, constant: 16),
+            // Impacts Switch Row
+            impactsIconView.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 16),
+            impactsIconView.topAnchor.constraint(equalTo: sliderCardView.topAnchor, constant: 16),
+            impactsIconView.widthAnchor.constraint(equalToConstant: 22),
+            impactsIconView.heightAnchor.constraint(equalToConstant: 22),
+
+            impactsTitleLabel.centerYAnchor.constraint(equalTo: impactsIconView.centerYAnchor),
+            impactsTitleLabel.leadingAnchor.constraint(equalTo: impactsIconView.trailingAnchor, constant: 10),
+            impactsTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: impactsSwitch.leadingAnchor, constant: -8),
+
+            impactsSwitch.centerYAnchor.constraint(equalTo: impactsIconView.centerYAnchor),
+            impactsSwitch.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -16),
+
+            impactsSubtitleLabel.topAnchor.constraint(equalTo: impactsIconView.bottomAnchor, constant: 8),
+            impactsSubtitleLabel.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 16),
+            impactsSubtitleLabel.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -16),
+
+            impactsDividerView.topAnchor.constraint(equalTo: impactsSubtitleLabel.bottomAnchor, constant: 14),
+            impactsDividerView.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 16),
+            impactsDividerView.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -16),
+            impactsDividerView.heightAnchor.constraint(equalToConstant: 1),
+
+            // Slider Section below divider
+            sliderTitleLabel.topAnchor.constraint(equalTo: impactsDividerView.bottomAnchor, constant: 14),
             sliderTitleLabel.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
 
             sliderCurrentValueLabel.centerYAnchor.constraint(equalTo: sliderTitleLabel.centerYAnchor),
@@ -1112,6 +1185,7 @@ import ContactsUI
 
     private func setupActions() {
         toggleSwitch.addTarget(self, action: #selector(toggleSwitchChanged(_:)), for: .valueChanged)
+        impactsSwitch.addTarget(self, action: #selector(impactsSwitchChanged(_:)), for: .valueChanged)
         thresholdSlider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         cancelGraceButton.addTarget(self, action: #selector(cancelGraceTapped), for: .touchUpInside)
         addContactButton.addTarget(self, action: #selector(addContactTapped), for: .touchUpInside)
@@ -1164,12 +1238,35 @@ import ContactsUI
         }
     }
 
+    @objc private func impactsSwitchChanged(_ sender: UISwitch) {
+        SentinelAcousticMonitor.shared.detectImpacts = sender.isOn
+        updateImpactsUI(enabled: sender.isOn)
+    }
+
+    private func updateImpactsUI(enabled: Bool) {
+        let alpha: CGFloat = enabled ? 1.0 : 0.4
+        UIView.animate(withDuration: 0.2) {
+            self.sliderTitleLabel.alpha = alpha
+            self.sliderCurrentValueLabel.alpha = alpha
+            self.thresholdSlider.alpha = alpha
+        }
+        thresholdSlider.isEnabled = enabled
+
+        if enabled {
+            thresholdMarkerLabel.text = String(format: NSLocalizedString("Limiar de Gatilho: %.0f dB", comment: ""), SentinelAcousticMonitor.shared.thresholdDB)
+        } else {
+            thresholdMarkerLabel.text = NSLocalizedString("Impactos Desativados (Apenas Voz & Gritos)", comment: "")
+        }
+    }
+
     @objc private func sliderValueChanged(_ sender: UISlider) {
         let rounded = round(sender.value)
         sender.value = rounded
         SentinelAcousticMonitor.shared.thresholdDB = rounded
         sliderCurrentValueLabel.text = String(format: "%.0f dB", rounded)
-        thresholdMarkerLabel.text = String(format: "Limiar de Gatilho: %.0f dB", rounded)
+        if SentinelAcousticMonitor.shared.detectImpacts {
+            thresholdMarkerLabel.text = String(format: "Limiar de Gatilho: %.0f dB", rounded)
+        }
     }
 
     @objc private func cancelGraceTapped() {
@@ -1395,9 +1492,10 @@ import ContactsUI
     private func syncStateWithMonitor() {
         let monitor = SentinelAcousticMonitor.shared
         toggleSwitch.isOn = monitor.isMonitoring
+        impactsSwitch.isOn = monitor.detectImpacts
         thresholdSlider.value = monitor.thresholdDB
         sliderCurrentValueLabel.text = String(format: "%.0f dB", monitor.thresholdDB)
-        thresholdMarkerLabel.text = String(format: "Limiar de Gatilho: %.0f dB", monitor.thresholdDB)
+        updateImpactsUI(enabled: monitor.detectImpacts)
         handleStateChange(monitor.currentState)
     }
 
@@ -1658,15 +1756,20 @@ import ContactsUI
             let percentage = CGFloat(min(max(db, 0), 100) / 100.0)
             progressBarWidthConstraint?.constant = totalWidth * percentage
 
-            if db >= SentinelAcousticMonitor.shared.thresholdDB {
-                progressBarView.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
-                dbValueLabel.textColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
-            } else if db >= (SentinelAcousticMonitor.shared.thresholdDB - 10.0) {
-                progressBarView.backgroundColor = UIColor.systemOrange
-                dbValueLabel.textColor = UIColor.systemOrange
+            if SentinelAcousticMonitor.shared.detectImpacts {
+                if db >= SentinelAcousticMonitor.shared.thresholdDB {
+                    progressBarView.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+                    dbValueLabel.textColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+                } else if db >= (SentinelAcousticMonitor.shared.thresholdDB - 10.0) {
+                    progressBarView.backgroundColor = UIColor.systemOrange
+                    dbValueLabel.textColor = UIColor.systemOrange
+                } else {
+                    progressBarView.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+                    dbValueLabel.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+                }
             } else {
-                progressBarView.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
-                dbValueLabel.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+                progressBarView.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.6)
+                dbValueLabel.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
             }
             UIView.animate(withDuration: 0.1) {
                 self.view.layoutIfNeeded()
