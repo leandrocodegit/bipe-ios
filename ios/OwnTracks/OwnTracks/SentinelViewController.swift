@@ -207,6 +207,8 @@ import ContactsUI
         return view
     }()
     private var progressBarWidthConstraint: NSLayoutConstraint?
+    private var aiCardTopToGraceConstraint: NSLayoutConstraint?
+    private var aiCardTopToMeterConstraint: NSLayoutConstraint?
 
     private let thresholdMarkerLabel: UILabel = {
         let label = UILabel()
@@ -907,8 +909,7 @@ import ContactsUI
             cancelGraceButton.heightAnchor.constraint(equalToConstant: 46),
             cancelGraceButton.bottomAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: -18),
 
-            // AI Card
-            aiCardView.topAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: 16),
+            // AI Card (topAnchor é controlado dinamicamente por aiCardTopToGraceConstraint e aiCardTopToMeterConstraint)
             aiCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             aiCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
@@ -1069,6 +1070,42 @@ import ContactsUI
 
         progressBarWidthConstraint = progressBarView.widthAnchor.constraint(equalToConstant: 0)
         progressBarWidthConstraint?.isActive = true
+
+        aiCardTopToGraceConstraint = aiCardView.topAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: 16)
+        aiCardTopToMeterConstraint = aiCardView.topAnchor.constraint(equalTo: meterCardView.bottomAnchor, constant: 16)
+
+        let isInitialGrace = (SentinelAcousticMonitor.shared.currentState == .gracePeriod)
+        updateGracePeriodVisibility(isInitialGrace, animated: false)
+    }
+
+    private func updateGracePeriodVisibility(_ isVisible: Bool, animated: Bool = true) {
+        if isVisible {
+            aiCardTopToMeterConstraint?.isActive = false
+            aiCardTopToGraceConstraint?.isActive = true
+            gracePeriodCardView.isHidden = false
+            gracePeriodCardView.isUserInteractionEnabled = true
+        } else {
+            aiCardTopToGraceConstraint?.isActive = false
+            aiCardTopToMeterConstraint?.isActive = true
+            gracePeriodCardView.isUserInteractionEnabled = false
+        }
+
+        let animateBlock = {
+            self.gracePeriodCardView.alpha = isVisible ? 1.0 : 0.0
+            self.view.layoutIfNeeded()
+        }
+
+        if animated && self.view.window != nil {
+            UIView.animate(withDuration: 0.35, delay: 0, options: [.curveEaseInOut], animations: animateBlock) { _ in
+                if !isVisible {
+                    self.gracePeriodCardView.isHidden = true
+                }
+            }
+        } else {
+            self.gracePeriodCardView.isHidden = !isVisible
+            self.gracePeriodCardView.alpha = isVisible ? 1.0 : 0.0
+            self.view.layoutIfNeeded()
+        }
     }
 
     // MARK: - Actions & Callbacks
@@ -1365,13 +1402,15 @@ import ContactsUI
     }
 
     private func handleStateChange(_ state: SentinelState) {
+        let isGrace = (state == .gracePeriod)
+        updateGracePeriodVisibility(isGrace, animated: true)
+
         switch state {
         case .idle:
             statusLabel.text = NSLocalizedString("Monitoramento Inativo", comment: "")
             statusDotView.backgroundColor = .systemGray
             shieldImageView.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
             toggleSwitch.isOn = false
-            gracePeriodCardView.isHidden = true
             updateMeter(db: 0)
 
         case .listening:
@@ -1379,7 +1418,6 @@ import ContactsUI
             statusDotView.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
             shieldImageView.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
             toggleSwitch.isOn = true
-            gracePeriodCardView.isHidden = true
 
         case .gracePeriod:
             let reason = SentinelAcousticMonitor.shared.lastTriggerReason
@@ -1387,7 +1425,6 @@ import ContactsUI
             statusDotView.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
             shieldImageView.tintColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
             toggleSwitch.isOn = true
-            gracePeriodCardView.isHidden = false
             graceCountdownLabel.text = "\(SentinelAcousticMonitor.shared.gracePeriodRemainingSeconds)s"
             if !reason.isEmpty {
                 graceReasonLabel.text = "🚨 \(reason)"
@@ -1398,26 +1435,22 @@ import ContactsUI
         case .emergencyDispatched:
             statusLabel.text = NSLocalizedString("Alerta de Emergência Disparado", comment: "")
             statusDotView.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
-            gracePeriodCardView.isHidden = true
 
         case .batteryCritical:
             statusLabel.text = NSLocalizedString("Pausado: Bateria Crítica (<= 15%)", comment: "")
             statusDotView.backgroundColor = .systemOrange
             shieldImageView.tintColor = .systemOrange
             toggleSwitch.isOn = false
-            gracePeriodCardView.isHidden = true
 
         case .permissionDenied:
             statusLabel.text = NSLocalizedString("Permissão de Microfone Negada", comment: "")
             statusDotView.backgroundColor = .systemRed
             toggleSwitch.isOn = false
-            gracePeriodCardView.isHidden = true
 
         case .error:
             statusLabel.text = NSLocalizedString("Falha ao Iniciar Microfone", comment: "")
             statusDotView.backgroundColor = .systemRed
             toggleSwitch.isOn = false
-            gracePeriodCardView.isHidden = true
         }
     }
 
