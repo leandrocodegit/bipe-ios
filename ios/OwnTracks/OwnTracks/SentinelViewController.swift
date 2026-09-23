@@ -1608,6 +1608,8 @@ import ContactsUI
         SentinelAcousticMonitor.shared.removeCustomKeyword(at: index)
         refreshKeywordsUI()
     }
+
+    private func updateMeter(db: Float) {
         guard SentinelAcousticMonitor.shared.isMonitoring else {
             dbValueLabel.text = "-- dB"
             progressBarWidthConstraint?.constant = 0
