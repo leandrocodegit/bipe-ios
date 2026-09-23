@@ -523,7 +523,7 @@ struct DistressPhrase {
         NSLog("[SentinelAcousticMonitor] DISPARO DE EMERGÊNCIA ATIVADO! Motivo: %@", lastTriggerReason)
         
         // 1. Despacho pelo canal de emergência Bipe (MQTT /bipe)
-        BipeEmergencyHelper.sendEmergencyAlert { success in
+        BipeEmergencyHelper.sendEmergencyAlert(type: "sentinela") { success in
             NSLog("[SentinelAcousticMonitor] BipeEmergencyHelper dispatch finalizado: %d", success)
         }
         

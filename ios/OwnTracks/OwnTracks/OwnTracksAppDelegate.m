@@ -407,7 +407,7 @@
         type = [NSString stringWithFormat:@"%@", userInfo[@"data"][@"type"]];
     }
     
-    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"]) {
+    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"] || [type.lowercaseString isEqualToString:@"sentinela"]) {
         [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
     }
     
@@ -417,6 +417,7 @@
     BOOL hasLiveActivityPayload = userInfo[@"way"] != nil ||
                                   [type.lowercaseString containsString:@"transition"] ||
                                   [type.lowercaseString containsString:@"emergency"] ||
+                                  [type.lowercaseString containsString:@"sentinela"] ||
                                   apsDict[@"content-state"] != nil ||
                                   apsDict[@"contentState"] != nil;
 
@@ -467,7 +468,7 @@
         type = [NSString stringWithFormat:@"%@", userInfo[@"data"][@"type"]];
     }
     
-    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"]) {
+    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"] || [type.lowercaseString isEqualToString:@"sentinela"]) {
         [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
     }
     

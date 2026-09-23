@@ -2033,10 +2033,14 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 @objc class BipeEmergencyHelper: NSObject {
     
     @objc static func sendEmergencyAlert() {
-        sendEmergencyAlert(completion: nil)
+        sendEmergencyAlert(type: "sentinela", completion: nil)
     }
 
     @objc static func sendEmergencyAlert(completion: ((Bool) -> Void)?) {
+        sendEmergencyAlert(type: "sentinela", completion: completion)
+    }
+
+    @objc static func sendEmergencyAlert(type: String, completion: ((Bool) -> Void)?) {
         DispatchQueue.main.async {
             // Feedback tátil ao pressionar o botão de ação / acionar o atalho
             let generator = UINotificationFeedbackGenerator()
@@ -2058,7 +2062,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             let color = Settings.string(forKey: "color", inMOC: moc) ?? ""
             
             var payload: [String: Any] = [
-                "_type": "bipe",
+                "_type": type,
+                "type": type,
                 "status": "EMERGENCY",
                 "deviceId": deviceId,
                 "nickname": nickname,
@@ -2091,7 +2096,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
                 let qos = MQTTQosLevel(rawValue: UInt8(Settings.int(forKey: "qos_preference", inMOC: moc))) ?? .exactlyOnce
                 delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
-                NSLog("[BipeEmergencyHelper] Alerta de emergência enviado via MQTT para o tópico: %@", bipeTopic)
+                NSLog("[BipeEmergencyHelper] Alerta de emergência (%@) enviado via MQTT para o tópico: %@", type, bipeTopic)
                 
                 // Feedback tátil de confirmação de sucesso
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
