@@ -480,9 +480,9 @@ struct DistressPhrase {
         transition(to: .attentionMode)
         NSLog("[SentinelAcousticMonitor] MODO DE ATENÇÃO INICIADO: %@", reason)
         
-        // Aguarda 15 segundos por um grito ou frase. Se nada acontecer, cancela.
+        // Aguarda 60 segundos por um grito ou frase. Se nada acontecer, cancela.
         stopGracePeriodTimers()
-        attentionTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
+        attentionTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: false) { [weak self] _ in
             guard let self = self else { return }
             if self.currentState == .attentionMode {
                 NSLog("[SentinelAcousticMonitor] Modo de Atenção expirou sem confirmação. Cancelando falso alarme.")
@@ -493,12 +493,22 @@ struct DistressPhrase {
     
     @objc public func triggerIntelligentEmergency(reason: String) {
         guard currentState == .listening || currentState == .attentionMode else { return }
+        
+        let wasInAttentionMode = (currentState == .attentionMode)
         lastTriggerReason = reason
         NSLog("[SentinelAcousticMonitor] GATILHO INTELIGENTE DISPARADO: %@", reason)
+        
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.onIntelligentDetection?(reason)
-            self.triggerGracePeriod()
+            
+            // Se já estava no Modo de Atenção (pós-impacto) e detectou voz/grito, pula o Grace Period e despacha!
+            if wasInAttentionMode {
+                NSLog("[SentinelAcousticMonitor] Bypass de Grace Period ativado devido a Confirmação de Ameaça no Modo de Atenção!")
+                self.dispatchEmergencyProtocol()
+            } else {
+                self.triggerGracePeriod()
+            }
         }
     }
     
