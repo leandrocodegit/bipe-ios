@@ -84,6 +84,7 @@ final class PermissionsViewController: UIViewController {
     private var backgroundLocCardView: PermissionCardView!
     private var cameraCardView: PermissionCardView!
     private var notificationCardView: PermissionCardView!
+    private var micCardView: PermissionCardView!
 
     // MARK: - Lifecycle
 
@@ -212,10 +213,21 @@ final class PermissionsViewController: UIViewController {
             self?.handleNotificationAction()
         }
 
+        micCardView = PermissionCardView(
+            systemIcon: "mic.fill",
+            title: NSLocalizedString("5. Microfone (Modo Sentinela)", comment: ""),
+            descriptionText: NSLocalizedString("Permite a análise acústica passiva on-device para detecção preventiva de emergência em casos de violência doméstica. 100% em RAM, nenhum áudio é gravado.", comment: ""),
+            isOptional: true
+        )
+        micCardView.onActionTapped = { [weak self] in
+            self?.handleMicrophoneAction()
+        }
+
         cardsStackView.addArrangedSubview(gpsCardView)
         cardsStackView.addArrangedSubview(backgroundLocCardView)
         cardsStackView.addArrangedSubview(cameraCardView)
         cardsStackView.addArrangedSubview(notificationCardView)
+        cardsStackView.addArrangedSubview(micCardView)
     }
 
     // MARK: - Observers
@@ -288,6 +300,17 @@ final class PermissionsViewController: UIViewController {
                     }
                 }
             }
+
+            // 5. Microphone (Sentinel Mode)
+            let micStatus = AVAudioSession.sharedInstance().recordPermission
+            switch micStatus {
+            case .granted:
+                self.micCardView.updateStatus(granted: true, badgeText: NSLocalizedString("Permitido", comment: ""), actionTitle: nil)
+            case .undetermined:
+                self.micCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Opcional", comment: ""), actionTitle: NSLocalizedString("Ativar Microfone", comment: ""))
+            default:
+                self.micCardView.updateStatus(granted: false, badgeText: NSLocalizedString("Desativado (Opcional)", comment: ""), actionTitle: NSLocalizedString("Abrir Configurações", comment: ""))
+            }
         }
     }
 
@@ -315,6 +338,17 @@ final class PermissionsViewController: UIViewController {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status == .notDetermined {
             AVCaptureDevice.requestAccess(for: .video) { [weak self] _ in
+                self?.refreshPermissionsStatus()
+            }
+        } else {
+            openSystemSettingsTapped()
+        }
+    }
+
+    private func handleMicrophoneAction() {
+        let status = AVAudioSession.sharedInstance().recordPermission
+        if status == .undetermined {
+            AVAudioSession.sharedInstance().requestRecordPermission { [weak self] _ in
                 self?.refreshPermissionsStatus()
             }
         } else {

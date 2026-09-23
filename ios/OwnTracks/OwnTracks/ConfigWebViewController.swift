@@ -24,6 +24,9 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         contentController.add(self, name: "saveWaypoints")
         contentController.add(self, name: "enableBiometrics")
         contentController.add(self, name: "disableBiometrics")
+        contentController.add(self, name: "startSentinel")
+        contentController.add(self, name: "stopSentinel")
+        contentController.add(self, name: "cancelSentinelGracePeriod")
         
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
@@ -75,6 +78,18 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 },
                 getDeviceId: function() {
                     return "\(Settings.string(forKey: "deviceid_preference", inMOC: self.moc) ?? "")";
+                },
+                startSentinel: function() {
+                    window.webkit.messageHandlers.startSentinel.postMessage("");
+                },
+                stopSentinel: function() {
+                    window.webkit.messageHandlers.stopSentinel.postMessage("");
+                },
+                cancelSentinelGracePeriod: function() {
+                    window.webkit.messageHandlers.cancelSentinelGracePeriod.postMessage("");
+                },
+                isSentinelMonitoring: function() {
+                    return "\(SentinelAcousticMonitor.shared.isMonitoring)";
                 }
             };
         """
@@ -215,6 +230,18 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         } else if message.name == "disableBiometrics" {
             BiometricAuthManager.shared.isBiometricsEnabled = false
             BiometricAuthManager.shared.clearBiometricData()
+        } else if message.name == "startSentinel" {
+            DispatchQueue.main.async {
+                SentinelAcousticMonitor.shared.startMonitoring()
+            }
+        } else if message.name == "stopSentinel" {
+            DispatchQueue.main.async {
+                SentinelAcousticMonitor.shared.stopMonitoring()
+            }
+        } else if message.name == "cancelSentinelGracePeriod" {
+            DispatchQueue.main.async {
+                SentinelAcousticMonitor.shared.cancelGracePeriod()
+            }
         }
     }
 

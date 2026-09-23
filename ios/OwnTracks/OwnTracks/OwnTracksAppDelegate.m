@@ -329,6 +329,23 @@
         return YES;
     }
 
+    // Handler para Modo Sentinela via URL (ex: bipe://sentinel/start, bipe://sentinel/stop, bipe://sentinel/cancel)
+    if ([host isEqualToString:@"sentinel"] || [path hasPrefix:@"/sentinel"]) {
+        if ([path isEqualToString:@"/start"] || [url.query containsString:@"action=start"]) {
+            OwnTracksLogDefault("[OwnTracksAppDelegate] Ativando Modo Sentinela via URL");
+            [SentinelAcousticMonitor.shared startMonitoring];
+            return YES;
+        } else if ([path isEqualToString:@"/stop"] || [url.query containsString:@"action=stop"]) {
+            OwnTracksLogDefault("[OwnTracksAppDelegate] Desativando Modo Sentinela via URL");
+            [SentinelAcousticMonitor.shared stopMonitoring];
+            return YES;
+        } else if ([path isEqualToString:@"/cancel"] || [url.query containsString:@"action=cancel"]) {
+            OwnTracksLogDefault("[OwnTracksAppDelegate] Cancelando Grace Period do Modo Sentinela via URL");
+            [SentinelAcousticMonitor.shared cancelGracePeriod];
+            return YES;
+        }
+    }
+
 
     OwnTracksLogDebug("[OwnTracksAppDelegate] URL scheme %@", url.scheme);
 
