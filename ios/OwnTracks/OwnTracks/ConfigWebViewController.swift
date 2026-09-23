@@ -27,6 +27,8 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         contentController.add(self, name: "startSentinel")
         contentController.add(self, name: "stopSentinel")
         contentController.add(self, name: "cancelSentinelGracePeriod")
+        contentController.add(self, name: "openSentinel")
+        contentController.add(self, name: "openSentinela")
         
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
@@ -48,6 +50,12 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 },
                 openPermissions: function() {
                     window.webkit.messageHandlers.openPermissions.postMessage("");
+                },
+                openSentinel: function() {
+                    window.webkit.messageHandlers.openSentinel.postMessage("");
+                },
+                openSentinela: function() {
+                    window.webkit.messageHandlers.openSentinela.postMessage("");
                 },
                 openWaypoints: function() {
                     window.webkit.messageHandlers.openWaypoints.postMessage("");
@@ -188,6 +196,14 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 guard let self = self else { return }
                 let permissionsVC = PermissionsViewController()
                 let navController = UINavigationController(rootViewController: permissionsVC)
+                navController.modalPresentationStyle = .fullScreen
+                self.present(navController, animated: true, completion: nil)
+            }
+        } else if message.name == "openSentinel" || message.name == "openSentinela" {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let sentinelVC = SentinelViewController()
+                let navController = UINavigationController(rootViewController: sentinelVC)
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
             }

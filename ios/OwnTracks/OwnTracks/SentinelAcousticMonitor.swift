@@ -11,7 +11,7 @@ import AVFoundation
 import UIKit
 import CoreLocation
 
-@objc public enum SentinelState: Int {
+@objc enum SentinelState: Int {
     case idle
     case listening
     case gracePeriod
@@ -20,7 +20,7 @@ import CoreLocation
     case permissionDenied
     case error
     
-    public var description: String {
+    var description: String {
         switch self {
         case .idle: return "Inativo"
         case .listening: return "Monitorando"
@@ -33,34 +33,52 @@ import CoreLocation
     }
 }
 
-@objc public class SentinelAcousticMonitor: NSObject {
+@objc class SentinelAcousticMonitor: NSObject {
     
-    @objc public static let shared = SentinelAcousticMonitor()
+    @objc static let shared = SentinelAcousticMonitor()
+    
+    // MARK: - Objective-C Class Methods
+    
+    @objc class func sharedMonitor() -> SentinelAcousticMonitor {
+        return shared
+    }
+    
+    @objc class func startMonitoring() {
+        shared.startMonitoring()
+    }
+    
+    @objc class func stopMonitoring() {
+        shared.stopMonitoring()
+    }
+    
+    @objc class func cancelGracePeriod() {
+        shared.cancelGracePeriod()
+    }
     
     // MARK: - Configurações
     
     /// Limiar em dB SPL digital para ativação da contagem regressiva
-    @objc public var thresholdDB: Float = 75.0
+    @objc var thresholdDB: Float = 75.0
     
     /// Duração do Grace Period em segundos antes do disparo do alarme
-    @objc public var gracePeriodDuration: TimeInterval = 10.0
+    @objc var gracePeriodDuration: TimeInterval = 10.0
     
     /// Tempo restante no Grace Period atual (segundos)
-    @objc public private(set) var gracePeriodRemainingSeconds: Int = 10
+    @objc private(set) var gracePeriodRemainingSeconds: Int = 10
     
     // MARK: - Estado
     
-    @objc public private(set) var currentState: SentinelState = .idle
+    @objc private(set) var currentState: SentinelState = .idle
     
-    @objc public var isMonitoring: Bool {
+    @objc var isMonitoring: Bool {
         return currentState == .listening || currentState == .gracePeriod
     }
     
     // MARK: - Callbacks
     
-    public var onStateChange: ((SentinelState) -> Void)?
-    public var onGracePeriodTick: ((Int) -> Void)?
-    public var onDecibelUpdate: ((Float) -> Void)?
+    var onStateChange: ((SentinelState) -> Void)?
+    var onGracePeriodTick: ((Int) -> Void)?
+    var onDecibelUpdate: ((Float) -> Void)?
     
     // MARK: - Propriedades Privadas
     
@@ -303,8 +321,8 @@ import CoreLocation
         
         // 2. Envio forçado de localização imediata para o servidor
         DispatchQueue.main.async {
-            if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate,
-               let location = LocationManager.sharedInstance()?.location {
+            if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                let location = LocationManager.sharedInstance().location
                 delegate.sendNow(location, withPOI: "SENTINEL_EMERGENCY", withImage: nil, withImageName: nil)
                 NSLog("[SentinelAcousticMonitor] Localização de emergência enviada via sendNow: %@", location.description)
             }

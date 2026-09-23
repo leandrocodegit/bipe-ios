@@ -1174,7 +1174,9 @@ import ActivityKit
             enableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.enableBiometrics) window.webkit.messageHandlers.enableBiometrics.postMessage({}); },
             disableBiometrics: function() { if (window.webkit && window.webkit.messageHandlers.disableBiometrics) window.webkit.messageHandlers.disableBiometrics.postMessage({}); },
             openQRScanner: function() { if (window.webkit && window.webkit.messageHandlers.openQRScanner) window.webkit.messageHandlers.openQRScanner.postMessage({}); else window.prompt("open_qr_scanner", ""); },
-            scanQRCode: function() { if (window.webkit && window.webkit.messageHandlers.scanQRCode) window.webkit.messageHandlers.scanQRCode.postMessage({}); else window.prompt("open_qr_scanner", ""); }
+            scanQRCode: function() { if (window.webkit && window.webkit.messageHandlers.scanQRCode) window.webkit.messageHandlers.scanQRCode.postMessage({}); else window.prompt("open_qr_scanner", ""); },
+            openSentinel: function() { if (window.webkit && window.webkit.messageHandlers.openSentinel) window.webkit.messageHandlers.openSentinel.postMessage({}); },
+            openSentinela: function() { if (window.webkit && window.webkit.messageHandlers.openSentinela) window.webkit.messageHandlers.openSentinela.postMessage({}); }
         };
         window.iOS = {
             isIosApp: function() { return true; },
@@ -1193,7 +1195,7 @@ import ActivityKit
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "deleteAccount", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "deleteAccount", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken", "openSentinel", "openSentinela"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1711,6 +1713,14 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 guard let self = self else { return }
                 let permissionsVC = PermissionsViewController()
                 let navController = UINavigationController(rootViewController: permissionsVC)
+                navController.modalPresentationStyle = .fullScreen
+                self.present(navController, animated: true, completion: nil)
+            }
+        case "openSentinel", "openSentinela":
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let sentinelVC = SentinelViewController()
+                let navController = UINavigationController(rootViewController: sentinelVC)
                 navController.modalPresentationStyle = .fullScreen
                 self.present(navController, animated: true, completion: nil)
             }
