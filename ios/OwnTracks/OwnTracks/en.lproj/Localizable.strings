@@ -459,10 +459,8 @@
 /* Modo Sentinela */
 "Modo Sentinela" = "Sentinel Mode";
 "Monitoramento acústico preventivo on-device. Identifica ruídos anormais de impacto ou emergência sem gravar ou transmitir áudio." = "Preventive on-device acoustic monitoring. Detects abnormal impact or emergency sounds without recording or streaming audio.";
-"EM RISCO IMINENTE? LIGUE 190 / 180" = "IN IMMINENT DANGER? CALL 190 / 180";
-"Se estiver sofrendo perigo ou ameaça imediata, NÃO aguarde o monitoramento acústico. Ligue imediatamente para as forças de emergência:" = "If you are facing danger or immediate threat, DO NOT wait for acoustic monitoring. Call emergency services immediately:";
-"📞 Ligar 190 (Polícia)" = "📞 Call 190 (Police)";
-"📞 Ligar 180 (Mulher)" = "📞 Call 180 (Women's Helpline)";
+"EM RISCO IMINENTE?" = "IN IMMINENT DANGER?";
+"Se você estiver sofrendo perigo ou ameaça imediata, NÃO aguarde o monitoramento acústico. Acione imediatamente os serviços de emergência locais de sua região ou use o SOS de Emergência do iPhone." = "If you are in immediate danger or threat, DO NOT wait for acoustic monitoring. Contact your local emergency services immediately or use iPhone Emergency SOS.";
 "Monitoramento Inativo" = "Monitoring Inactive";
 "Nível Acústico em Tempo Real" = "Real-Time Acoustic Level";
 "Limiar de Gatilho: %.0f dB" = "Trigger Threshold: %.0f dB";
@@ -525,7 +523,7 @@
 "Ativar Modo Sentinela" = "Enable Sentinel Mode";
 "Leia com atenção antes de iniciar o monitoramento:" = "Read carefully before starting monitoring:";
 "🚨 ESTÁ EM RISCO IMINENTE?" = "🚨 ARE YOU IN IMMINENT DANGER?";
-"Se você estiver sofrendo perigo ou ameaça agora, NÃO aguarde o monitoramento acústico. Ligue imediatamente para as autoridades:" = "If you are facing danger or threat right now, DO NOT wait for acoustic monitoring. Call authorities immediately:";
+"Se você estiver sofrendo perigo ou ameaça imediata, NÃO aguarde o monitoramento acústico. Acione imediatamente as autoridades locais ou utilize o recurso SOS de Emergência do iPhone." = "If you are facing immediate danger or threat, DO NOT wait for acoustic monitoring. Contact local authorities immediately or use the iPhone Emergency SOS feature.";
 "🤫 Ambiente Oportuno e Silencioso" = "🤫 Quiet & Appropriate Environment";
 "Ative preferencialmente ao dormir, repousar ou em locais calmos. Ambientes barulhentos (TV alta, festas, trânsito intenso) provocam falsos disparos acústicos." = "Activate preferably when sleeping, resting, or in calm places. Noisy environments (loud TV, parties, heavy traffic) cause false acoustic triggers.";
 "🔋 Consumo de Bateria & Salvaguarda" = "🔋 Battery Usage & Safeguard";

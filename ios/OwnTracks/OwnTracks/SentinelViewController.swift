@@ -88,7 +88,7 @@ import ContactsUI
     private let emergencyBannerTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = NSLocalizedString("EM RISCO IMINENTE? LIGUE 190 / 180", comment: "")
+        label.text = NSLocalizedString("EM RISCO IMINENTE?", comment: "")
         label.font = .systemFont(ofSize: 13, weight: .black)
         label.textColor = UIColor(red: 252/255, green: 165/255, blue: 165/255, alpha: 1.0)
         return label
@@ -97,33 +97,11 @@ import ContactsUI
     private let emergencyBannerTextLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = NSLocalizedString("Se estiver sofrendo perigo ou ameaça imediata, NÃO aguarde o monitoramento acústico. Ligue imediatamente para as forças de emergência:", comment: "")
+        label.text = NSLocalizedString("Se você estiver sofrendo perigo ou ameaça imediata, NÃO aguarde o monitoramento acústico. Acione imediatamente os serviços de emergência locais de sua região ou use o SOS de Emergência do iPhone.", comment: "")
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = UIColor(red: 229/255, green: 231/255, blue: 235/255, alpha: 1.0)
         label.numberOfLines = 0
         return label
-    }()
-
-    private let emergencyCall190Button: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setTitle(NSLocalizedString("📞 Ligar 190 (Polícia)", comment: ""), for: .normal)
-        btn.setTitleColor(.white, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
-        btn.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
-        btn.layer.cornerRadius = 8
-        return btn
-    }()
-
-    private let emergencyCall180Button: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setTitle(NSLocalizedString("📞 Ligar 180 (Mulher)", comment: ""), for: .normal)
-        btn.setTitleColor(.white, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
-        btn.backgroundColor = UIColor(red: 157/255, green: 23/255, blue: 77/255, alpha: 1.0)
-        btn.layer.cornerRadius = 8
-        return btn
     }()
 
     // Status & Switch Card
@@ -766,12 +744,6 @@ import ContactsUI
         emergencyBannerView.addSubview(emergencyBannerIconView)
         emergencyBannerView.addSubview(emergencyBannerTitleLabel)
         emergencyBannerView.addSubview(emergencyBannerTextLabel)
-        let emergencyBtnStack = UIStackView(arrangedSubviews: [emergencyCall190Button, emergencyCall180Button])
-        emergencyBtnStack.translatesAutoresizingMaskIntoConstraints = false
-        emergencyBtnStack.axis = .horizontal
-        emergencyBtnStack.spacing = 10
-        emergencyBtnStack.distribution = .fillEqually
-        emergencyBannerView.addSubview(emergencyBtnStack)
 
         // Guidelines Card Subviews
         guidelinesCardView.addSubview(guidelinesTitleLabel)
@@ -883,12 +855,7 @@ import ContactsUI
             emergencyBannerTextLabel.topAnchor.constraint(equalTo: emergencyBannerIconView.bottomAnchor, constant: 8),
             emergencyBannerTextLabel.leadingAnchor.constraint(equalTo: emergencyBannerView.leadingAnchor, constant: 14),
             emergencyBannerTextLabel.trailingAnchor.constraint(equalTo: emergencyBannerView.trailingAnchor, constant: -14),
-
-            emergencyBtnStack.topAnchor.constraint(equalTo: emergencyBannerTextLabel.bottomAnchor, constant: 12),
-            emergencyBtnStack.leadingAnchor.constraint(equalTo: emergencyBannerView.leadingAnchor, constant: 14),
-            emergencyBtnStack.trailingAnchor.constraint(equalTo: emergencyBannerView.trailingAnchor, constant: -14),
-            emergencyBtnStack.heightAnchor.constraint(equalToConstant: 36),
-            emergencyBtnStack.bottomAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: -14),
+            emergencyBannerTextLabel.bottomAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: -14),
 
             // Status Card
             statusCardView.topAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: 16),
@@ -1194,8 +1161,6 @@ import ContactsUI
         cancelGraceButton.addTarget(self, action: #selector(cancelGraceTapped), for: .touchUpInside)
         addContactButton.addTarget(self, action: #selector(addContactTapped), for: .touchUpInside)
         addKeywordButton.addTarget(self, action: #selector(addKeywordTapped), for: .touchUpInside)
-        emergencyCall190Button.addTarget(self, action: #selector(call190Tapped), for: .touchUpInside)
-        emergencyCall180Button.addTarget(self, action: #selector(call180Tapped), for: .touchUpInside)
     }
 
     @objc private func toggleSwitchChanged(_ sender: UISwitch) {
@@ -1225,22 +1190,7 @@ import ContactsUI
         present(modal, animated: true, completion: nil)
     }
 
-    @objc private func call190Tapped() {
-        dialNumber("190")
-    }
 
-    @objc private func call180Tapped() {
-        dialNumber("180")
-    }
-
-    private func dialNumber(_ number: String) {
-        guard let url = URL(string: "tel://\(number)") else { return }
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        } else {
-            NSLog("[Sentinel] Dispositivo não suporta chamadas telefônicas diretas: tel://%@", number)
-        }
-    }
 
     @objc private func impactsSwitchChanged(_ sender: UISwitch) {
         SentinelAcousticMonitor.shared.detectImpacts = sender.isOn
@@ -1890,33 +1840,11 @@ class SentinelActivationModalViewController: UIViewController {
     private let emergencyDescLabel: UILabel = {
         let l = UILabel()
         l.translatesAutoresizingMaskIntoConstraints = false
-        l.text = NSLocalizedString("Se você estiver sofrendo perigo ou ameaça agora, NÃO aguarde o monitoramento acústico. Ligue imediatamente para as autoridades:", comment: "")
+        l.text = NSLocalizedString("Se você estiver sofrendo perigo ou ameaça imediata, NÃO aguarde o monitoramento acústico. Acione imediatamente as autoridades locais ou utilize o recurso SOS de Emergência do iPhone.", comment: "")
         l.font = .systemFont(ofSize: 12, weight: .medium)
         l.textColor = .white
         l.numberOfLines = 0
         return l
-    }()
-
-    private let call190Btn: UIButton = {
-        let b = UIButton(type: .system)
-        b.translatesAutoresizingMaskIntoConstraints = false
-        b.setTitle(NSLocalizedString("📞 Ligar 190 (Polícia)", comment: ""), for: .normal)
-        b.setTitleColor(.white, for: .normal)
-        b.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
-        b.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
-        b.layer.cornerRadius = 8
-        return b
-    }()
-
-    private let call180Btn: UIButton = {
-        let b = UIButton(type: .system)
-        b.translatesAutoresizingMaskIntoConstraints = false
-        b.setTitle(NSLocalizedString("📞 Ligar 180 (Mulher)", comment: ""), for: .normal)
-        b.setTitleColor(.white, for: .normal)
-        b.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
-        b.backgroundColor = UIColor(red: 157/255, green: 23/255, blue: 77/255, alpha: 1.0)
-        b.layer.cornerRadius = 8
-        return b
     }()
 
     // Box 2: Momento Oportuno / Local Silencioso
@@ -2027,12 +1955,6 @@ class SentinelActivationModalViewController: UIViewController {
         // Emergency Box subviews
         emergencyBoxView.addSubview(emergencyTitleLabel)
         emergencyBoxView.addSubview(emergencyDescLabel)
-        let emergencyStack = UIStackView(arrangedSubviews: [call190Btn, call180Btn])
-        emergencyStack.translatesAutoresizingMaskIntoConstraints = false
-        emergencyStack.axis = .horizontal
-        emergencyStack.spacing = 8
-        emergencyStack.distribution = .fillEqually
-        emergencyBoxView.addSubview(emergencyStack)
 
         // Silent Box subviews
         silentBoxView.addSubview(silentTitleLabel)
@@ -2103,12 +2025,7 @@ class SentinelActivationModalViewController: UIViewController {
             emergencyDescLabel.topAnchor.constraint(equalTo: emergencyTitleLabel.bottomAnchor, constant: 6),
             emergencyDescLabel.leadingAnchor.constraint(equalTo: emergencyBoxView.leadingAnchor, constant: 12),
             emergencyDescLabel.trailingAnchor.constraint(equalTo: emergencyBoxView.trailingAnchor, constant: -12),
-
-            emergencyStack.topAnchor.constraint(equalTo: emergencyDescLabel.bottomAnchor, constant: 10),
-            emergencyStack.leadingAnchor.constraint(equalTo: emergencyBoxView.leadingAnchor, constant: 12),
-            emergencyStack.trailingAnchor.constraint(equalTo: emergencyBoxView.trailingAnchor, constant: -12),
-            emergencyStack.heightAnchor.constraint(equalToConstant: 36),
-            emergencyStack.bottomAnchor.constraint(equalTo: emergencyBoxView.bottomAnchor, constant: -12),
+            emergencyDescLabel.bottomAnchor.constraint(equalTo: emergencyBoxView.bottomAnchor, constant: -12),
 
             // Silent Box
             silentBoxView.topAnchor.constraint(equalTo: emergencyBoxView.bottomAnchor, constant: 12),
@@ -2158,8 +2075,6 @@ class SentinelActivationModalViewController: UIViewController {
 
         confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
-        call190Btn.addTarget(self, action: #selector(call190Tapped), for: .touchUpInside)
-        call180Btn.addTarget(self, action: #selector(call180Tapped), for: .touchUpInside)
     }
 
     @objc private func confirmTapped() {
@@ -2171,23 +2086,6 @@ class SentinelActivationModalViewController: UIViewController {
     @objc private func cancelTapped() {
         dismiss(animated: true) { [weak self] in
             self?.onCancel?()
-        }
-    }
-
-    @objc private func call190Tapped() {
-        dialNumber("190")
-    }
-
-    @objc private func call180Tapped() {
-        dialNumber("180")
-    }
-
-    private func dialNumber(_ number: String) {
-        guard let url = URL(string: "tel://\(number)") else { return }
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        } else {
-            NSLog("[SentinelModal] Dispositivo não suporta chamadas telefônicas: tel://%@", number)
         }
     }
 }
