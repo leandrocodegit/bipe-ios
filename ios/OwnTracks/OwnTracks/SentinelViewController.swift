@@ -291,6 +291,8 @@ import ContactsUI
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.textColor = .white
         label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
 
@@ -360,7 +362,7 @@ import ContactsUI
     private let keywordsBadgeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "0/3"
+        label.text = "0/10"
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
         label.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.15)
@@ -373,7 +375,7 @@ import ContactsUI
     private let keywordsSubtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = NSLocalizedString("Cadastre até 3 frases ou palavras-código personalizadas que ativarão o Sentinela se ouvidas pelo celular.", comment: "")
+        label.text = NSLocalizedString("Cadastre até 10 frases ou palavras-código personalizadas que ativarão o Sentinela se ouvidas pelo celular.", comment: "")
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
         label.numberOfLines = 0
@@ -1583,7 +1585,7 @@ import ContactsUI
         }
 
         let keywords = SentinelAcousticMonitor.shared.getCustomKeywords()
-        keywordsBadgeLabel.text = "\(keywords.count)/3"
+        keywordsBadgeLabel.text = "\(keywords.count)/10"
 
         if keywords.isEmpty {
             let emptyLabel = UILabel()
@@ -1598,7 +1600,7 @@ import ContactsUI
             }
         }
 
-        addKeywordButton.isHidden = keywords.count >= 3
+        addKeywordButton.isHidden = keywords.count >= 10
     }
 
     private func createKeywordRow(keyword: String, index: Int) -> UIView {

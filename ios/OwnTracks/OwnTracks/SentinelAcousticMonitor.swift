@@ -16,6 +16,7 @@ import Speech
 @objc enum SentinelState: Int {
     case idle
     case listening
+    case attentionMode
     case gracePeriod
     case emergencyDispatched
     case batteryCritical
@@ -26,6 +27,7 @@ import Speech
         switch self {
         case .idle: return "Inativo"
         case .listening: return "Monitorando"
+        case .attentionMode: return "Modo de Atenção"
         case .gracePeriod: return "Contagem Regressiva (Grace Period)"
         case .emergencyDispatched: return "Emergência Disparada"
         case .batteryCritical: return "Bateria Crítica"
@@ -95,7 +97,7 @@ struct DistressPhrase {
     @objc private(set) var currentState: SentinelState = .idle
     
     @objc var isMonitoring: Bool {
-        return currentState == .listening || currentState == .gracePeriod
+        return currentState == .listening || currentState == .attentionMode || currentState == .gracePeriod
     }
     
     // MARK: - Callbacks
@@ -108,6 +110,7 @@ struct DistressPhrase {
     // MARK: - Propriedades Privadas de Áudio e IA
     
     private let audioEngine = AVAudioEngine()
+    private var attentionTimer: Timer?
     private var gracePeriodTimer: Timer?
     private var wasListeningBeforeInterruption: Bool = false
     private let feedbackGenerator = UINotificationFeedbackGenerator()
@@ -407,7 +410,7 @@ struct DistressPhrase {
     }
     
     private func evaluateSpeechTranscription(_ text: String) {
-        guard currentState == .listening else { return }
+        guard currentState == .listening || currentState == .attentionMode else { return }
         let normalized = text.folding(options: .diacriticInsensitive, locale: .current).lowercased()
         
         // 1. Verifica Frases Personalizadas do Usuário (até 3)
@@ -435,7 +438,7 @@ struct DistressPhrase {
     // MARK: - Processamento Acústico On-Device (RAM Apenas)
     
     private func processAudioBuffer(buffer: AVAudioPCMBuffer, time: AVAudioTime) {
-        guard currentState == .listening else { return }
+        guard currentState == .listening || currentState == .attentionMode else { return }
         guard let channelData = buffer.floatChannelData?[0] else { return }
         let frameLength = Int(buffer.frameLength)
         guard frameLength > 0 else { return }
@@ -456,7 +459,7 @@ struct DistressPhrase {
             
             if self.detectImpacts && db >= self.thresholdDB && self.currentState == .listening {
                 NSLog("[SentinelAcousticMonitor] Limiar acústico excedido: %.1f dB >= %.1f dB", db, self.thresholdDB)
-                self.triggerIntelligentEmergency(reason: String(format: NSLocalizedString("Limiar acústico excedido: %.0f dB", comment: ""), db))
+                self.triggerAttentionMode(reason: String(format: NSLocalizedString("Limiar acústico excedido: %.0f dB", comment: ""), db))
             }
         }
         
@@ -471,8 +474,25 @@ struct DistressPhrase {
     
     // MARK: - Gatilho Inteligente & Grace Period
     
-    @objc public func triggerIntelligentEmergency(reason: String) {
+    private func triggerAttentionMode(reason: String) {
         guard currentState == .listening else { return }
+        
+        transition(to: .attentionMode)
+        NSLog("[SentinelAcousticMonitor] MODO DE ATENÇÃO INICIADO: %@", reason)
+        
+        // Aguarda 15 segundos por um grito ou frase. Se nada acontecer, cancela.
+        stopGracePeriodTimers()
+        attentionTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            if self.currentState == .attentionMode {
+                NSLog("[SentinelAcousticMonitor] Modo de Atenção expirou sem confirmação. Cancelando falso alarme.")
+                self.transition(to: .listening)
+            }
+        }
+    }
+    
+    @objc public func triggerIntelligentEmergency(reason: String) {
+        guard currentState == .listening || currentState == .attentionMode else { return }
         lastTriggerReason = reason
         NSLog("[SentinelAcousticMonitor] GATILHO INTELIGENTE DISPARADO: %@", reason)
         DispatchQueue.main.async { [weak self] in
@@ -483,7 +503,7 @@ struct DistressPhrase {
     }
     
     private func triggerGracePeriod() {
-        guard currentState == .listening else { return }
+        guard currentState == .listening || currentState == .attentionMode else { return }
         
         transition(to: .gracePeriod)
         gracePeriodRemainingSeconds = Int(gracePeriodDuration)
@@ -525,6 +545,8 @@ struct DistressPhrase {
     private func stopGracePeriodTimers() {
         gracePeriodTimer?.invalidate()
         gracePeriodTimer = nil
+        attentionTimer?.invalidate()
+        attentionTimer = nil
     }
     
     // MARK: - Despacho de Emergência
@@ -648,7 +670,7 @@ struct DistressPhrase {
     
     @objc func addCustomKeyword(_ keyword: String) -> Bool {
         var list = getCustomKeywords()
-        guard list.count < 3 else { return false }
+        guard list.count < 10 else { return false }
         let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return false }
         let normalized = trimmed.folding(options: .diacriticInsensitive, locale: .current).lowercased()
@@ -656,7 +678,7 @@ struct DistressPhrase {
             return false
         }
         list.append(trimmed)
-        UserDefaults.standard.set(Array(list.prefix(3)), forKey: customKeywordsKey)
+        UserDefaults.standard.set(Array(list.prefix(10)), forKey: customKeywordsKey)
         return true
     }
     
@@ -725,7 +747,7 @@ struct DistressPhrase {
 extension SentinelAcousticMonitor: SNResultsObserving {
     public func request(_ request: SNRequest, didProduce result: SNResult) {
         guard let classificationResult = result as? SNClassificationResult else { return }
-        guard currentState == .listening else { return }
+        guard currentState == .listening || currentState == .attentionMode else { return }
         
         for classification in classificationResult.classifications {
             let identifier = classification.identifier.lowercased()
