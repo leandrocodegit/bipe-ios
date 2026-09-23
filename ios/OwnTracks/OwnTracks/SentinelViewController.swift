@@ -4,10 +4,12 @@
 //
 //  Tela nativa do Modo Sentinela (Monitor Acústico Passivo On-Device)
 //  Segurança preventiva com privacidade total (RAM apenas) e tolerância zero a falso positivo.
+//  Permite cadastrar até 3 contatos de confiança para notificação em caso de emergência.
 //
 
 import UIKit
 import AVFoundation
+import ContactsUI
 
 @objc class SentinelViewController: UIViewController {
 
@@ -196,6 +198,82 @@ import AVFoundation
         return btn
     }()
 
+    // MARK: - Trusted Contacts Card
+    private let contactsCardView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 22/255, green: 34/255, blue: 38/255, alpha: 1.0)
+        view.layer.cornerRadius = 16
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0).cgColor
+        return view
+    }()
+
+    private let contactsIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "person.2.fill") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let contactsTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Contatos de Confiança", comment: "")
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let contactsBadgeLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "0/3"
+        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        label.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.15)
+        label.layer.cornerRadius = 6
+        label.layer.masksToBounds = true
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let contactsSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Cadastre até 3 contatos para serem notificados com suas coordenadas em caso de incidente.", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let contactsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.distribution = .fill
+        return stack
+    }()
+
+    private let addContactButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle(NSLocalizedString("+ Adicionar Contato de Confiança", comment: ""), for: .normal)
+        btn.setTitleColor(UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0), for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
+        btn.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.1)
+        btn.layer.cornerRadius = 10
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.3).cgColor
+        return btn
+    }()
+
     // Threshold Slider Card
     private let sliderCardView: UIView = {
         let view = UIView()
@@ -277,11 +355,13 @@ import AVFoundation
         setupActions()
         configureCallbacks()
         syncStateWithMonitor()
+        refreshContactsUI()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         syncStateWithMonitor()
+        refreshContactsUI()
     }
 
     deinit {
@@ -320,6 +400,7 @@ import AVFoundation
         contentView.addSubview(statusCardView)
         contentView.addSubview(meterCardView)
         contentView.addSubview(gracePeriodCardView)
+        contentView.addSubview(contactsCardView)
         contentView.addSubview(sliderCardView)
         contentView.addSubview(privacyCardView)
 
@@ -339,6 +420,14 @@ import AVFoundation
         gracePeriodCardView.addSubview(graceCountdownLabel)
         gracePeriodCardView.addSubview(graceDescriptionLabel)
         gracePeriodCardView.addSubview(cancelGraceButton)
+
+        // Contacts Card Subviews
+        contactsCardView.addSubview(contactsIconView)
+        contactsCardView.addSubview(contactsTitleLabel)
+        contactsCardView.addSubview(contactsBadgeLabel)
+        contactsCardView.addSubview(contactsSubtitleLabel)
+        contactsCardView.addSubview(contactsStackView)
+        contactsCardView.addSubview(addContactButton)
 
         // Slider Card Subviews
         sliderCardView.addSubview(sliderTitleLabel)
@@ -437,8 +526,40 @@ import AVFoundation
             cancelGraceButton.heightAnchor.constraint(equalToConstant: 46),
             cancelGraceButton.bottomAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: -18),
 
+            // Contacts Card
+            contactsCardView.topAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: 16),
+            contactsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            contactsCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            contactsIconView.leadingAnchor.constraint(equalTo: contactsCardView.leadingAnchor, constant: 16),
+            contactsIconView.topAnchor.constraint(equalTo: contactsCardView.topAnchor, constant: 16),
+            contactsIconView.widthAnchor.constraint(equalToConstant: 22),
+            contactsIconView.heightAnchor.constraint(equalToConstant: 22),
+
+            contactsTitleLabel.leadingAnchor.constraint(equalTo: contactsIconView.trailingAnchor, constant: 10),
+            contactsTitleLabel.centerYAnchor.constraint(equalTo: contactsIconView.centerYAnchor),
+
+            contactsBadgeLabel.trailingAnchor.constraint(equalTo: contactsCardView.trailingAnchor, constant: -16),
+            contactsBadgeLabel.centerYAnchor.constraint(equalTo: contactsIconView.centerYAnchor),
+            contactsBadgeLabel.widthAnchor.constraint(equalToConstant: 36),
+            contactsBadgeLabel.heightAnchor.constraint(equalToConstant: 22),
+
+            contactsSubtitleLabel.topAnchor.constraint(equalTo: contactsIconView.bottomAnchor, constant: 8),
+            contactsSubtitleLabel.leadingAnchor.constraint(equalTo: contactsCardView.leadingAnchor, constant: 16),
+            contactsSubtitleLabel.trailingAnchor.constraint(equalTo: contactsCardView.trailingAnchor, constant: -16),
+
+            contactsStackView.topAnchor.constraint(equalTo: contactsSubtitleLabel.bottomAnchor, constant: 14),
+            contactsStackView.leadingAnchor.constraint(equalTo: contactsCardView.leadingAnchor, constant: 16),
+            contactsStackView.trailingAnchor.constraint(equalTo: contactsCardView.trailingAnchor, constant: -16),
+
+            addContactButton.topAnchor.constraint(equalTo: contactsStackView.bottomAnchor, constant: 12),
+            addContactButton.leadingAnchor.constraint(equalTo: contactsCardView.leadingAnchor, constant: 16),
+            addContactButton.trailingAnchor.constraint(equalTo: contactsCardView.trailingAnchor, constant: -16),
+            addContactButton.heightAnchor.constraint(equalToConstant: 44),
+            addContactButton.bottomAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: -16),
+
             // Slider Card
-            sliderCardView.topAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: 16),
+            sliderCardView.topAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: 16),
             sliderCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             sliderCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
@@ -480,13 +601,14 @@ import AVFoundation
         toggleSwitch.addTarget(self, action: #selector(toggleSwitchChanged(_:)), for: .valueChanged)
         thresholdSlider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         cancelGraceButton.addTarget(self, action: #selector(cancelGraceTapped), for: .touchUpInside)
+        addContactButton.addTarget(self, action: #selector(addContactTapped), for: .touchUpInside)
     }
 
     @objc private func toggleSwitchChanged(_ sender: UISwitch) {
         if sender.isOn {
-            SentinelAcousticMonitor.shared.startMonitoring()
+            SentinelAcousticMonitor.startMonitoring()
         } else {
-            SentinelAcousticMonitor.shared.stopMonitoring()
+            SentinelAcousticMonitor.stopMonitoring()
         }
         syncStateWithMonitor()
     }
@@ -500,7 +622,7 @@ import AVFoundation
     }
 
     @objc private func cancelGraceTapped() {
-        SentinelAcousticMonitor.shared.cancelGracePeriod()
+        SentinelAcousticMonitor.cancelGracePeriod()
         syncStateWithMonitor()
     }
 
@@ -522,6 +644,193 @@ import AVFoundation
                 self?.graceCountdownLabel.text = "\(remaining)s"
             }
         }
+    }
+
+    // MARK: - Contacts Management UI
+
+    private func refreshContactsUI() {
+        for view in contactsStackView.arrangedSubviews {
+            contactsStackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+
+        let contacts = SentinelAcousticMonitor.shared.getTrustedContacts()
+        contactsBadgeLabel.text = "\(contacts.count)/3"
+        addContactButton.isHidden = contacts.count >= 3
+
+        for (index, contact) in contacts.enumerated() {
+            let rowView = createContactRowView(contact: contact, index: index)
+            contactsStackView.addArrangedSubview(rowView)
+        }
+    }
+
+    private func createContactRowView(contact: TrustedContact, index: Int) -> UIView {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.backgroundColor = UIColor(red: 28/255, green: 42/255, blue: 47/255, alpha: 1.0)
+        container.layer.cornerRadius = 10
+        container.layer.borderWidth = 1
+        container.layer.borderColor = UIColor(red: 38/255, green: 56/255, blue: 62/255, alpha: 1.0).cgColor
+
+        // Avatar or initials circle
+        let avatarView = UIView()
+        avatarView.translatesAutoresizingMaskIntoConstraints = false
+        avatarView.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.2)
+        avatarView.layer.cornerRadius = 18
+        avatarView.clipsToBounds = true
+
+        let avatarImageView = UIImageView()
+        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+        avatarImageView.contentMode = .scaleAspectFill
+
+        let initialsLabel = UILabel()
+        initialsLabel.translatesAutoresizingMaskIntoConstraints = false
+        initialsLabel.font = .systemFont(ofSize: 13, weight: .bold)
+        initialsLabel.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        initialsLabel.textAlignment = .center
+
+        if let data = contact.avatarData, let img = UIImage(data: data) {
+            avatarImageView.image = img
+            avatarImageView.isHidden = false
+            initialsLabel.isHidden = true
+        } else {
+            let initials = contact.name.split(separator: " ").prefix(2).compactMap { $0.first }.map { String($0).uppercased() }.joined()
+            initialsLabel.text = initials.isEmpty ? "C" : initials
+            avatarImageView.isHidden = true
+            initialsLabel.isHidden = false
+        }
+
+        avatarView.addSubview(avatarImageView)
+        avatarView.addSubview(initialsLabel)
+
+        let nameLabel = UILabel()
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.text = contact.name
+        nameLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        nameLabel.textColor = .white
+
+        let phoneLabel = UILabel()
+        phoneLabel.translatesAutoresizingMaskIntoConstraints = false
+        phoneLabel.text = contact.phoneNumber.isEmpty ? NSLocalizedString("Sem telefone", comment: "") : contact.phoneNumber
+        phoneLabel.font = .systemFont(ofSize: 12, weight: .regular)
+        phoneLabel.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+
+        let textStack = UIStackView(arrangedSubviews: [nameLabel, phoneLabel])
+        textStack.translatesAutoresizingMaskIntoConstraints = false
+        textStack.axis = .vertical
+        textStack.spacing = 2
+
+        let deleteButton = UIButton(type: .system)
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "trash") {
+            deleteButton.setImage(img, for: .normal)
+        } else {
+            deleteButton.setTitle("✕", for: .normal)
+        }
+        deleteButton.tintColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 0.8)
+        deleteButton.tag = index
+        deleteButton.addTarget(self, action: #selector(deleteContactTapped(_:)), for: .touchUpInside)
+
+        container.addSubview(avatarView)
+        container.addSubview(textStack)
+        container.addSubview(deleteButton)
+
+        NSLayoutConstraint.activate([
+            container.heightAnchor.constraint(equalToConstant: 54),
+
+            avatarView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
+            avatarView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            avatarView.widthAnchor.constraint(equalToConstant: 36),
+            avatarView.heightAnchor.constraint(equalToConstant: 36),
+
+            avatarImageView.topAnchor.constraint(equalTo: avatarView.topAnchor),
+            avatarImageView.leadingAnchor.constraint(equalTo: avatarView.leadingAnchor),
+            avatarImageView.trailingAnchor.constraint(equalTo: avatarView.trailingAnchor),
+            avatarImageView.bottomAnchor.constraint(equalTo: avatarView.bottomAnchor),
+
+            initialsLabel.centerXAnchor.constraint(equalTo: avatarView.centerXAnchor),
+            initialsLabel.centerYAnchor.constraint(equalTo: avatarView.centerYAnchor),
+
+            textStack.leadingAnchor.constraint(equalTo: avatarView.trailingAnchor, constant: 10),
+            textStack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            textStack.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -10),
+
+            deleteButton.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
+            deleteButton.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            deleteButton.widthAnchor.constraint(equalToConstant: 30),
+            deleteButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
+
+        return container
+    }
+
+    @objc private func addContactTapped() {
+        guard SentinelAcousticMonitor.shared.getTrustedContacts().count < 3 else {
+            let alert = UIAlertController(title: NSLocalizedString("Limite Atingido", comment: ""),
+                                          message: NSLocalizedString("Você já cadastrou o número máximo de 3 contatos de confiança.", comment: ""),
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true)
+            return
+        }
+
+        let actionSheet = UIAlertController(title: NSLocalizedString("Adicionar Contato de Confiança", comment: ""),
+                                            message: NSLocalizedString("Como deseja adicionar o contato de emergência?", comment: ""),
+                                            preferredStyle: .actionSheet)
+
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("Escolher da Agenda do iPhone", comment: ""), style: .default, handler: { [weak self] _ in
+            self?.openContactPicker()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("Digitar Nome e Telefone", comment: ""), style: .default, handler: { [weak self] _ in
+            self?.openManualContactAlert()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancelar", comment: ""), style: .cancel, handler: nil))
+
+        if let popover = actionSheet.popoverPresentationController {
+            popover.sourceView = addContactButton
+            popover.sourceRect = addContactButton.bounds
+        }
+
+        present(actionSheet, animated: true)
+    }
+
+    private func openContactPicker() {
+        let picker = CNContactPickerViewController()
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+
+    private func openManualContactAlert() {
+        let alert = UIAlertController(title: NSLocalizedString("Novo Contato de Confiança", comment: ""),
+                                      message: NSLocalizedString("Informe o nome e o número de telefone com DDD.", comment: ""),
+                                      preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.placeholder = NSLocalizedString("Nome do Contato", comment: "")
+            tf.autocapitalizationType = .words
+        }
+        alert.addTextField { tf in
+            tf.placeholder = NSLocalizedString("Telefone (com DDD)", comment: "")
+            tf.keyboardType = .phonePad
+        }
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancelar", comment: ""), style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Adicionar", comment: ""), style: .default, handler: { [weak self] _ in
+            let name = alert.textFields?[0].text ?? ""
+            let phone = alert.textFields?[1].text ?? ""
+            if SentinelAcousticMonitor.shared.addTrustedContact(name: name, phoneNumber: phone) {
+                self?.refreshContactsUI()
+            }
+        }))
+
+        present(alert, animated: true)
+    }
+
+    @objc private func deleteContactTapped(_ sender: UIButton) {
+        let index = sender.tag
+        SentinelAcousticMonitor.shared.removeTrustedContact(at: index)
+        refreshContactsUI()
     }
 
     // MARK: - State Sync
@@ -615,6 +924,21 @@ import AVFoundation
             UIView.animate(withDuration: 0.1) {
                 self.view.layoutIfNeeded()
             }
+        }
+    }
+}
+
+// MARK: - CNContactPickerDelegate
+
+extension SentinelViewController: CNContactPickerDelegate {
+    func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
+        let fullName = [contact.givenName, contact.familyName].filter { !$0.isEmpty }.joined(separator: " ")
+        let displayName = fullName.isEmpty ? (contact.organizationName.isEmpty ? NSLocalizedString("Contato", comment: "") : contact.organizationName) : fullName
+        let phone = contact.phoneNumbers.first?.value.stringValue ?? ""
+        let avatar = contact.thumbnailImageData
+
+        if SentinelAcousticMonitor.shared.addTrustedContact(name: displayName, phoneNumber: phone, avatarData: avatar) {
+            refreshContactsUI()
         }
     }
 }

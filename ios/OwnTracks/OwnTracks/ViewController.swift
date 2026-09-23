@@ -2067,6 +2067,14 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             if !face.isEmpty { payload["face"] = face }
             if !color.isEmpty { payload["color"] = color }
             
+            let trustedContacts = SentinelAcousticMonitor.shared.getTrustedContacts()
+            if !trustedContacts.isEmpty {
+                payload["trustedContacts"] = trustedContacts.map { [
+                    "name": $0.name,
+                    "phone": $0.phoneNumber
+                ] }
+            }
+            
             // Garante que a conexão MQTT esteja instanciada e conectada
             if delegate.connection == nil {
                 delegate.connection = Connection()

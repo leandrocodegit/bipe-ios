@@ -420,6 +420,45 @@ import CoreLocation
         }
     }
     
+    // MARK: - Gestão de Contatos de Confiança (Máximo: 3)
+    
+    private let trustedContactsKey = "sentinel_trusted_contacts"
+    
+    @objc func getTrustedContacts() -> [TrustedContact] {
+        guard let data = UserDefaults.standard.data(forKey: trustedContactsKey),
+              let contacts = try? JSONDecoder().decode([TrustedContact].self, from: data) else {
+            return []
+        }
+        return contacts
+    }
+    
+    @objc func saveTrustedContacts(_ contacts: [TrustedContact]) {
+        let limited = Array(contacts.prefix(3))
+        if let data = try? JSONEncoder().encode(limited) {
+            UserDefaults.standard.set(data, forKey: trustedContactsKey)
+        }
+    }
+    
+    @objc func addTrustedContact(name: String, phoneNumber: String, avatarData: Data? = nil) -> Bool {
+        var contacts = getTrustedContacts()
+        guard contacts.count < 3 else { return false }
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPhone = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return false }
+        
+        let newContact = TrustedContact(name: trimmedName, phoneNumber: trimmedPhone, avatarData: avatarData)
+        contacts.append(newContact)
+        saveTrustedContacts(contacts)
+        return true
+    }
+    
+    @objc func removeTrustedContact(at index: Int) {
+        var contacts = getTrustedContacts()
+        guard index >= 0 && index < contacts.count else { return }
+        contacts.remove(at: index)
+        saveTrustedContacts(contacts)
+    }
+
     // MARK: - Transição de Estado
     
     private func transition(to newState: SentinelState) {
@@ -430,5 +469,22 @@ import CoreLocation
             guard let self = self else { return }
             self.onStateChange?(self.currentState)
         }
+    }
+}
+
+// MARK: - Modelo de Contato de Confiança
+
+@objc class TrustedContact: NSObject, Codable {
+    @objc let id: String
+    @objc let name: String
+    @objc let phoneNumber: String
+    let avatarData: Data?
+
+    init(id: String = UUID().uuidString, name: String, phoneNumber: String, avatarData: Data? = nil) {
+        self.id = id
+        self.name = name
+        self.phoneNumber = phoneNumber
+        self.avatarData = avatarData
+        super.init()
     }
 }
