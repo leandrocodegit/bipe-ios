@@ -1503,7 +1503,7 @@ import ContactsUI
         if keywords.isEmpty {
             let emptyLabel = UILabel()
             emptyLabel.text = NSLocalizedString("Nenhuma frase personalizada cadastrada ainda.", comment: "")
-            emptyLabel.font = .systemFont(ofSize: 12, weight: .italic)
+            emptyLabel.font = UIFont.italicSystemFont(ofSize: 12)
             emptyLabel.textColor = UIColor(red: 120/255, green: 135/255, blue: 140/255, alpha: 1.0)
             keywordsStackView.addArrangedSubview(emptyLabel)
         } else {
