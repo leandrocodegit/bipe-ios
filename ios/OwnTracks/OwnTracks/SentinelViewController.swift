@@ -213,7 +213,7 @@ import ContactsUI
     private let thresholdMarkerLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Limiar de Gatilho: 75 dB"
+        label.text = String(format: NSLocalizedString("Limiar de Gatilho: %.0f dB", comment: ""), 75.0)
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
         return label

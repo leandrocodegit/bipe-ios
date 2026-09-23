@@ -414,7 +414,7 @@ struct DistressPhrase {
         for custom in getCustomKeywords() {
             let normCustom = custom.folding(options: .diacriticInsensitive, locale: .current).lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             if !normCustom.isEmpty && normalized.contains(normCustom) {
-                let reason = "Frase personalizada detectada: \"\(custom)\""
+                let reason = String(format: NSLocalizedString("Frase personalizada detectada: \"%@\"", comment: ""), custom)
                 NSLog("[SentinelAcousticMonitor] MATCH PERSONALIZADO: %@", reason)
                 triggerIntelligentEmergency(reason: reason)
                 return
@@ -424,7 +424,7 @@ struct DistressPhrase {
         // 2. Verifica Frases de Socorro Nativas (PT, EN, ES)
         for phrase in defaultDistressPhrases {
             if normalized.contains(phrase.normalized) {
-                let reason = "Frase de socorro detectada (\(phrase.lang)): \"\(phrase.display)\""
+                let reason = String(format: NSLocalizedString("Frase de socorro detectada (%@): \"%@\"", comment: ""), phrase.lang, phrase.display)
                 NSLog("[SentinelAcousticMonitor] MATCH NATIVO: %@", reason)
                 triggerIntelligentEmergency(reason: reason)
                 return
@@ -456,7 +456,7 @@ struct DistressPhrase {
             
             if self.detectImpacts && db >= self.thresholdDB && self.currentState == .listening {
                 NSLog("[SentinelAcousticMonitor] Limiar acústico excedido: %.1f dB >= %.1f dB", db, self.thresholdDB)
-                self.triggerIntelligentEmergency(reason: String(format: "Limiar acústico excedido: %.0f dB", db))
+                self.triggerIntelligentEmergency(reason: String(format: NSLocalizedString("Limiar acústico excedido: %.0f dB", comment: ""), db))
             }
         }
         
@@ -733,14 +733,14 @@ extension SentinelAcousticMonitor: SNResultsObserving {
             
             // Vidro quebrando / Shatter (confiança >= 0.50) - apenas se detecção de impactos estiver ativa
             if detectImpacts && (identifier.contains("shatter") || identifier.contains("glass") || identifier.contains("breaking")) && confidence >= 0.50 {
-                let reason = String(format: "Vidro quebrando detectado (certeza: %.0f%%)", confidence * 100)
+                let reason = String(format: NSLocalizedString("Vidro quebrando detectado (certeza: %.0f%%)", comment: ""), confidence * 100)
                 triggerIntelligentEmergency(reason: reason)
                 return
             }
             
             // Gritos / Berros de pânico (confiança >= 0.55)
             if (identifier.contains("screaming") || identifier.contains("shouting") || identifier.contains("groan")) && confidence >= 0.55 {
-                let reason = String(format: "Grito ou pedido de pânico detectado (certeza: %.0f%%)", confidence * 100)
+                let reason = String(format: NSLocalizedString("Grito ou pedido de pânico detectado (certeza: %.0f%%)", comment: ""), confidence * 100)
                 triggerIntelligentEmergency(reason: reason)
                 return
             }
