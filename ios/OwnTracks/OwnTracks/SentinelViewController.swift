@@ -63,6 +63,69 @@ import ContactsUI
         return label
     }()
 
+    // MARK: - Emergency Callout Banner (Risco Iminente)
+    private let emergencyBannerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 48/255, green: 16/255, blue: 20/255, alpha: 1.0)
+        view.layer.cornerRadius = 14
+        view.layer.borderWidth = 1.2
+        view.layer.borderColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 0.85).cgColor
+        return view
+    }()
+
+    private let emergencyBannerIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "exclamationmark.triangle.fill") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let emergencyBannerTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("EM RISCO IMINENTE? LIGUE 190 / 180", comment: "")
+        label.font = .systemFont(ofSize: 13, weight: .black)
+        label.textColor = UIColor(red: 252/255, green: 165/255, blue: 165/255, alpha: 1.0)
+        return label
+    }()
+
+    private let emergencyBannerTextLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Se estiver sofrendo perigo ou ameaça imediata, NÃO aguarde o monitoramento acústico. Ligue imediatamente para as forças de emergência:", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 229/255, green: 231/255, blue: 235/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let emergencyCall190Button: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle(NSLocalizedString("📞 Ligar 190 (Polícia)", comment: ""), for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        btn.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+        btn.layer.cornerRadius = 8
+        return btn
+    }()
+
+    private let emergencyCall180Button: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle(NSLocalizedString("📞 Ligar 180 (Mulher)", comment: ""), for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        btn.backgroundColor = UIColor(red: 157/255, green: 23/255, blue: 77/255, alpha: 1.0)
+        btn.layer.cornerRadius = 8
+        return btn
+    }()
+
     // Status & Switch Card
     private let statusCardView: UIView = {
         let view = UIView()
@@ -274,6 +337,86 @@ import ContactsUI
         return btn
     }()
 
+    // MARK: - Guidelines Card (Ambiente Silencioso & Consumo de Bateria)
+    private let guidelinesCardView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 22/255, green: 34/255, blue: 38/255, alpha: 1.0)
+        view.layer.cornerRadius = 16
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0).cgColor
+        return view
+    }()
+
+    private let guidelinesTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Orientações de Uso Consciente", comment: "")
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let silentIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "moon.stars.fill") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let silentTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Momento Oportuno e Silencioso", comment: "")
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.textColor = UIColor(red: 94/255, green: 234/255, blue: 212/255, alpha: 1.0)
+        return label
+    }()
+
+    private let silentDescLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Ative preferencialmente ao dormir, repousar ou em locais calmos. Evite locais com muito barulho (TV alta, festas, trânsito intenso) para não gerar falsos disparos com ruídos comuns do dia a dia.", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let batteryIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "battery.75") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 250/255, green: 204/255, blue: 21/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let batteryTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Consumo de Bateria & Salvaguarda", comment: "")
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.textColor = UIColor(red: 253/255, green: 224/255, blue: 71/255, alpha: 1.0)
+        return label
+    }()
+
+    private let batteryDescLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("A escuta contínua pelo microfone consome energia adicional. Recomendamos manter o iPhone conectado à tomada (especialmente à noite). O aplicativo pausa o monitoramento automaticamente se a bateria atingir 15% desconectada.", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
     // Threshold Slider Card
     private let sliderCardView: UIView = {
         let view = UIView()
@@ -397,12 +540,34 @@ import ContactsUI
         contentView.addSubview(shieldImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(subtitleLabel)
+        contentView.addSubview(emergencyBannerView)
         contentView.addSubview(statusCardView)
         contentView.addSubview(meterCardView)
         contentView.addSubview(gracePeriodCardView)
         contentView.addSubview(contactsCardView)
+        contentView.addSubview(guidelinesCardView)
         contentView.addSubview(sliderCardView)
         contentView.addSubview(privacyCardView)
+
+        // Emergency Banner Subviews
+        emergencyBannerView.addSubview(emergencyBannerIconView)
+        emergencyBannerView.addSubview(emergencyBannerTitleLabel)
+        emergencyBannerView.addSubview(emergencyBannerTextLabel)
+        let emergencyBtnStack = UIStackView(arrangedSubviews: [emergencyCall190Button, emergencyCall180Button])
+        emergencyBtnStack.translatesAutoresizingMaskIntoConstraints = false
+        emergencyBtnStack.axis = .horizontal
+        emergencyBtnStack.spacing = 10
+        emergencyBtnStack.distribution = .fillEqually
+        emergencyBannerView.addSubview(emergencyBtnStack)
+
+        // Guidelines Card Subviews
+        guidelinesCardView.addSubview(guidelinesTitleLabel)
+        guidelinesCardView.addSubview(silentIconView)
+        guidelinesCardView.addSubview(silentTitleLabel)
+        guidelinesCardView.addSubview(silentDescLabel)
+        guidelinesCardView.addSubview(batteryIconView)
+        guidelinesCardView.addSubview(batteryTitleLabel)
+        guidelinesCardView.addSubview(batteryDescLabel)
 
         // Status Card Subviews
         statusCardView.addSubview(statusDotView)
@@ -465,8 +630,32 @@ import ContactsUI
             subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
 
+            // Emergency Callout Banner
+            emergencyBannerView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 16),
+            emergencyBannerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            emergencyBannerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            emergencyBannerIconView.topAnchor.constraint(equalTo: emergencyBannerView.topAnchor, constant: 14),
+            emergencyBannerIconView.leadingAnchor.constraint(equalTo: emergencyBannerView.leadingAnchor, constant: 14),
+            emergencyBannerIconView.widthAnchor.constraint(equalToConstant: 20),
+            emergencyBannerIconView.heightAnchor.constraint(equalToConstant: 20),
+
+            emergencyBannerTitleLabel.centerYAnchor.constraint(equalTo: emergencyBannerIconView.centerYAnchor),
+            emergencyBannerTitleLabel.leadingAnchor.constraint(equalTo: emergencyBannerIconView.trailingAnchor, constant: 8),
+            emergencyBannerTitleLabel.trailingAnchor.constraint(equalTo: emergencyBannerView.trailingAnchor, constant: -14),
+
+            emergencyBannerTextLabel.topAnchor.constraint(equalTo: emergencyBannerIconView.bottomAnchor, constant: 8),
+            emergencyBannerTextLabel.leadingAnchor.constraint(equalTo: emergencyBannerView.leadingAnchor, constant: 14),
+            emergencyBannerTextLabel.trailingAnchor.constraint(equalTo: emergencyBannerView.trailingAnchor, constant: -14),
+
+            emergencyBtnStack.topAnchor.constraint(equalTo: emergencyBannerTextLabel.bottomAnchor, constant: 12),
+            emergencyBtnStack.leadingAnchor.constraint(equalTo: emergencyBannerView.leadingAnchor, constant: 14),
+            emergencyBtnStack.trailingAnchor.constraint(equalTo: emergencyBannerView.trailingAnchor, constant: -14),
+            emergencyBtnStack.heightAnchor.constraint(equalToConstant: 36),
+            emergencyBtnStack.bottomAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: -14),
+
             // Status Card
-            statusCardView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 24),
+            statusCardView.topAnchor.constraint(equalTo: emergencyBannerView.bottomAnchor, constant: 16),
             statusCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             statusCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             statusCardView.heightAnchor.constraint(equalToConstant: 68),
@@ -558,8 +747,44 @@ import ContactsUI
             addContactButton.heightAnchor.constraint(equalToConstant: 44),
             addContactButton.bottomAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: -16),
 
+            // Guidelines Card
+            guidelinesCardView.topAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: 16),
+            guidelinesCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            guidelinesCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            guidelinesTitleLabel.topAnchor.constraint(equalTo: guidelinesCardView.topAnchor, constant: 16),
+            guidelinesTitleLabel.leadingAnchor.constraint(equalTo: guidelinesCardView.leadingAnchor, constant: 16),
+            guidelinesTitleLabel.trailingAnchor.constraint(equalTo: guidelinesCardView.trailingAnchor, constant: -16),
+
+            silentIconView.topAnchor.constraint(equalTo: guidelinesTitleLabel.bottomAnchor, constant: 14),
+            silentIconView.leadingAnchor.constraint(equalTo: guidelinesCardView.leadingAnchor, constant: 16),
+            silentIconView.widthAnchor.constraint(equalToConstant: 20),
+            silentIconView.heightAnchor.constraint(equalToConstant: 20),
+
+            silentTitleLabel.centerYAnchor.constraint(equalTo: silentIconView.centerYAnchor),
+            silentTitleLabel.leadingAnchor.constraint(equalTo: silentIconView.trailingAnchor, constant: 10),
+            silentTitleLabel.trailingAnchor.constraint(equalTo: guidelinesCardView.trailingAnchor, constant: -16),
+
+            silentDescLabel.topAnchor.constraint(equalTo: silentIconView.bottomAnchor, constant: 6),
+            silentDescLabel.leadingAnchor.constraint(equalTo: guidelinesCardView.leadingAnchor, constant: 16),
+            silentDescLabel.trailingAnchor.constraint(equalTo: guidelinesCardView.trailingAnchor, constant: -16),
+
+            batteryIconView.topAnchor.constraint(equalTo: silentDescLabel.bottomAnchor, constant: 14),
+            batteryIconView.leadingAnchor.constraint(equalTo: guidelinesCardView.leadingAnchor, constant: 16),
+            batteryIconView.widthAnchor.constraint(equalToConstant: 20),
+            batteryIconView.heightAnchor.constraint(equalToConstant: 20),
+
+            batteryTitleLabel.centerYAnchor.constraint(equalTo: batteryIconView.centerYAnchor),
+            batteryTitleLabel.leadingAnchor.constraint(equalTo: batteryIconView.trailingAnchor, constant: 10),
+            batteryTitleLabel.trailingAnchor.constraint(equalTo: guidelinesCardView.trailingAnchor, constant: -16),
+
+            batteryDescLabel.topAnchor.constraint(equalTo: batteryIconView.bottomAnchor, constant: 6),
+            batteryDescLabel.leadingAnchor.constraint(equalTo: guidelinesCardView.leadingAnchor, constant: 16),
+            batteryDescLabel.trailingAnchor.constraint(equalTo: guidelinesCardView.trailingAnchor, constant: -16),
+            batteryDescLabel.bottomAnchor.constraint(equalTo: guidelinesCardView.bottomAnchor, constant: -16),
+
             // Slider Card
-            sliderCardView.topAnchor.constraint(equalTo: contactsCardView.bottomAnchor, constant: 16),
+            sliderCardView.topAnchor.constraint(equalTo: guidelinesCardView.bottomAnchor, constant: 16),
             sliderCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             sliderCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
@@ -602,15 +827,52 @@ import ContactsUI
         thresholdSlider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         cancelGraceButton.addTarget(self, action: #selector(cancelGraceTapped), for: .touchUpInside)
         addContactButton.addTarget(self, action: #selector(addContactTapped), for: .touchUpInside)
+        emergencyCall190Button.addTarget(self, action: #selector(call190Tapped), for: .touchUpInside)
+        emergencyCall180Button.addTarget(self, action: #selector(call180Tapped), for: .touchUpInside)
     }
 
     @objc private func toggleSwitchChanged(_ sender: UISwitch) {
         if sender.isOn {
-            SentinelAcousticMonitor.startMonitoring()
+            // Reverte o switch visualmente e abre o modal de confirmação com orientações
+            sender.setOn(false, animated: false)
+            showActivationConfirmationModal()
         } else {
             SentinelAcousticMonitor.stopMonitoring()
+            syncStateWithMonitor()
         }
-        syncStateWithMonitor()
+    }
+
+    private func showActivationConfirmationModal() {
+        let modal = SentinelActivationModalViewController()
+        modal.onConfirm = { [weak self] in
+            guard let self = self else { return }
+            self.toggleSwitch.setOn(true, animated: true)
+            SentinelAcousticMonitor.startMonitoring()
+            self.syncStateWithMonitor()
+        }
+        modal.onCancel = { [weak self] in
+            self?.syncStateWithMonitor()
+        }
+        modal.modalPresentationStyle = .overFullScreen
+        modal.modalTransitionStyle = .crossDissolve
+        present(modal, animated: true, completion: nil)
+    }
+
+    @objc private func call190Tapped() {
+        dialNumber("190")
+    }
+
+    @objc private func call180Tapped() {
+        dialNumber("180")
+    }
+
+    private func dialNumber(_ number: String) {
+        guard let url = URL(string: "tel://\(number)") else { return }
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        } else {
+            NSLog("[Sentinel] Dispositivo não suporta chamadas telefônicas diretas: tel://%@", number)
+        }
     }
 
     @objc private func sliderValueChanged(_ sender: UISlider) {
@@ -939,6 +1201,401 @@ extension SentinelViewController: CNContactPickerDelegate {
 
         if SentinelAcousticMonitor.shared.addTrustedContact(name: displayName, phoneNumber: phone, avatarData: avatar) {
             refreshContactsUI()
+        }
+    }
+}
+
+// MARK: - SentinelActivationModalViewController
+
+class SentinelActivationModalViewController: UIViewController {
+
+    var onConfirm: (() -> Void)?
+    var onCancel: (() -> Void)?
+
+    private let backdropView: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = UIColor.black.withAlphaComponent(0.72)
+        return v
+    }()
+
+    private let containerView: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = UIColor(red: 18/255, green: 28/255, blue: 32/255, alpha: 1.0)
+        v.layer.cornerRadius = 20
+        v.layer.borderWidth = 1.5
+        v.layer.borderColor = UIColor(red: 45/255, green: 65/255, blue: 72/255, alpha: 1.0).cgColor
+        v.layer.masksToBounds = true
+        return v
+    }()
+
+    private let scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.showsVerticalScrollIndicator = true
+        return sv
+    }()
+
+    private let scrollContentView: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        return v
+    }()
+
+    // Header
+    private let shieldImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "shield.lefthalf.filled") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let modalTitleLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("Ativar Modo Sentinela", comment: "")
+        l.font = .systemFont(ofSize: 20, weight: .bold)
+        l.textColor = .white
+        l.textAlignment = .center
+        return l
+    }()
+
+    private let modalSubtitleLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("Leia com atenção antes de iniciar o monitoramento:", comment: "")
+        l.font = .systemFont(ofSize: 13, weight: .regular)
+        l.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        l.textAlignment = .center
+        return l
+    }()
+
+    // Box 1: Risco Iminente (Destaque Máximo)
+    private let emergencyBoxView: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = UIColor(red: 58/255, green: 20/255, blue: 24/255, alpha: 1.0)
+        v.layer.cornerRadius = 12
+        v.layer.borderWidth = 1.2
+        v.layer.borderColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 0.9).cgColor
+        return v
+    }()
+
+    private let emergencyTitleLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("🚨 ESTÁ EM RISCO IMINENTE?", comment: "")
+        l.font = .systemFont(ofSize: 13, weight: .black)
+        l.textColor = UIColor(red: 252/255, green: 165/255, blue: 165/255, alpha: 1.0)
+        return l
+    }()
+
+    private let emergencyDescLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("Se você estiver sofrendo perigo ou ameaça agora, NÃO aguarde o monitoramento acústico. Ligue imediatamente para as autoridades:", comment: "")
+        l.font = .systemFont(ofSize: 12, weight: .medium)
+        l.textColor = .white
+        l.numberOfLines = 0
+        return l
+    }()
+
+    private let call190Btn: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.setTitle(NSLocalizedString("📞 Ligar 190 (Polícia)", comment: ""), for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        b.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+        b.layer.cornerRadius = 8
+        return b
+    }()
+
+    private let call180Btn: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.setTitle(NSLocalizedString("📞 Ligar 180 (Mulher)", comment: ""), for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        b.backgroundColor = UIColor(red: 157/255, green: 23/255, blue: 77/255, alpha: 1.0)
+        b.layer.cornerRadius = 8
+        return b
+    }()
+
+    // Box 2: Momento Oportuno / Local Silencioso
+    private let silentBoxView: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = UIColor(red: 24/255, green: 38/255, blue: 43/255, alpha: 1.0)
+        v.layer.cornerRadius = 12
+        v.layer.borderWidth = 1
+        v.layer.borderColor = UIColor(red: 38/255, green: 58/255, blue: 65/255, alpha: 1.0).cgColor
+        return v
+    }()
+
+    private let silentTitleLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("🤫 Ambiente Oportuno e Silencioso", comment: "")
+        l.font = .systemFont(ofSize: 13, weight: .bold)
+        l.textColor = UIColor(red: 94/255, green: 234/255, blue: 212/255, alpha: 1.0)
+        return l
+    }()
+
+    private let silentDescLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("Ative preferencialmente ao dormir, repousar ou em locais calmos. Ambientes barulhentos (TV alta, festas, trânsito intenso) provocam falsos disparos acústicos.", comment: "")
+        l.font = .systemFont(ofSize: 12, weight: .regular)
+        l.textColor = UIColor(red: 209/255, green: 213/255, blue: 219/255, alpha: 1.0)
+        l.numberOfLines = 0
+        return l
+    }()
+
+    // Box 3: Consumo de Bateria & Salvaguarda
+    private let batteryBoxView: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = UIColor(red: 24/255, green: 38/255, blue: 43/255, alpha: 1.0)
+        v.layer.cornerRadius = 12
+        v.layer.borderWidth = 1
+        v.layer.borderColor = UIColor(red: 38/255, green: 58/255, blue: 65/255, alpha: 1.0).cgColor
+        return v
+    }()
+
+    private let batteryTitleLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("🔋 Consumo de Bateria & Salvaguarda", comment: "")
+        l.font = .systemFont(ofSize: 13, weight: .bold)
+        l.textColor = UIColor(red: 253/255, green: 224/255, blue: 71/255, alpha: 1.0)
+        return l
+    }()
+
+    private let batteryDescLabel: UILabel = {
+        let l = UILabel()
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.text = NSLocalizedString("A escuta contínua pelo microfone consome bateria. Recomendamos manter o aparelho no carregador. O monitoramento desliga sozinho se a bateria atingir 15% desconectada.", comment: "")
+        l.font = .systemFont(ofSize: 12, weight: .regular)
+        l.textColor = UIColor(red: 209/255, green: 213/255, blue: 219/255, alpha: 1.0)
+        l.numberOfLines = 0
+        return l
+    }()
+
+    // Buttons
+    private let confirmButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.setTitle(NSLocalizedString("Compreendi e Quero Ativar", comment: ""), for: .normal)
+        b.setTitleColor(.white, for: .normal)
+        b.titleLabel?.font = .systemFont(ofSize: 15, weight: .bold)
+        b.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        b.layer.cornerRadius = 12
+        return b
+    }()
+
+    private let cancelButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.setTitle(NSLocalizedString("Cancelar", comment: ""), for: .normal)
+        b.setTitleColor(UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0), for: .normal)
+        b.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        return b
+    }()
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupActions()
+    }
+
+    private func setupUI() {
+        view.backgroundColor = .clear
+
+        view.addSubview(backdropView)
+        view.addSubview(containerView)
+
+        containerView.addSubview(scrollView)
+        scrollView.addSubview(scrollContentView)
+
+        scrollContentView.addSubview(shieldImageView)
+        scrollContentView.addSubview(modalTitleLabel)
+        scrollContentView.addSubview(modalSubtitleLabel)
+        scrollContentView.addSubview(emergencyBoxView)
+        scrollContentView.addSubview(silentBoxView)
+        scrollContentView.addSubview(batteryBoxView)
+
+        // Emergency Box subviews
+        emergencyBoxView.addSubview(emergencyTitleLabel)
+        emergencyBoxView.addSubview(emergencyDescLabel)
+        let emergencyStack = UIStackView(arrangedSubviews: [call190Btn, call180Btn])
+        emergencyStack.translatesAutoresizingMaskIntoConstraints = false
+        emergencyStack.axis = .horizontal
+        emergencyStack.spacing = 8
+        emergencyStack.distribution = .fillEqually
+        emergencyBoxView.addSubview(emergencyStack)
+
+        // Silent Box subviews
+        silentBoxView.addSubview(silentTitleLabel)
+        silentBoxView.addSubview(silentDescLabel)
+
+        // Battery Box subviews
+        batteryBoxView.addSubview(batteryTitleLabel)
+        batteryBoxView.addSubview(batteryDescLabel)
+
+        containerView.addSubview(confirmButton)
+        containerView.addSubview(cancelButton)
+
+        let widthConstraint = containerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -32)
+        widthConstraint.priority = UILayoutPriority(999)
+
+        NSLayoutConstraint.activate([
+            // Backdrop
+            backdropView.topAnchor.constraint(equalTo: view.topAnchor),
+            backdropView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backdropView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backdropView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            // Container Card
+            containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            containerView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 16),
+            containerView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -16),
+            widthConstraint,
+            containerView.widthAnchor.constraint(lessThanOrEqualToConstant: 440),
+            containerView.heightAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.heightAnchor, constant: -40),
+
+            // ScrollView
+            scrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: confirmButton.topAnchor, constant: -10),
+
+            // ScrollContentView
+            scrollContentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            scrollContentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            scrollContentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            scrollContentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            scrollContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+
+            // Header Elements
+            shieldImageView.topAnchor.constraint(equalTo: scrollContentView.topAnchor, constant: 18),
+            shieldImageView.centerXAnchor.constraint(equalTo: scrollContentView.centerXAnchor),
+            shieldImageView.widthAnchor.constraint(equalToConstant: 44),
+            shieldImageView.heightAnchor.constraint(equalToConstant: 44),
+
+            modalTitleLabel.topAnchor.constraint(equalTo: shieldImageView.bottomAnchor, constant: 8),
+            modalTitleLabel.leadingAnchor.constraint(equalTo: scrollContentView.leadingAnchor, constant: 16),
+            modalTitleLabel.trailingAnchor.constraint(equalTo: scrollContentView.trailingAnchor, constant: -16),
+
+            modalSubtitleLabel.topAnchor.constraint(equalTo: modalTitleLabel.bottomAnchor, constant: 4),
+            modalSubtitleLabel.leadingAnchor.constraint(equalTo: scrollContentView.leadingAnchor, constant: 16),
+            modalSubtitleLabel.trailingAnchor.constraint(equalTo: scrollContentView.trailingAnchor, constant: -16),
+
+            // Emergency Box
+            emergencyBoxView.topAnchor.constraint(equalTo: modalSubtitleLabel.bottomAnchor, constant: 14),
+            emergencyBoxView.leadingAnchor.constraint(equalTo: scrollContentView.leadingAnchor, constant: 16),
+            emergencyBoxView.trailingAnchor.constraint(equalTo: scrollContentView.trailingAnchor, constant: -16),
+
+            emergencyTitleLabel.topAnchor.constraint(equalTo: emergencyBoxView.topAnchor, constant: 12),
+            emergencyTitleLabel.leadingAnchor.constraint(equalTo: emergencyBoxView.leadingAnchor, constant: 12),
+            emergencyTitleLabel.trailingAnchor.constraint(equalTo: emergencyBoxView.trailingAnchor, constant: -12),
+
+            emergencyDescLabel.topAnchor.constraint(equalTo: emergencyTitleLabel.bottomAnchor, constant: 6),
+            emergencyDescLabel.leadingAnchor.constraint(equalTo: emergencyBoxView.leadingAnchor, constant: 12),
+            emergencyDescLabel.trailingAnchor.constraint(equalTo: emergencyBoxView.trailingAnchor, constant: -12),
+
+            emergencyStack.topAnchor.constraint(equalTo: emergencyDescLabel.bottomAnchor, constant: 10),
+            emergencyStack.leadingAnchor.constraint(equalTo: emergencyBoxView.leadingAnchor, constant: 12),
+            emergencyStack.trailingAnchor.constraint(equalTo: emergencyBoxView.trailingAnchor, constant: -12),
+            emergencyStack.heightAnchor.constraint(equalToConstant: 36),
+            emergencyStack.bottomAnchor.constraint(equalTo: emergencyBoxView.bottomAnchor, constant: -12),
+
+            // Silent Box
+            silentBoxView.topAnchor.constraint(equalTo: emergencyBoxView.bottomAnchor, constant: 12),
+            silentBoxView.leadingAnchor.constraint(equalTo: scrollContentView.leadingAnchor, constant: 16),
+            silentBoxView.trailingAnchor.constraint(equalTo: scrollContentView.trailingAnchor, constant: -16),
+
+            silentTitleLabel.topAnchor.constraint(equalTo: silentBoxView.topAnchor, constant: 12),
+            silentTitleLabel.leadingAnchor.constraint(equalTo: silentBoxView.leadingAnchor, constant: 12),
+            silentTitleLabel.trailingAnchor.constraint(equalTo: silentBoxView.trailingAnchor, constant: -12),
+
+            silentDescLabel.topAnchor.constraint(equalTo: silentTitleLabel.bottomAnchor, constant: 4),
+            silentDescLabel.leadingAnchor.constraint(equalTo: silentBoxView.leadingAnchor, constant: 12),
+            silentDescLabel.trailingAnchor.constraint(equalTo: silentBoxView.trailingAnchor, constant: -12),
+            silentDescLabel.bottomAnchor.constraint(equalTo: silentBoxView.bottomAnchor, constant: -12),
+
+            // Battery Box
+            batteryBoxView.topAnchor.constraint(equalTo: silentBoxView.bottomAnchor, constant: 12),
+            batteryBoxView.leadingAnchor.constraint(equalTo: scrollContentView.leadingAnchor, constant: 16),
+            batteryBoxView.trailingAnchor.constraint(equalTo: scrollContentView.trailingAnchor, constant: -16),
+            batteryBoxView.bottomAnchor.constraint(equalTo: scrollContentView.bottomAnchor, constant: -14),
+
+            batteryTitleLabel.topAnchor.constraint(equalTo: batteryBoxView.topAnchor, constant: 12),
+            batteryTitleLabel.leadingAnchor.constraint(equalTo: batteryBoxView.leadingAnchor, constant: 12),
+            batteryTitleLabel.trailingAnchor.constraint(equalTo: batteryBoxView.trailingAnchor, constant: -12),
+
+            batteryDescLabel.topAnchor.constraint(equalTo: batteryTitleLabel.bottomAnchor, constant: 4),
+            batteryDescLabel.leadingAnchor.constraint(equalTo: batteryBoxView.leadingAnchor, constant: 12),
+            batteryDescLabel.trailingAnchor.constraint(equalTo: batteryBoxView.trailingAnchor, constant: -12),
+            batteryDescLabel.bottomAnchor.constraint(equalTo: batteryBoxView.bottomAnchor, constant: -12),
+
+            // Action Buttons
+            confirmButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            confirmButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            confirmButton.heightAnchor.constraint(equalToConstant: 48),
+            confirmButton.bottomAnchor.constraint(equalTo: cancelButton.topAnchor, constant: -4),
+
+            cancelButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            cancelButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            cancelButton.heightAnchor.constraint(equalToConstant: 38),
+            cancelButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -10)
+        ])
+    }
+
+    private func setupActions() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(cancelTapped))
+        backdropView.addGestureRecognizer(tap)
+
+        confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
+        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+        call190Btn.addTarget(self, action: #selector(call190Tapped), for: .touchUpInside)
+        call180Btn.addTarget(self, action: #selector(call180Tapped), for: .touchUpInside)
+    }
+
+    @objc private func confirmTapped() {
+        dismiss(animated: true) { [weak self] in
+            self?.onConfirm?()
+        }
+    }
+
+    @objc private func cancelTapped() {
+        dismiss(animated: true) { [weak self] in
+            self?.onCancel?()
+        }
+    }
+
+    @objc private func call190Tapped() {
+        dialNumber("190")
+    }
+
+    @objc private func call180Tapped() {
+        dialNumber("180")
+    }
+
+    private func dialNumber(_ number: String) {
+        guard let url = URL(string: "tel://\(number)") else { return }
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        } else {
+            NSLog("[SentinelModal] Dispositivo não suporta chamadas telefônicas: tel://%@", number)
         }
     }
 }
