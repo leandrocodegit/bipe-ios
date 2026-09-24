@@ -1763,6 +1763,18 @@ extension SentinelViewController: CNContactPickerDelegate {
         let phone = contact.phoneNumbers.first?.value.stringValue ?? ""
         let avatar = contact.thumbnailImageData
 
+        let digits = phone.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        if digits.count > 0 && digits.count < 10 {
+            let alert = UIAlertController(
+                title: NSLocalizedString("Contato Inválido", comment: ""),
+                message: NSLocalizedString("O número do contato selecionado não possui o DDD (código de área). O envio via WhatsApp/SMS necessita do DDD para funcionar.\n\nPor favor, edite o contato na sua agenda adicionando o DDD e tente novamente.", comment: ""),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: NSLocalizedString("Entendi", comment: ""), style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+            return
+        }
+
         if SentinelAcousticMonitor.shared.addTrustedContact(name: displayName, phoneNumber: phone, avatarData: avatar) {
             refreshContactsUI()
         }

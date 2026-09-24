@@ -722,10 +722,22 @@ struct DistressPhrase {
         var contacts = getTrustedContacts()
         guard contacts.count < 3 else { return false }
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedPhone = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { return false }
         
-        let newContact = TrustedContact(name: trimmedName, phoneNumber: trimmedPhone, avatarData: avatarData)
+        // Normaliza o telefone
+        var digits = phoneNumber.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        
+        // Adiciona DDI (+55) caso o contato tenha sido salvo só com DDD (ex: 11999999999)
+        if digits.count == 10 || digits.count == 11 {
+            digits = "+55" + digits
+        } else if digits.count == 12 || digits.count == 13 {
+            digits = "+" + digits
+        } else {
+            // Fallback (mantém o original se for um número estranho ou curto demais)
+            digits = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        
+        let newContact = TrustedContact(name: trimmedName, phoneNumber: digits, avatarData: avatarData)
         contacts.append(newContact)
         saveTrustedContacts(contacts)
         return true
