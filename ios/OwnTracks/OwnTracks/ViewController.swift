@@ -2098,6 +2098,17 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 delegate.connection?.send(data, topic: bipeTopic, topicAlias: nil, qos: qos, retain: false)
                 NSLog("[BipeEmergencyHelper] Alerta de emergência (%@) enviado via MQTT para o tópico: %@", type, bipeTopic)
                 
+                // Atualiza a Live Activity local para o estado de EMERGÊNCIA imediatamente
+                if #available(iOS 16.1, *) {
+                    BipeLiveActivityManager.processBipePushNotificationPayload([
+                        "type": type,
+                        "status": "EMERGENCY",
+                        "activityType": "emergency",
+                        "nickname": nickname.isEmpty ? "Bipe.me" : nickname,
+                        "address": triggerReason.isEmpty ? NSLocalizedString("Alerta de Emergência Acionado", comment: "") : triggerReason
+                    ] as NSDictionary)
+                }
+                
                 // Feedback tátil de confirmação de sucesso
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     let successGen = UINotificationFeedbackGenerator()
