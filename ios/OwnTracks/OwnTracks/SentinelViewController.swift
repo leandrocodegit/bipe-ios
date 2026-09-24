@@ -1421,6 +1421,7 @@ import ContactsUI
 
     private func openContactPicker() {
         let picker = CNContactPickerViewController()
+        picker.displayedPropertyKeys = [CNContactPhoneNumbersKey]
         picker.delegate = self
         present(picker, animated: true)
     }
@@ -1442,7 +1443,32 @@ import ContactsUI
         alert.addAction(UIAlertAction(title: NSLocalizedString("Adicionar", comment: ""), style: .default, handler: { [weak self] _ in
             let name = alert.textFields?[0].text ?? ""
             let phone = alert.textFields?[1].text ?? ""
-            if SentinelAcousticMonitor.shared.addTrustedContact(name: name, phoneNumber: phone) {
+            
+            let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedName.isEmpty {
+                let errAlert = UIAlertController(
+                    title: NSLocalizedString("Nome Obrigatório", comment: ""),
+                    message: NSLocalizedString("Por favor, informe o nome do contato.", comment: ""),
+                    preferredStyle: .alert
+                )
+                errAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                self?.present(errAlert, animated: true)
+                return
+            }
+
+            let digits = phone.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+            if digits.count < 10 {
+                let errAlert = UIAlertController(
+                    title: NSLocalizedString("Telefone Inválido", comment: ""),
+                    message: NSLocalizedString("O número de telefone deve conter o DDD (mínimo 10 dígitos com DDD). Ex: (11) 99999-9999", comment: ""),
+                    preferredStyle: .alert
+                )
+                errAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                self?.present(errAlert, animated: true)
+                return
+            }
+
+            if SentinelAcousticMonitor.shared.addTrustedContact(name: trimmedName, phoneNumber: phone) {
                 self?.refreshContactsUI()
             }
         }))
@@ -1763,19 +1789,50 @@ extension SentinelViewController: CNContactPickerDelegate {
         let phone = contact.phoneNumbers.first?.value.stringValue ?? ""
         let avatar = contact.thumbnailImageData
 
-        let digits = phone.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-        if digits.count > 0 && digits.count < 10 {
-            let alert = UIAlertController(
-                title: NSLocalizedString("Contato Inválido", comment: ""),
-                message: NSLocalizedString("O número do contato selecionado não possui o DDD (código de área). O envio via WhatsApp/SMS necessita do DDD para funcionar.\n\nPor favor, edite o contato na sua agenda adicionando o DDD e tente novamente.", comment: ""),
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: NSLocalizedString("Entendi", comment: ""), style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+        processSelectedContact(name: displayName, phone: phone, avatar: avatar)
+    }
+
+    func contactPicker(_ picker: CNContactPickerViewController, didSelect contactProperty: CNContactProperty) {
+        let contact = contactProperty.contact
+        let fullName = [contact.givenName, contact.familyName].filter { !$0.isEmpty }.joined(separator: " ")
+        let displayName = fullName.isEmpty ? (contact.organizationName.isEmpty ? NSLocalizedString("Contato", comment: "") : contact.organizationName) : fullName
+        let phone = (contactProperty.value as? CNPhoneNumber)?.stringValue ?? contact.phoneNumbers.first?.value.stringValue ?? ""
+        let avatar = contact.thumbnailImageData
+
+        processSelectedContact(name: displayName, phone: phone, avatar: avatar)
+    }
+
+    private func processSelectedContact(name: String, phone: String, avatar: Data?) {
+        let trimmedPhone = phone.trimmingCharacters(in: .whitespacesAndNewlines)
+        let digits = trimmedPhone.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+
+        if digits.isEmpty {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                let alert = UIAlertController(
+                    title: NSLocalizedString("Contato sem Telefone", comment: ""),
+                    message: NSLocalizedString("O contato selecionado não possui um número de telefone cadastrado na agenda.", comment: ""),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Entendi", comment: ""), style: .default, handler: nil))
+                self?.present(alert, animated: true, completion: nil)
+            }
             return
         }
 
-        if SentinelAcousticMonitor.shared.addTrustedContact(name: displayName, phoneNumber: phone, avatarData: avatar) {
+        if digits.count < 10 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                let alert = UIAlertController(
+                    title: NSLocalizedString("Contato Inválido", comment: ""),
+                    message: NSLocalizedString("O número do contato selecionado não possui o DDD (código de área). O envio via WhatsApp/SMS necessita do DDD para funcionar.\n\nPor favor, edite o contato na sua agenda adicionando o DDD e tente novamente.", comment: ""),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Entendi", comment: ""), style: .default, handler: nil))
+                self?.present(alert, animated: true, completion: nil)
+            }
+            return
+        }
+
+        if SentinelAcousticMonitor.shared.addTrustedContact(name: name, phoneNumber: phone, avatarData: avatar) {
             refreshContactsUI()
         }
     }

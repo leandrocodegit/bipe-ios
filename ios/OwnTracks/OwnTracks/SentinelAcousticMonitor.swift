@@ -724,20 +724,22 @@ struct DistressPhrase {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { return false }
         
-        // Normaliza o telefone
-        var digits = phoneNumber.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        let trimmedPhone = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+        let digits = trimmedPhone.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        guard !digits.isEmpty else { return false }
         
-        // Adiciona DDI (+55) caso o contato tenha sido salvo só com DDD (ex: 11999999999)
-        if digits.count == 10 || digits.count == 11 {
-            digits = "+55" + digits
-        } else if digits.count == 12 || digits.count == 13 {
-            digits = "+" + digits
+        let formattedPhone: String
+        if trimmedPhone.hasPrefix("+") {
+            formattedPhone = "+" + digits
+        } else if digits.count == 10 || digits.count == 11 {
+            formattedPhone = "+55" + digits
+        } else if digits.count >= 12 {
+            formattedPhone = "+" + digits
         } else {
-            // Fallback (mantém o original se for um número estranho ou curto demais)
-            digits = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+            formattedPhone = digits
         }
         
-        let newContact = TrustedContact(name: trimmedName, phoneNumber: digits, avatarData: avatarData)
+        let newContact = TrustedContact(name: trimmedName, phoneNumber: formattedPhone, avatarData: avatarData)
         contacts.append(newContact)
         saveTrustedContacts(contacts)
         return true
