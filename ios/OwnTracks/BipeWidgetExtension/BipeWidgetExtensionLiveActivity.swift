@@ -412,7 +412,7 @@ struct EmergencyWidgetView: View {
                         Text(state.nickname)
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.primary)
+                            .foregroundColor(isEmergencyState ? .white : .primary)
                             .lineLimit(1)
                         
                         Spacer()
@@ -422,8 +422,8 @@ struct EmergencyWidgetView: View {
                             .fontWeight(.black)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Capsule().fill(themeColor))
-                            .foregroundColor(.white)
+                            .background(Capsule().fill(isEmergencyState ? Color.white : themeColor))
+                            .foregroundColor(isEmergencyState ? Color.red : .white)
                     }
                     
                     if isProtectedRegion, let region = state.way {
@@ -433,13 +433,13 @@ struct EmergencyWidgetView: View {
                             Text(region)
                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                         }
-                        .foregroundColor(themeColor)
+                        .foregroundColor(isEmergencyState ? Color.white.opacity(0.9) : themeColor)
                         .padding(.bottom, 1)
                     }
                     
                     Text(state.address)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(isEmergencyState ? Color.white.opacity(0.9) : .secondary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                     
@@ -454,7 +454,7 @@ struct EmergencyWidgetView: View {
                                 DeviceBadgeView(item: proxIcon, themeColor: .gray, size: 20)
                                 Text("\(proxNick.isEmpty ? String(localized: "Mais próximo") : proxNick) a \(proxDist)")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundColor(themeColor)
+                                    .foregroundColor(isEmergencyState ? Color.white : themeColor)
                             }
                             .padding(.top, 1)
                         }
@@ -463,7 +463,7 @@ struct EmergencyWidgetView: View {
                     if let prev = state.previousEvent, !prev.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         Text("\(String(localized: "Último evento:")) \(prev)")
                             .font(.system(size: 11, weight: .medium, design: .rounded))
-                            .foregroundColor(.secondary.opacity(0.8))
+                            .foregroundColor(isEmergencyState ? Color.white.opacity(0.8) : .secondary.opacity(0.8))
                             .lineLimit(1)
                     }
                 }
@@ -515,14 +515,18 @@ struct EmergencyWidgetView: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(isEmergencyState ? Color.red.opacity(0.15) : Color(UIColor.secondarySystemGroupedBackground))
+                .fill(
+                    isEmergencyState ?
+                        AnyShapeStyle(LinearGradient(colors: [Color(red: 0.75, green: 0.08, blue: 0.08), Color(red: 0.50, green: 0.02, blue: 0.02)], startPoint: .topLeading, endPoint: .bottomTrailing)) :
+                        AnyShapeStyle(Color(UIColor.secondarySystemGroupedBackground))
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(isEmergencyState ? Color.red.opacity(0.6) : Color.clear, lineWidth: 1.5)
+                        .stroke(isEmergencyState ? Color.red : Color.clear, lineWidth: 1.5)
                 )
         )
-        .activityBackgroundTint(Color(UIColor.systemBackground))
-        .activitySystemActionForegroundColor(Color.primary)
+        .activityBackgroundTint(isEmergencyState ? Color(red: 0.18, green: 0.02, blue: 0.02) : Color(UIColor.systemBackground))
+        .activitySystemActionForegroundColor(isEmergencyState ? .white : Color.primary)
     }
 }
 
