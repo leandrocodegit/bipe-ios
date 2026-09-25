@@ -664,8 +664,8 @@ struct DistressPhrase {
         guard currentState == .gracePeriod || currentState == .attentionMode || currentState == .emergencyDispatched else { return }
         
         stopGracePeriodTimers()
-        requiredAttentionImpactsCounter = 0
-        lastAttentionImpactTime = nil
+        attentionImpactsCount = 0
+        lastImpactTimestamp = nil
         feedbackGenerator.notificationOccurred(.success)
         lastTriggerReason = ""
         NSLog("[SentinelAcousticMonitor] Alerta / Modo de atenção cancelado pelo usuário. Retomando escuta passiva.")
