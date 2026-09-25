@@ -137,10 +137,24 @@ struct DistressPhrase {
         }
     }
     
+    private let requiredAttentionImpactsKey = "sentinel_required_attention_impacts"
+    
+    @objc public var requiredAttentionImpacts: Int {
+        get {
+            let val = UserDefaults.standard.integer(forKey: requiredAttentionImpactsKey)
+            return val > 0 ? val : 3
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: requiredAttentionImpactsKey)
+        }
+    }
+    
     @objc public private(set) var isCalibratingVoice: Bool = false
     private var calibrationPitches: [Float] = []
     private var calibrationTimer: Timer?
     private var unknownVoiceFramesCount: Int = 0
+    private var attentionImpactsCount: Int = 0
+    private var lastImpactTimestamp: Date?
     
     // MARK: - Propriedades Privadas de Áudio e IA
     
@@ -492,9 +506,13 @@ struct DistressPhrase {
             guard let self = self else { return }
             self.onDecibelUpdate?(db)
             
-            if self.detectImpacts && db >= self.thresholdDB && self.currentState == .listening {
-                NSLog("[SentinelAcousticMonitor] Limiar acústico excedido: %.1f dB >= %.1f dB", db, self.thresholdDB)
-                self.triggerAttentionMode(reason: String(format: NSLocalizedString("Limiar acústico excedido: %.0f dB", comment: ""), db))
+            if self.detectImpacts && db >= self.thresholdDB {
+                if self.currentState == .listening {
+                    NSLog("[SentinelAcousticMonitor] Limiar acústico excedido: %.1f dB >= %.1f dB", db, self.thresholdDB)
+                    self.triggerAttentionMode(reason: String(format: NSLocalizedString("Limiar acústico excedido: %.0f dB", comment: ""), db))
+                } else if self.currentState == .attentionMode {
+                    self.registerAttentionImpact(db: db)
+                }
             }
         }
         
@@ -536,11 +554,38 @@ struct DistressPhrase {
     
     // MARK: - Gatilho Inteligente & Grace Period
     
+    private func registerAttentionImpact(db: Float) {
+        guard detectImpacts && currentState == .attentionMode else { return }
+        
+        let now = Date()
+        if let last = lastImpactTimestamp, now.timeIntervalSince(last) < 0.75 {
+            return // Refratário de 750ms para ignorar múltiplos picos do mesmo eco
+        }
+        
+        lastImpactTimestamp = now
+        attentionImpactsCount += 1
+        NSLog("[SentinelAcousticMonitor] Impacto em Modo de Atenção! Contador: %d / %d", attentionImpactsCount, requiredAttentionImpacts)
+        
+        if attentionImpactsCount >= requiredAttentionImpacts {
+            let reason = String(format: NSLocalizedString("Sequência de %d impactos em ambiente silencioso (Pessoa Não-Verbal / Emergência Física)", comment: ""), attentionImpactsCount)
+            triggerIntelligentEmergency(reason: reason)
+        }
+    }
+    
     private func triggerAttentionMode(reason: String) {
         guard currentState == .listening else { return }
         
+        attentionImpactsCount = 1
+        lastImpactTimestamp = Date()
+        
         transition(to: .attentionMode)
-        NSLog("[SentinelAcousticMonitor] MODO DE ATENÇÃO INICIADO: %@", reason)
+        NSLog("[SentinelAcousticMonitor] MODO DE ATENÇÃO INICIADO (Impacto 1/%d): %@", requiredAttentionImpacts, reason)
+        
+        if attentionImpactsCount >= requiredAttentionImpacts {
+            let emergencyReason = String(format: NSLocalizedString("Sequência de %d impactos em ambiente silencioso (Pessoa Não-Verbal / Emergência Física)", comment: ""), attentionImpactsCount)
+            triggerIntelligentEmergency(reason: emergencyReason)
+            return
+        }
         
         // Aguarda 60 segundos por um grito ou frase. Se nada acontecer, cancela.
         stopGracePeriodTimers()
@@ -927,6 +972,10 @@ struct DistressPhrase {
     private func transition(to newState: SentinelState) {
         guard currentState != newState else { return }
         currentState = newState
+        if newState != .attentionMode {
+            attentionImpactsCount = 0
+            lastImpactTimestamp = nil
+        }
         NSLog("[SentinelAcousticMonitor] Estado alterado para: %@", newState.description)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }

@@ -745,6 +745,49 @@ import ContactsUI
         return slider
     }()
 
+    private let repeatImpactsDividerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0)
+        return view
+    }()
+
+    private let repeatImpactsTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Gatilho de Impactos Repetidos (Pessoas Não-Verbais)", comment: "")
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let repeatImpactsSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Em modo de espera, dispara emergência automaticamente ao detectar a quantidade selecionada de impactos, sem exigir confirmação vocal.", comment: "")
+        label.font = .systemFont(ofSize: 11, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let repeatImpactsSegmentedControl: UISegmentedControl = {
+        let sc = UISegmentedControl(items: [
+            NSLocalizedString("2 Impactos", comment: ""),
+            NSLocalizedString("3 (Padrão)", comment: ""),
+            NSLocalizedString("4 Impactos", comment: ""),
+            NSLocalizedString("5 Impactos", comment: "")
+        ])
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        sc.selectedSegmentIndex = 1
+        sc.selectedSegmentTintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        let normalAttr: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.white, .font: UIFont.systemFont(ofSize: 11, weight: .medium)]
+        let selectedAttr: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.black, .font: UIFont.systemFont(ofSize: 11, weight: .bold)]
+        sc.setTitleTextAttributes(normalAttr, for: .normal)
+        sc.setTitleTextAttributes(selectedAttr, for: .selected)
+        return sc
+    }()
+
     // Privacy Banner Card
     private let privacyCardView: UIView = {
         let view = UIView()
@@ -922,6 +965,10 @@ import ContactsUI
         sliderCardView.addSubview(sliderTitleLabel)
         sliderCardView.addSubview(sliderCurrentValueLabel)
         sliderCardView.addSubview(thresholdSlider)
+        sliderCardView.addSubview(repeatImpactsDividerView)
+        sliderCardView.addSubview(repeatImpactsTitleLabel)
+        sliderCardView.addSubview(repeatImpactsSubtitleLabel)
+        sliderCardView.addSubview(repeatImpactsSegmentedControl)
 
         // Privacy Card Subviews
         privacyCardView.addSubview(privacyIconView)
@@ -1267,7 +1314,25 @@ import ContactsUI
             thresholdSlider.topAnchor.constraint(equalTo: sliderTitleLabel.bottomAnchor, constant: 14),
             thresholdSlider.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
             thresholdSlider.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
-            thresholdSlider.bottomAnchor.constraint(equalTo: sliderCardView.bottomAnchor, constant: -16)
+
+            repeatImpactsDividerView.topAnchor.constraint(equalTo: thresholdSlider.bottomAnchor, constant: 14),
+            repeatImpactsDividerView.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 16),
+            repeatImpactsDividerView.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -16),
+            repeatImpactsDividerView.heightAnchor.constraint(equalToConstant: 1),
+
+            repeatImpactsTitleLabel.topAnchor.constraint(equalTo: repeatImpactsDividerView.bottomAnchor, constant: 14),
+            repeatImpactsTitleLabel.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
+            repeatImpactsTitleLabel.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
+
+            repeatImpactsSubtitleLabel.topAnchor.constraint(equalTo: repeatImpactsTitleLabel.bottomAnchor, constant: 4),
+            repeatImpactsSubtitleLabel.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
+            repeatImpactsSubtitleLabel.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
+
+            repeatImpactsSegmentedControl.topAnchor.constraint(equalTo: repeatImpactsSubtitleLabel.bottomAnchor, constant: 10),
+            repeatImpactsSegmentedControl.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
+            repeatImpactsSegmentedControl.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
+            repeatImpactsSegmentedControl.heightAnchor.constraint(equalToConstant: 32),
+            repeatImpactsSegmentedControl.bottomAnchor.constraint(equalTo: sliderCardView.bottomAnchor, constant: -16)
         ])
 
         NSLayoutConstraint.activate([
@@ -1339,6 +1404,12 @@ import ContactsUI
         addKeywordButton.addTarget(self, action: #selector(addKeywordTapped), for: .touchUpInside)
         calibrateVoiceButton.addTarget(self, action: #selector(calibrateVoiceTapped), for: .touchUpInside)
         unknownVoiceSwitch.addTarget(self, action: #selector(unknownVoiceSwitchChanged(_:)), for: .valueChanged)
+        repeatImpactsSegmentedControl.addTarget(self, action: #selector(repeatImpactsChanged(_:)), for: .valueChanged)
+    }
+
+    @objc private func repeatImpactsChanged(_ sender: UISegmentedControl) {
+        let count = sender.selectedSegmentIndex + 2 // 0->2, 1->3, 2->4, 3->5
+        SentinelAcousticMonitor.shared.requiredAttentionImpacts = count
     }
 
     @objc private func calibrateVoiceTapped() {
@@ -1431,8 +1502,12 @@ import ContactsUI
             self.sliderTitleLabel.alpha = alpha
             self.sliderCurrentValueLabel.alpha = alpha
             self.thresholdSlider.alpha = alpha
+            self.repeatImpactsTitleLabel.alpha = alpha
+            self.repeatImpactsSubtitleLabel.alpha = alpha
+            self.repeatImpactsSegmentedControl.alpha = alpha
         }
         thresholdSlider.isEnabled = enabled
+        repeatImpactsSegmentedControl.isEnabled = enabled
 
         if enabled {
             thresholdMarkerLabel.text = String(format: NSLocalizedString("Limiar de Gatilho: %.0f dB", comment: ""), SentinelAcousticMonitor.shared.thresholdDB)
@@ -1703,6 +1778,11 @@ import ContactsUI
         impactsSwitch.isOn = monitor.detectImpacts
         thresholdSlider.value = monitor.thresholdDB
         sliderCurrentValueLabel.text = String(format: "%.0f dB", monitor.thresholdDB)
+
+        let reqImpacts = monitor.requiredAttentionImpacts
+        let idx = max(0, min(3, reqImpacts - 2))
+        repeatImpactsSegmentedControl.selectedSegmentIndex = idx
+
         updateImpactsUI(enabled: monitor.detectImpacts)
         refreshVoiceProfileUI()
         handleStateChange(monitor.currentState)
