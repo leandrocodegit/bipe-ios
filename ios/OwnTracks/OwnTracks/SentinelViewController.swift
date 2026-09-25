@@ -816,14 +816,14 @@ import ContactsUI
 
     private let attentionWindowSegmentedControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: [
-            NSLocalizedString("15s", comment: ""),
-            NSLocalizedString("30s", comment: ""),
-            NSLocalizedString("60s (Padrão)", comment: ""),
-            NSLocalizedString("90s", comment: ""),
-            NSLocalizedString("120s", comment: "")
+            NSLocalizedString("1 min (Padrão)", comment: ""),
+            NSLocalizedString("5 min", comment: ""),
+            NSLocalizedString("10 min", comment: ""),
+            NSLocalizedString("20 min", comment: ""),
+            NSLocalizedString("30 min", comment: "")
         ])
         sc.translatesAutoresizingMaskIntoConstraints = false
-        sc.selectedSegmentIndex = 2
+        sc.selectedSegmentIndex = 0
         sc.selectedSegmentTintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
         let normalAttr: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.white, .font: UIFont.systemFont(ofSize: 11, weight: .medium)]
         let selectedAttr: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.black, .font: UIFont.systemFont(ofSize: 11, weight: .bold)]
@@ -1482,11 +1482,11 @@ import ContactsUI
     @objc private func attentionWindowChanged(_ sender: UISegmentedControl) {
         let seconds: Int
         switch sender.selectedSegmentIndex {
-        case 0: seconds = 15
-        case 1: seconds = 30
-        case 2: seconds = 60
-        case 3: seconds = 90
-        case 4: seconds = 120
+        case 0: seconds = 60     // 1 min
+        case 1: seconds = 300    // 5 min
+        case 2: seconds = 600    // 10 min
+        case 3: seconds = 1200   // 20 min
+        case 4: seconds = 1800   // 30 min
         default: seconds = 60
         }
         SentinelAcousticMonitor.shared.attentionWindowSeconds = seconds
@@ -1870,12 +1870,12 @@ import ContactsUI
         let attSeconds = monitor.attentionWindowSeconds
         let attIdx: Int
         switch attSeconds {
-        case 15: attIdx = 0
-        case 30: attIdx = 1
-        case 60: attIdx = 2
-        case 90: attIdx = 3
-        case 120: attIdx = 4
-        default: attIdx = 2
+        case 60: attIdx = 0
+        case 300: attIdx = 1
+        case 600: attIdx = 2
+        case 1200: attIdx = 3
+        case 1800: attIdx = 4
+        default: attIdx = 0
         }
         attentionWindowSegmentedControl.selectedSegmentIndex = attIdx
 
