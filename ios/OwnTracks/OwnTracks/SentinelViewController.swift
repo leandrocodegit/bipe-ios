@@ -788,6 +788,50 @@ import ContactsUI
         return sc
     }()
 
+    private let attentionWindowDividerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0)
+        return view
+    }()
+
+    private let attentionWindowTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Janela de Tempo em Espera", comment: "")
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let attentionWindowSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Tempo limite em modo de atenção aguardando confirmação por voz ou novos impactos antes de cancelar o alerta.", comment: "")
+        label.font = .systemFont(ofSize: 11, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let attentionWindowSegmentedControl: UISegmentedControl = {
+        let sc = UISegmentedControl(items: [
+            NSLocalizedString("15s", comment: ""),
+            NSLocalizedString("30s", comment: ""),
+            NSLocalizedString("60s (Padrão)", comment: ""),
+            NSLocalizedString("90s", comment: ""),
+            NSLocalizedString("120s", comment: "")
+        ])
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        sc.selectedSegmentIndex = 2
+        sc.selectedSegmentTintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        let normalAttr: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.white, .font: UIFont.systemFont(ofSize: 11, weight: .medium)]
+        let selectedAttr: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.black, .font: UIFont.systemFont(ofSize: 11, weight: .bold)]
+        sc.setTitleTextAttributes(normalAttr, for: .normal)
+        sc.setTitleTextAttributes(selectedAttr, for: .selected)
+        return sc
+    }()
+
     // Privacy Banner Card
     private let privacyCardView: UIView = {
         let view = UIView()
@@ -969,6 +1013,10 @@ import ContactsUI
         sliderCardView.addSubview(repeatImpactsTitleLabel)
         sliderCardView.addSubview(repeatImpactsSubtitleLabel)
         sliderCardView.addSubview(repeatImpactsSegmentedControl)
+        sliderCardView.addSubview(attentionWindowDividerView)
+        sliderCardView.addSubview(attentionWindowTitleLabel)
+        sliderCardView.addSubview(attentionWindowSubtitleLabel)
+        sliderCardView.addSubview(attentionWindowSegmentedControl)
 
         // Privacy Card Subviews
         privacyCardView.addSubview(privacyIconView)
@@ -1332,7 +1380,25 @@ import ContactsUI
             repeatImpactsSegmentedControl.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
             repeatImpactsSegmentedControl.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
             repeatImpactsSegmentedControl.heightAnchor.constraint(equalToConstant: 32),
-            repeatImpactsSegmentedControl.bottomAnchor.constraint(equalTo: sliderCardView.bottomAnchor, constant: -16)
+
+            attentionWindowDividerView.topAnchor.constraint(equalTo: repeatImpactsSegmentedControl.bottomAnchor, constant: 14),
+            attentionWindowDividerView.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 16),
+            attentionWindowDividerView.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -16),
+            attentionWindowDividerView.heightAnchor.constraint(equalToConstant: 1),
+
+            attentionWindowTitleLabel.topAnchor.constraint(equalTo: attentionWindowDividerView.bottomAnchor, constant: 14),
+            attentionWindowTitleLabel.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
+            attentionWindowTitleLabel.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
+
+            attentionWindowSubtitleLabel.topAnchor.constraint(equalTo: attentionWindowTitleLabel.bottomAnchor, constant: 4),
+            attentionWindowSubtitleLabel.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
+            attentionWindowSubtitleLabel.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
+
+            attentionWindowSegmentedControl.topAnchor.constraint(equalTo: attentionWindowSubtitleLabel.bottomAnchor, constant: 10),
+            attentionWindowSegmentedControl.leadingAnchor.constraint(equalTo: sliderCardView.leadingAnchor, constant: 18),
+            attentionWindowSegmentedControl.trailingAnchor.constraint(equalTo: sliderCardView.trailingAnchor, constant: -18),
+            attentionWindowSegmentedControl.heightAnchor.constraint(equalToConstant: 32),
+            attentionWindowSegmentedControl.bottomAnchor.constraint(equalTo: sliderCardView.bottomAnchor, constant: -16)
         ])
 
         NSLayoutConstraint.activate([
@@ -1405,11 +1471,25 @@ import ContactsUI
         calibrateVoiceButton.addTarget(self, action: #selector(calibrateVoiceTapped), for: .touchUpInside)
         unknownVoiceSwitch.addTarget(self, action: #selector(unknownVoiceSwitchChanged(_:)), for: .valueChanged)
         repeatImpactsSegmentedControl.addTarget(self, action: #selector(repeatImpactsChanged(_:)), for: .valueChanged)
+        attentionWindowSegmentedControl.addTarget(self, action: #selector(attentionWindowChanged(_:)), for: .valueChanged)
     }
 
     @objc private func repeatImpactsChanged(_ sender: UISegmentedControl) {
         let count = sender.selectedSegmentIndex + 2 // 0->2, 1->3, 2->4, 3->5
         SentinelAcousticMonitor.shared.requiredAttentionImpacts = count
+    }
+
+    @objc private func attentionWindowChanged(_ sender: UISegmentedControl) {
+        let seconds: Int
+        switch sender.selectedSegmentIndex {
+        case 0: seconds = 15
+        case 1: seconds = 30
+        case 2: seconds = 60
+        case 3: seconds = 90
+        case 4: seconds = 120
+        default: seconds = 60
+        }
+        SentinelAcousticMonitor.shared.attentionWindowSeconds = seconds
     }
 
     @objc private func calibrateVoiceTapped() {
@@ -1505,9 +1585,13 @@ import ContactsUI
             self.repeatImpactsTitleLabel.alpha = alpha
             self.repeatImpactsSubtitleLabel.alpha = alpha
             self.repeatImpactsSegmentedControl.alpha = alpha
+            self.attentionWindowTitleLabel.alpha = alpha
+            self.attentionWindowSubtitleLabel.alpha = alpha
+            self.attentionWindowSegmentedControl.alpha = alpha
         }
         thresholdSlider.isEnabled = enabled
         repeatImpactsSegmentedControl.isEnabled = enabled
+        attentionWindowSegmentedControl.isEnabled = enabled
 
         if enabled {
             thresholdMarkerLabel.text = String(format: NSLocalizedString("Limiar de Gatilho: %.0f dB", comment: ""), SentinelAcousticMonitor.shared.thresholdDB)
@@ -1782,6 +1866,18 @@ import ContactsUI
         let reqImpacts = monitor.requiredAttentionImpacts
         let idx = max(0, min(3, reqImpacts - 2))
         repeatImpactsSegmentedControl.selectedSegmentIndex = idx
+
+        let attSeconds = monitor.attentionWindowSeconds
+        let attIdx: Int
+        switch attSeconds {
+        case 15: attIdx = 0
+        case 30: attIdx = 1
+        case 60: attIdx = 2
+        case 90: attIdx = 3
+        case 120: attIdx = 4
+        default: attIdx = 2
+        }
+        attentionWindowSegmentedControl.selectedSegmentIndex = attIdx
 
         updateImpactsUI(enabled: monitor.detectImpacts)
         refreshVoiceProfileUI()

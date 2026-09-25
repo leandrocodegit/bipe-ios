@@ -1,376 +1,251 @@
-
-/* name of an unknown or hidden region */
+Ôªø/* name of an unknown or hidden region */
 "a region" = "a region";
-
 /* reverseGeocodeLocation error */
 "Address resolver failed" = "Address resolver failed";
-
 /* Headline in addressbook related error messages */
 "Addressbook Access" = "Addressbook Access";
-
 /* Location Manager error message */
 "App is not allowed to use location services" = "App is not allowed to use location services";
-
 /* Location Manager error message */
 "App is not allowed to use location services in background" = "App is not allowed to use location services in background";
-
 /* Location Manager error message */
 "App is not allowed to use location services yet" = "App is not allowed to use location services yet";
-
 /* Location Manager error message */
 "App use of location services is restricted" = "App use of location services is restricted";
-
 /* Location Manager error message */
 "App use of location services is unclear" = "App use of location services is unclear";
-
 /* Display after processing beacon QR code */
 "Beacon QR successfully processed" = "Beacon QR successfully processed";
-
 /* Cancel button title */
 "Cancel" = "Cancel";
-
 /* Clipboard */
 "Clipboard" = "Clipboard";
-
 /* description connection closed state */
 "closed" = "closed";
-
 /* description connection closing state */
 "closing" = "closing";
-
 /* description connection connected state */
 "connected" = "connected";
-
 /* description connection connected state */
 "connecting" = "connecting";
-
 /* Continue button title */
 "Continue" = "Continue";
-
 /* content of an alert message regarding circular region */
 "created at center of map" = "created at center of map";
-
 /* reverseGeocodeLocation text */
 "due to rate limit or off-line" = "due to rate limit or off-line";
-
 /* Display when entering region (region name follows) */
 "Entering" = "Entering";
-
 /* friend enters region verb */
 "enters" = "enters";
-
 /* description connection error state */
 "error" = "error";
-
 /* Display when file processing fails */
 "Error processing file" = "Error processing file";
-
 /* Export */
 "Export" = "Export";
-
 /* Display when file processing succeeds (filename follows) */
 "File" = "File";
-
 /* Display after trying to open a file */
 "file open error" = "file open error";
-
 /* Fly */
 "Fly" = "Fly";
-
 /* Alert message header for friend's messages */
 "Friend" = "Friend";
-
 /* CNAuthorizationStatusDenied */
 "has been denied by user. If you allow OwnTracks to access your contacts, you can link your devices to contacts. OwnTracks will then display the contact name and image instead of the device Id. No information of your address book will be uploaded to any server. Go to Settings/Privacy/Contacts to change" = "has been denied by user. If you allow OwnTracks to access your contacts, you can link your devices to contacts. OwnTracks will then display the contact name and image instead of the device Id. No information of your address book will be uploaded to any server. Go to Settings/Privacy/Contacts to change";
-
 /* CNAuthorizationStatusRestricted */
 "has been restricted, possibly due to restrictions such as parental controls." = "has been restricted, possibly due to restrictions such as parental controls.";
-
 /* Hyb */
 "Hyb" = "Hyb";
-
 /* HybFly */
 "HybFly" = "HybFly";
-
 /* description connection idle state */
 "idle" = "idle";
-
 /* Warning displayed if location is inaccurate or old */
 "Inaccurate or old location information" = "Inaccurate or old location information";
-
 /* certificate error message */
 "incorrect file or passphrase" = "incorrect file or passphrase";
-
 /* Display for incorrect inline config */
 "Inline Configuration incorrect" = "Inline Configuration incorrect";
-
 /* Display for incorrectly encoded inline config */
 "Inline Configuration incorrectly encoded" = "Inline Configuration incorrectly encoded";
-
 /* Display for config without parameters */
 "Inline Configuration missing parameters" = "Inline Configuration missing parameters";
-
 /* Display after processing inline config */
 "Inline Configuration successfully processed" = "Inline Configuration successfully processed";
-
 /* Display when leaving region (region name follows) */
 "Leaving" = "Leaving";
-
 /* friend leaves region verb */
 "leaves" = "leaves";
-
 /* Header of an alert message regarding a location */
 "Location" = "Location";
-
 /* Location copied to clipboard */
 "Location copied to clipboard" = "Location copied to clipboard";
-
 /* Topic copied to clipboard */
 "Topic copied to clipboard" = "Topic copied to clipboard";
-
 /* indicates a locked configuration */
 "locked" = "locked";
-
 /* Header of an alert message regarding missing setup */
 "Setup" = "Setup";
-
 /* Text explaining the Setup */
 "You need to setup your own OwnTracks server and edit your configuration for full privacy protection. Detailed info on https://owntracks.org/booklet" = "You need to setup your own OwnTracks server and edit your configuration for full privacy protection. Detailed info on https://owntracks.org/booklet";
-
 /* Manual */
 "Manual" = "Manual";
-
 /* Alert header for connection change warning */
 "Connection change" = "Connection change";
-
 /* Move */
 "Move" = "Move";
-
 /* Mute */
 "Mute" = "Mute";
-
 /* dummy for missing content */
 "no content available" = "no content available";
-
 /* No location available indication */
 "No location available" = "No location available";
-
 /* No location recorded indication */
 "No location recorded" = "No location recorded";
-
 /* Display after trying to process a file *//* No pressure available */
 "No pressure available" = "No pressure available";
-
 "no url specified" = "no url specified";
-
 /* Alert message header for notification messages */
 "Notification" = "Notification";
-
 /* temporary display while opening URL */
 "opening URL" = "opening URL";
-
 /* Alert content for connection change warning */
 "Please be aware your stored waypoints and locations will be deleted on this device for privacy reasons. Please backup before." = "Please be aware your stored waypoints and locations will be deleted on this device for privacy reasons. Please backup before.";
-
 /* Alert header regarding protocol input */
 "Protocol invalid" = "Protocol invalid";
-
 /* Alert content regarding protocol input */
 "Protocol may be 3 for MQTT V3.1 or 4 for MQTT V3.1.1 or 5 for MQTT V5" = "Protocol may be 3 for MQTT V3.1 or 4 for MQTT V3.1.1 or 5 for MQTT V5";
-
 /* content of an alert message regarding user publish */
 "publish queued on user request" = "publish queued on user request";
-
 /* Quiet */
 "Quiet" = "Quiet";
-
 /* Header of an alert message regarding circular region */
 "Region" = "Region";
-
 /* temporary display while resolving address */
 "resolving..." = "resolving...";
-
 /* Sat */
 "Sat" = "Sat";
-
 /* Settings screen title */
 "Settings" = "Settings";
-
 /* Significant */
 "Significant" = "Significant";
-
 /* Std */
 "Std" = "Std";
-
 /* Display when file processing succeeds */
 "successfully processed" = "successfully processed";
-
 /* Table is empty */
 "Table is empty" = "Table is empty";
-
 /* Heading for certificate error message */
 "TLS Client Certificate" = "TLS Client Certificate";
-
 /* Warning displayed if necessary settings are missing */
 "To publish your location userID and deviceID must be set" = "To publish your location userID and deviceID must be set";
-
 /* Alert header regarding TrackerID input */
 "TrackerID invalid" = "TrackerID invalid";
-
 /* Alert content regarding TrackerID input */
 "TrackerID may be empty or up to 2 characters long" = "TrackerID may be empty or up to 2 characters long";
-
 /* Alert content regarding TrackerID input */
 "TrackerID may contain alphanumeric characters only" = "TrackerID may contain alphanumeric characters only";
-
 /* Display after entering an unknown scheme in url */
 "unknown scheme in url" = "unknown scheme in url";
-
 /* description connection unknown state */
 "unknown state" = "unknown state";
-
 /* Display for unknown url path */
 "unknown url path" = "unknown url path";
-
 /* webView didFailLoadWithError display */
 "webView didFailLoadWithError" = "webView didFailLoadWithError";
-
 /* You cannot use background fetch */
 "You cannot use background fetch" = "You cannot use background fetch";
-
 /* You disabled background fetch */
 "You disabled background fetch" = "You disabled background fetch";
-
 /* MQTT Description Text */
 "Setup your own OwnTracks server for full privacy protection. More Info on https://owntracks.org/booklet" = "Setup your own OwnTracks server for full privacy protection. More Info on https://owntracks.org/booklet";
-
 /* HTTP Description Text */
 "Similar to MQTT mode, except data transmission uses HTTP, not MQTT." = "Similar to MQTT mode, except data transmission uses HTTP, not MQTT.";
 /* Please Note Text */
-
 "When switching between modes, all OwnTracks data will be deleted for privacy reasons." = "When switching between modes, all OwnTracks data will be deleted for privacy reasons.";
-
 /* Title map interaction */
 "Map Interaction" = "Map Interaction";
-
 /* Message map interaction */
 "Do you want the map to allow interaction? If you choose yes, the map provider may analyze your tile requests" = "Do you want the map to allow interaction? If you choose yes, the map provider may analyze your tile requests";
-
 /* Address resolver disabled */
 "Address resolver disabled" = "Address resolver disabled";
-
 /* Title Revgeo */
 "Reverse Geocoding Address Resolution" = "Reverse Geocoding Address Resolution";
-
 /* Message Revgeo */
 "Do you want to resolve adresses? If you choose yes, the geocoding provider may analyze your requests" = "Do you want to resolve adresses? If you choose yes, the geocoding provider may analyze your requests";
-
 /* Yes button title */
 "Yes" = "Yes";
-
 /* No button title */
 "No" = "No";
-
 /* Alert message header for Request Response */
 "Response" = "Response";
-
 /* URL copied to Clipboard */
 "URL copied to Clipboard" = "URL copied to Clipboard";
-
 /* No or empty tour list received from backend */
 "No or empty tour list received from backend" = "No or empty tour list received from backend";
-
 /* Fetching tour list from backend */
 "Fetching tour list from backend" = "Fetching tour list from backend";
-
 /* Header of an alert message regarding a card */
 "Card" = "Card";
-
 /* content of an alert message regarding card */
 "set and sent to backend" = "set and sent to backend";
-
 /* Tours list header */
 "Tours" = "Tours";
-
 /* Tours status header */
 "Tours Status" = "Tours Status";
-
 /* Tour list received */
 "Tour list received" = "Tour list received";
-
 /* Requesting tour list */
 "Requesting tour list" = "Requesting tour list";
-
 /* Tour list request timed out */
 "Tour list request timed out" = "Tour list request timed out";
-
 /* Tour created */
 "Tour created" = "Tour created";
-
- /* Requesting tour */
+/* Requesting tour */
 "Requesting tour" = "Requesting tour";
-
 /* Tour request timed out */
 "Tour request timed out" = "Tour request timed out";
-
 /* Tour deleted */
 "Tour deleted" = "Tour deleted";
-
 /* Alert message header for copy */
 "Copied" = "Copied";
-
 /* Send location now */
 "Send location now" = "Send location now";
-
 /* Set POI button */
 "Set POI" = "Set POI";
-
 /* Set POI with image button */
 "Set POI with image" = "Set POI with image";
-
 /* Set tag button */
 "Set tag" = "Set tag";
-
 /* Set POI title */
 "Set POI" = "Set POI";
-
 /* Set Tag title */
 "Set Tag" = "Set Tag";
-
 /* Send button title*/
 "Send" = "Send";
-
 /* Remove button title*/
 "Remove" = "Remove";
-
 /* Shortcut Switch to Move Monitoring Monitoring Mode */
 "Switch to Move Monitoring Mode" = "Switch to Move Monitoring Mode";
-
 /* Shortcut Switch to Significant Changes Monitoring Mode */
 "Switch to Significant Changes Monitoring Mode" = "Switch to Significant Changes Monitoring Mode";
-
 /* Shortcut Switch to Manual Monitoring Mode */
 "Switch to Manual Monitoring Mode" = "Switch to Manual Monitoring Mode";
-
 /* Shortcut Switch to Quiet Monitoring Mode */
 "Switch to Quiet Monitoring Mode" = "Switch to Quiet Monitoring Mode";
-
 /* Battery status unkown */
 "unknown" = "unknown";
-
 /* Battery status unplugged */
 "unplugged" = "unplugged";
-
 /* Battery status charging */
 "charging" = "charging";
-
 /* Battery status full */
 "full" = "full";
-
 /* "Please keep OwnTracks running to ensure the desired functionality" */
 "Please keep Bipe.me running to ensure the desired functionality" = "Por favor, mantenga Bipe.me en ejecuci√≥n para garantizar el funcionamiento deseado.";
 "Please keep OwnTracks running to ensure the desired functionality" = "Por favor, mantenga Bipe.me en ejecuci√≥n para garantizar el funcionamiento deseado.";
-
 /* Permissions Screen */
 "Permiss√µes" = "Permisos";
 "Fechar" = "Cerrar";
@@ -401,13 +276,11 @@
 "Opcional" = "Opcional";
 "Ativar Notifica√ß√µes" = "Activar Notificaciones";
 "Desativado (Opcional)" = "Desactivado (Opcional)";
-
 /* Login Screen */
 "Abrindo autentica√ß√£o‚Ä¶" = "Abriendo autenticaci√≥n‚Ä¶";
 "Configurando dispositivo‚Ä¶" = "Configurando dispositivo‚Ä¶";
 "Erro desconhecido" = "Error desconocido";
 "Falha no login" = "Fallo de inicio de sesi√≥n";
-
 // Live Activities & Widgets
 "SAIU DE √ÅREA DE RISCO" = "SALI√ì DE ZONA DE RIESGO";
 "√ÅREA DE RISCO" = "ZONA DE RIESGO";
@@ -436,7 +309,6 @@
 "APROX" = "ACERC";
 "AFAST" = "ALEJ";
 "Monitorando em tempo real" = "Monitoreo en tiempo real";
-
 "SE MOVEU" = "EN MOVIMIENTO";
 "MOVIMENTOU EM √ÅREA DE RISCO" = "SE MOVI√ì EN ZONA DE RIESGO";
 "MOVEU" = "SE MOVI√ì";
@@ -535,28 +407,37 @@
 "Vidro quebrando detectado (certeza: %.0f%%)" = "Rotura de vidrio detectada (certeza: %.0f%%)";
 "Grito ou pedido de p√¢nico detectado (certeza: %.0f%%)" = "Grito o pedido de p√°nico detectado (certeza: %.0f%%)";
  " P e r f i l   V o c a l   &   V o z e s   E x t e r n a s "   =   " P e r f i l   V o c a l   y   V o c e s   E x t e r n a s " ; 
- " N „ o   C a l i b r a d a "   =   " N o   C a l i b r a d a " ; 
- " C a l i b r e   a   f r e q u Í n c i a   f u n d a m e n t a l   d a   s u a   v o z   ( F 0   P i t c h )   p a r a   i d e n t i f i c a r   q u a n d o   u m a   v o z   d i f e r e n t e   o u   e x t e r n a   e s t i v e r   f a l a n d o   n o   a m b i e n t e . "   =   " C a l i b r e   l a   f r e c u e n c i a   f u n d a m e n t a l   d e   s u   v o z   ( F 0   P i t c h )   p a r a   i d e n t i f i c a r   c u · n d o   h a b l a   u n a   v o z   d i f e r e n t e   o   e x t e r n a   e n   e l   e n t o r n o . " ; 
+ " N ÔøΩ o   C a l i b r a d a "   =   " N o   C a l i b r a d a " ; 
+ " C a l i b r e   a   f r e q u ÔøΩ n c i a   f u n d a m e n t a l   d a   s u a   v o z   ( F 0   P i t c h )   p a r a   i d e n t i f i c a r   q u a n d o   u m a   v o z   d i f e r e n t e   o u   e x t e r n a   e s t i v e r   f a l a n d o   n o   a m b i e n t e . "   =   " C a l i b r e   l a   f r e c u e n c i a   f u n d a m e n t a l   d e   s u   v o z   ( F 0   P i t c h )   p a r a   i d e n t i f i c a r   c u ÔøΩ n d o   h a b l a   u n a   v o z   d i f e r e n t e   o   e x t e r n a   e n   e l   e n t o r n o . " ; 
  " C a l i b r a r   A s s i n a t u r a   V o c a l   ( 4 . 5 s ) "   =   " C a l i b r a r   F i r m a   V o c a l   ( 4 . 5 s ) " ; 
  " R e c a l i b r a r   V o z   ( 4 . 5 s ) "   =   " R e c a l i b r a r   V o z   ( 4 . 5 s ) " ; 
  " A l e r t a   d e   V o z   E x t e r n a   /   D e s c o n h e c i d a "   =   " A l e r t a   d e   V o z   E x t e r n a   /   D e s c o n o c i d a " ; 
- " D i s p a r a   e m e r g Í n c i a   s e   u m a   v o z   d e   o u t r a   p e s s o a   f o r   d e t e c t a d a   c o n t i n u a d a m e n t e . "   =   " A c t i v a   l a   e m e r g e n c i a   s i   s e   d e t e c t a   d e   f o r m a   c o n t i n u a   l a   v o z   d e   o t r a   p e r s o n a . " ; 
- " V o z   N „ o   C a l i b r a d a "   =   " V o z   N o   C a l i b r a d a " ; 
- " P o r   f a v o r ,   r e a l i z e   a   c a l i b r a Á „ o   d a   s u a   a s s i n a t u r a   v o c a l   a n t e s   d e   a t i v a r   o   a l e r t a   d e   v o z e s   e x t e r n a s . "   =   " P o r   f a v o r ,   r e a l i c e   l a   c a l i b r a c i Û n   d e   s u   f i r m a   v o c a l   a n t e s   d e   a c t i v a r   l a   a l e r t a   d e   v o c e s   e x t e r n a s . " ; 
+ " D i s p a r a   e m e r g ÔøΩ n c i a   s e   u m a   v o z   d e   o u t r a   p e s s o a   f o r   d e t e c t a d a   c o n t i n u a d a m e n t e . "   =   " A c t i v a   l a   e m e r g e n c i a   s i   s e   d e t e c t a   d e   f o r m a   c o n t i n u a   l a   v o z   d e   o t r a   p e r s o n a . " ; 
+ " V o z   N ÔøΩ o   C a l i b r a d a "   =   " V o z   N o   C a l i b r a d a " ; 
+ " P o r   f a v o r ,   r e a l i z e   a   c a l i b r a ÔøΩ ÔøΩ o   d a   s u a   a s s i n a t u r a   v o c a l   a n t e s   d e   a t i v a r   o   a l e r t a   d e   v o z e s   e x t e r n a s . "   =   " P o r   f a v o r ,   r e a l i c e   l a   c a l i b r a c i ÔøΩ n   d e   s u   f i r m a   v o c a l   a n t e s   d e   a c t i v a r   l a   a l e r t a   d e   v o c e s   e x t e r n a s . " ; 
  " C a l i b r a r   A g o r a "   =   " C a l i b r a r   A h o r a " ; 
  " C a l i b r a d a   ( % . 0 f - % . 0 f   H z ) "   =   " C a l i b r a d a   ( % . 0 f - % . 0 f   H z ) " ; 
  " C a l i b r a n d o   S u a   V o z "   =   " C a l i b r a n d o   S u   V o z " ; 
  " P o r   f a v o r ,   f a l e   n o r m a l m e n t e   ( e x :   c o n t e   d e   1   a   1 0   o u   f a l e   f r a s e s   d o   d i a   a   d i a )   p a r a   q u e   o   S e n t i n e l a   a p r e n d a   s e u   t o m   d e   v o z   ( p i t c h   b a s e l i n e ) . "   =   " P o r   f a v o r ,   h a b l e   n o r m a l m e n t e   ( e j :   c u e n t e   d e l   1   a l   1 0   o   p r o n u n c i e   f r a s e s   c o t i d i a n a s )   p a r a   q u e   S e n t i n e l a   a p r e n d a   s u   t o n o   d e   v o z   ( p i t c h   b a s e l i n e ) . " ; 
  " O u v i n d o   t o m   d e   v o z . . .   % d % % "   =   " E s c u c h a n d o   t o n o   d e   v o z . . .   % d % % " ; 
- " N „ o   f o i   p o s s Ì v e l   c a p t a r   a   v o z   c o m   c l a r e z a .   F a l e   e m   t o m   n o r m a l   e m   u m   a m b i e n t e   q u i e t o   e   t e n t e   n o v a m e n t e . "   =   " N o   s e   p u d o   c a p t a r   l a   v o z   c o n   c l a r i d a d .   H a b l e   e n   t o n o   n o r m a l   e n   u n   a m b i e n t e   t r a n q u i l o   e   i n t e n t e   d e   n u e v o . " ; 
- " A s s i n a t u r a   v o c a l   g r a v a d a   c o m   s u c e s s o !   F a i x a :   % . 0 f   H z   -   % . 0 f   H z "   =   " ° F i r m a   v o c a l   g r a b a d a   c o n   È x i t o !   R a n g o :   % . 0 f   H z   -   % . 0 f   H z " ; 
+ " N ÔøΩ o   f o i   p o s s ÔøΩ v e l   c a p t a r   a   v o z   c o m   c l a r e z a .   F a l e   e m   t o m   n o r m a l   e m   u m   a m b i e n t e   q u i e t o   e   t e n t e   n o v a m e n t e . "   =   " N o   s e   p u d o   c a p t a r   l a   v o z   c o n   c l a r i d a d .   H a b l e   e n   t o n o   n o r m a l   e n   u n   a m b i e n t e   t r a n q u i l o   e   i n t e n t e   d e   n u e v o . " ; 
+ " A s s i n a t u r a   v o c a l   g r a v a d a   c o m   s u c e s s o !   F a i x a :   % . 0 f   H z   -   % . 0 f   H z "   =   " ÔøΩ F i r m a   v o c a l   g r a b a d a   c o n   ÔøΩ x i t o !   R a n g o :   % . 0 f   H z   -   % . 0 f   H z " ; 
  " V o z   e x t e r n a / d i f e r e n t e   d e t e c t a d a "   =   " V o z   e x t e r n a / d i f e r e n t e   d e t e c t a d a " ; 
  
- " G a t i l h o   d e   I m p a c t o s   R e p e t i d o s   ( P e s s o a s   N „ o - V e r b a i s ) "   =   " G a t i l l o   d e   I m p a c t o s   R e p e t i d o s   ( P e r s o n a s   N o   V e r b a l e s ) " ; 
- " E m   m o d o   d e   e s p e r a ,   d i s p a r a   e m e r g Í n c i a   a u t o m a t i c a m e n t e   a o   d e t e c t a r   a   q u a n t i d a d e   s e l e c i o n a d a   d e   i m p a c t o s ,   s e m   e x i g i r   c o n f i r m a Á „ o   v o c a l . "   =   " E n   m o d o   d e   e s p e r a ,   a c t i v a   l a   e m e r g e n c i a   a u t o m · t i c a m e n t e   a l   d e t e c t a r   l a   c a n t i d a d   d e   i m p a c t o s   s e l e c c i o n a d a ,   s i n   r e q u e r i r   c o n f i r m a c i Û n   v o c a l . " ; 
+ " G a t i l h o   d e   I m p a c t o s   R e p e t i d o s   ( P e s s o a s   N ÔøΩ o - V e r b a i s ) "   =   " G a t i l l o   d e   I m p a c t o s   R e p e t i d o s   ( P e r s o n a s   N o   V e r b a l e s ) " ; 
+ " E m   m o d o   d e   e s p e r a ,   d i s p a r a   e m e r g ÔøΩ n c i a   a u t o m a t i c a m e n t e   a o   d e t e c t a r   a   q u a n t i d a d e   s e l e c i o n a d a   d e   i m p a c t o s ,   s e m   e x i g i r   c o n f i r m a ÔøΩ ÔøΩ o   v o c a l . "   =   " E n   m o d o   d e   e s p e r a ,   a c t i v a   l a   e m e r g e n c i a   a u t o m ÔøΩ t i c a m e n t e   a l   d e t e c t a r   l a   c a n t i d a d   d e   i m p a c t o s   s e l e c c i o n a d a ,   s i n   r e q u e r i r   c o n f i r m a c i ÔøΩ n   v o c a l . " ; 
  " 2   I m p a c t o s "   =   " 2   I m p a c t o s " ; 
- " 3   ( P a d r „ o ) "   =   " 3   ( P r e d e t e r m i n a d o ) " ; 
+ " 3   ( P a d r ÔøΩ o ) "   =   " 3   ( P r e d e t e r m i n a d o ) " ; 
  " 4   I m p a c t o s "   =   " 4   I m p a c t o s " ; 
  " 5   I m p a c t o s "   =   " 5   I m p a c t o s " ; 
- " S e q u Í n c i a   d e   % d   i m p a c t o s   e m   a m b i e n t e   s i l e n c i o s o   ( P e s s o a   N „ o - V e r b a l   /   E m e r g Í n c i a   F Ì s i c a ) "   =   " S e c u e n c i a   d e   % d   i m p a c t o s   e n   e n t o r n o   s i l e n c i o s o   ( P e r s o n a   N o   V e r b a l   /   E m e r g e n c i a   F Ì s i c a ) " ; 
+ " S e q u ÔøΩ n c i a   d e   % d   i m p a c t o s   e m   a m b i e n t e   s i l e n c i o s o   ( P e s s o a   N ÔøΩ o - V e r b a l   /   E m e r g ÔøΩ n c i a   F ÔøΩ s i c a ) "   =   " S e c u e n c i a   d e   % d   i m p a c t o s   e n   e n t o r n o   s i l e n c i o s o   ( P e r s o n a   N o   V e r b a l   /   E m e r g e n c i a   F ÔøΩ s i c a ) " ; 
+ 
+ " N ÔøΩ o   f o i   p o s s ÔøΩ v e l   c a p t a r   a   v o z   c o m   c l a r e z a .   F a l e   e m   t o m   n o r m a l   e m   u m   a m b i e n t e   t r a n q u i l o   e   t e n t e   n o v a m e n t e . "   =   " N o   s e   p u d o   c a p t a r   l a   v o z   c o n   c l a r i d a d .   H a b l e   e n   t o n o   n o r m a l   e n   u n   a m b i e n t e   t r a n q u i l o   e   i n t e n t e   d e   n u e v o . " ; 
+ " J a n e l a   d e   T e m p o   e m   E s p e r a "   =   " V e n t a n a   d e   T i e m p o   e n   E s p e r a " ; 
+ " T e m p o   l i m i t e   e m   m o d o   d e   a t e n ÔøΩ ÔøΩ o   a g u a r d a n d o   c o n f i r m a ÔøΩ ÔøΩ o   p o r   v o z   o u   n o v o s   i m p a c t o s   a n t e s   d e   c a n c e l a r   o   a l e r t a . "   =   " T i e m p o   l ÔøΩ m i t e   e n   m o d o   d e   a t e n c i ÔøΩ n   e s p e r a n d o   c o n f i r m a c i ÔøΩ n   p o r   v o z   o   n u e v o s   i m p a c t o s   a n t e s   d e   c a n c e l a r   l a   a l e r t a . " ; 
+ " 1 5 s "   =   " 1 5 s " ; 
+ " 3 0 s "   =   " 3 0 s " ; 
+ " 6 0 s   ( P a d r ÔøΩ o ) "   =   " 6 0 s   ( P r e d e t e r m i n a d o ) " ; 
+ " 9 0 s "   =   " 9 0 s " ; 
+ " 1 2 0 s "   =   " 1 2 0 s " ; 
  

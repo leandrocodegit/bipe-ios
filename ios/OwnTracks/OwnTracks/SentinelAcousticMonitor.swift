@@ -138,6 +138,7 @@ struct DistressPhrase {
     }
     
     private let requiredAttentionImpactsKey = "sentinel_required_attention_impacts"
+    private let attentionWindowSecondsKey = "sentinel_attention_window_seconds"
     
     @objc public var requiredAttentionImpacts: Int {
         get {
@@ -146,6 +147,16 @@ struct DistressPhrase {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: requiredAttentionImpactsKey)
+        }
+    }
+    
+    @objc public var attentionWindowSeconds: Int {
+        get {
+            let val = UserDefaults.standard.integer(forKey: attentionWindowSecondsKey)
+            return val > 0 ? val : 60
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: attentionWindowSecondsKey)
         }
     }
     
@@ -587,12 +598,13 @@ struct DistressPhrase {
             return
         }
         
-        // Aguarda 60 segundos por um grito ou frase. Se nada acontecer, cancela.
+        // Aguarda N segundos (parametrizado) por um grito ou frase. Se nada acontecer, cancela.
         stopGracePeriodTimers()
-        attentionTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: false) { [weak self] _ in
+        let timeout = TimeInterval(attentionWindowSeconds)
+        attentionTimer = Timer.scheduledTimer(withTimeInterval: timeout, repeats: false) { [weak self] _ in
             guard let self = self else { return }
             if self.currentState == .attentionMode {
-                NSLog("[SentinelAcousticMonitor] Modo de Atenção expirou sem confirmação. Cancelando falso alarme.")
+                NSLog("[SentinelAcousticMonitor] Modo de Atenção expirou após %.0fs sem confirmação. Cancelando falso alarme.", timeout)
                 self.transition(to: .listening)
             }
         }
