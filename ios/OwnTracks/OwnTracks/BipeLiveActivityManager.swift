@@ -69,7 +69,7 @@ import FirebaseMessaging
         
         DispatchQueue.main.async {
             do {
-                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker, .allowBluetooth])
                 try AVAudioSession.sharedInstance().setActive(true)
                 
                 audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
