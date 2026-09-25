@@ -11,6 +11,18 @@ import UIKit
 import AVFoundation
 import ContactsUI
 
+class SentinelPaddingLabel: UILabel {
+    var textInsets = UIEdgeInsets(top: 2, left: 8, bottom: 2, right: 8)
+    override func drawText(in rect: CGRect) {
+        super.drawText(in: rect.inset(by: textInsets))
+    }
+    override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width + textInsets.left + textInsets.right,
+                      height: size.height + textInsets.top + textInsets.bottom)
+    }
+}
+
 @objc class SentinelViewController: UIViewController {
 
     // MARK: - UI Components
@@ -359,8 +371,8 @@ import ContactsUI
         return label
     }()
 
-    private let voiceBadgeLabel: UILabel = {
-        let label = UILabel()
+    private let voiceBadgeLabel: SentinelPaddingLabel = {
+        let label = SentinelPaddingLabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = NSLocalizedString("Não Calibrada", comment: "")
         label.font = .systemFont(ofSize: 11, weight: .bold)
@@ -388,6 +400,8 @@ import ContactsUI
         btn.setTitle(NSLocalizedString("Calibrar Assinatura Vocal (4.5s)", comment: ""), for: .normal)
         btn.setTitleColor(UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0), for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
+        btn.titleLabel?.adjustsFontSizeToFitWidth = true
+        btn.titleLabel?.minimumScaleFactor = 0.85
         btn.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.1)
         btn.layer.cornerRadius = 10
         btn.layer.borderWidth = 1
@@ -408,6 +422,7 @@ import ContactsUI
         label.text = NSLocalizedString("Alerta de Voz Externa / Desconhecida", comment: "")
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
@@ -1182,14 +1197,15 @@ import ContactsUI
             voiceIconView.heightAnchor.constraint(equalToConstant: 22),
 
             voiceTitleLabel.leadingAnchor.constraint(equalTo: voiceIconView.trailingAnchor, constant: 10),
-            voiceTitleLabel.centerYAnchor.constraint(equalTo: voiceIconView.centerYAnchor),
-            voiceTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: voiceBadgeLabel.leadingAnchor, constant: -8),
+            voiceTitleLabel.topAnchor.constraint(equalTo: voiceCardView.topAnchor, constant: 16),
+            voiceTitleLabel.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
 
-            voiceBadgeLabel.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
-            voiceBadgeLabel.centerYAnchor.constraint(equalTo: voiceIconView.centerYAnchor),
+            voiceBadgeLabel.topAnchor.constraint(equalTo: voiceTitleLabel.bottomAnchor, constant: 6),
+            voiceBadgeLabel.leadingAnchor.constraint(equalTo: voiceTitleLabel.leadingAnchor),
+            voiceBadgeLabel.trailingAnchor.constraint(lessThanOrEqualTo: voiceCardView.trailingAnchor, constant: -16),
             voiceBadgeLabel.heightAnchor.constraint(equalToConstant: 22),
 
-            voiceSubtitleLabel.topAnchor.constraint(equalTo: voiceIconView.bottomAnchor, constant: 8),
+            voiceSubtitleLabel.topAnchor.constraint(equalTo: voiceBadgeLabel.bottomAnchor, constant: 10),
             voiceSubtitleLabel.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
             voiceSubtitleLabel.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
 
@@ -1203,17 +1219,17 @@ import ContactsUI
             voiceDividerView.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
             voiceDividerView.heightAnchor.constraint(equalToConstant: 1),
 
+            unknownVoiceSwitch.topAnchor.constraint(equalTo: voiceDividerView.bottomAnchor, constant: 14),
+            unknownVoiceSwitch.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
+
             unknownVoiceTitleLabel.topAnchor.constraint(equalTo: voiceDividerView.bottomAnchor, constant: 14),
             unknownVoiceTitleLabel.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
-            unknownVoiceTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: unknownVoiceSwitch.leadingAnchor, constant: -8),
+            unknownVoiceTitleLabel.trailingAnchor.constraint(equalTo: unknownVoiceSwitch.leadingAnchor, constant: -12),
 
-            unknownVoiceSubtitleLabel.topAnchor.constraint(equalTo: unknownVoiceTitleLabel.bottomAnchor, constant: 4),
+            unknownVoiceSubtitleLabel.topAnchor.constraint(equalTo: unknownVoiceSwitch.bottomAnchor, constant: 12),
             unknownVoiceSubtitleLabel.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
-            unknownVoiceSubtitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: unknownVoiceSwitch.leadingAnchor, constant: -8),
-            unknownVoiceSubtitleLabel.bottomAnchor.constraint(equalTo: voiceCardView.bottomAnchor, constant: -16),
-
-            unknownVoiceSwitch.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
-            unknownVoiceSwitch.centerYAnchor.constraint(equalTo: unknownVoiceTitleLabel.bottomAnchor, constant: 2)
+            unknownVoiceSubtitleLabel.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
+            unknownVoiceSubtitleLabel.bottomAnchor.constraint(equalTo: voiceCardView.bottomAnchor, constant: -16)
         ])
 
         NSLayoutConstraint.activate([
