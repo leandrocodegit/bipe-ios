@@ -69,7 +69,11 @@ import FirebaseMessaging
         
         DispatchQueue.main.async {
             do {
-                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker, .allowBluetooth])
+                if SentinelAcousticMonitor.shared.isMonitoring {
+                    try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker, .allowBluetooth])
+                } else {
+                    try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+                }
                 try AVAudioSession.sharedInstance().setActive(true)
                 
                 audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
@@ -488,7 +492,7 @@ import FirebaseMessaging
         let eventLower = eventVal?.lowercased() ?? ""
         
         let isBipe = typeLower == "bipe" || typeLower == "bipe_alert" || statusLower == "bipe" || statusLower == "bipe_alert" || eventLower == "bipe" || eventLower == "bipe_alert"
-        let isEmergency = !isBipe && (typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência"))
+        let isEmergency = !isBipe && (typeLower.contains("emergency") || statusLower.contains("emergency") || statusLower.contains("emergencia") || statusLower.contains("emergência") || typeLower.contains("sentinela") || typeLower.contains("sentinel") || statusLower.contains("sentinela") || statusLower.contains("sentinel") || eventLower.contains("sentinela") || eventLower.contains("sentinel"))
         let isRoutine = !isBipe && !isEmergency && (typeLower.contains("routine") || typeLower.contains("rotina") || statusLower.contains("routine") || statusLower.contains("rotina") || eventLower.contains("routine") || eventLower.contains("rotina"))
         let isDistance = !isBipe && !isEmergency && !isRoutine && (typeLower.contains("distance") || statusLower.contains("distance") || eventLower.contains("aproxim") || eventLower.contains("afast") || statusLower.contains("aproxim") || statusLower.contains("afast") || targetVal != nil || alvoVal != nil || distanciaVal != nil)
         let isTransition = !isBipe && !isEmergency && !isDistance && !isRoutine
