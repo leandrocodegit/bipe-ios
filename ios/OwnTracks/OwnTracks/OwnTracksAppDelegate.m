@@ -407,7 +407,7 @@
         type = [NSString stringWithFormat:@"%@", userInfo[@"data"][@"type"]];
     }
     
-    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"] || [type.lowercaseString isEqualToString:@"sentinela"]) {
+    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"] || [type.lowercaseString isEqualToString:@"sentinela"] || [type.lowercaseString containsString:@"bipe"]) {
         [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
     }
     
@@ -418,6 +418,7 @@
                                   [type.lowercaseString containsString:@"transition"] ||
                                   [type.lowercaseString containsString:@"emergency"] ||
                                   [type.lowercaseString containsString:@"sentinela"] ||
+                                  [type.lowercaseString containsString:@"bipe"] ||
                                   apsDict[@"content-state"] != nil ||
                                   apsDict[@"contentState"] != nil;
 
@@ -464,11 +465,22 @@
     NSString *type = nil;
     if (userInfo[@"type"]) {
         type = [NSString stringWithFormat:@"%@", userInfo[@"type"]];
+    } else if (userInfo[@"_type"]) {
+        type = [NSString stringWithFormat:@"%@", userInfo[@"_type"]];
     } else if ([userInfo[@"data"] isKindOfClass:[NSDictionary class]] && userInfo[@"data"][@"type"]) {
         type = [NSString stringWithFormat:@"%@", userInfo[@"data"][@"type"]];
+    } else if ([userInfo[@"data"] isKindOfClass:[NSDictionary class]] && userInfo[@"data"][@"_type"]) {
+        type = [NSString stringWithFormat:@"%@", userInfo[@"data"][@"_type"]];
+    } else if ([userInfo[@"data"] isKindOfClass:[NSString class]]) {
+        NSData *data = [(NSString *)userInfo[@"data"] dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *dataDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        if ([dataDict isKindOfClass:[NSDictionary class]]) {
+            if (dataDict[@"type"]) type = [NSString stringWithFormat:@"%@", dataDict[@"type"]];
+            else if (dataDict[@"_type"]) type = [NSString stringWithFormat:@"%@", dataDict[@"_type"]];
+        }
     }
     
-    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"] || [type.lowercaseString isEqualToString:@"sentinela"]) {
+    if ([type.lowercaseString isEqualToString:@"vibrate"] || [type.lowercaseString isEqualToString:@"emergency"] || [type.lowercaseString isEqualToString:@"sentinela"] || [type.lowercaseString containsString:@"bipe"]) {
         [BipeHapticsHelper playAttentionVibrationWithDurationSeconds:6.0];
     }
     
