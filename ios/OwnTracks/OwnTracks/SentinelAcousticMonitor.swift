@@ -106,6 +106,41 @@ struct DistressPhrase {
     var onGracePeriodTick: ((Int) -> Void)?
     var onDecibelUpdate: ((Float) -> Void)?
     var onIntelligentDetection: ((String) -> Void)?
+    var onVoiceCalibrationProgress: ((Float, Float?) -> Void)?
+    var onVoiceCalibrationComplete: ((Bool, String) -> Void)?
+    
+    // MARK: - Perfil de Voz do Usuário & Pitch Detection
+    
+    private let voiceCalibratedKey = "sentinel_user_voice_calibrated"
+    private let voicePitchMinKey = "sentinel_user_voice_pitch_min"
+    private let voicePitchMaxKey = "sentinel_user_voice_pitch_max"
+    private let triggerUnknownVoiceKey = "sentinel_trigger_unknown_voice"
+    
+    @objc public var isUserVoiceCalibrated: Bool {
+        return UserDefaults.standard.bool(forKey: voiceCalibratedKey)
+    }
+    
+    @objc public var userVoicePitchMin: Float {
+        return UserDefaults.standard.float(forKey: voicePitchMinKey)
+    }
+    
+    @objc public var userVoicePitchMax: Float {
+        return UserDefaults.standard.float(forKey: voicePitchMaxKey)
+    }
+    
+    @objc public var triggerUnknownVoice: Bool {
+        get {
+            return UserDefaults.standard.bool(forKey: triggerUnknownVoiceKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: triggerUnknownVoiceKey)
+        }
+    }
+    
+    @objc public private(set) var isCalibratingVoice: Bool = false
+    private var calibrationPitches: [Float] = []
+    private var calibrationTimer: Timer?
+    private var unknownVoiceFramesCount: Int = 0
     
     // MARK: - Propriedades Privadas de Áudio e IA
     
@@ -470,6 +505,33 @@ struct DistressPhrase {
         
         // 3. Alimentar Reconhecimento de Fala On-Device
         speechRequest?.append(buffer)
+        
+        // 4. Estimativa de Pitch F0 (Calibração & Voz Desconhecida)
+        if let pitch = estimateFundamentalFrequency(buffer: buffer) {
+            if isCalibratingVoice {
+                calibrationPitches.append(pitch)
+                let progress = min(1.0, Float(calibrationPitches.count) / 25.0)
+                DispatchQueue.main.async { [weak self] in
+                    self?.onVoiceCalibrationProgress?(progress, pitch)
+                }
+            } else if triggerUnknownVoice && isUserVoiceCalibrated {
+                let minAllowed = userVoicePitchMin - 12.0
+                let maxAllowed = userVoicePitchMax + 12.0
+                if pitch < minAllowed || pitch > maxAllowed {
+                    unknownVoiceFramesCount += 1
+                    if unknownVoiceFramesCount >= 5 {
+                        unknownVoiceFramesCount = 0
+                        let reason = String(format: NSLocalizedString("Voz externa/diferente detectada (tom: %.0f Hz)", comment: ""), pitch)
+                        NSLog("[SentinelAcousticMonitor] VOZ DESCONHECIDA DETECTADA: %@", reason)
+                        DispatchQueue.main.async { [weak self] in
+                            self?.triggerIntelligentEmergency(reason: reason)
+                        }
+                    }
+                } else {
+                    unknownVoiceFramesCount = max(0, unknownVoiceFramesCount - 1)
+                }
+            }
+        }
     }
     
     // MARK: - Gatilho Inteligente & Grace Period
@@ -750,6 +812,114 @@ struct DistressPhrase {
         guard index >= 0 && index < contacts.count else { return }
         contacts.remove(at: index)
         saveTrustedContacts(contacts)
+    }
+
+    // MARK: - Calibração de Voz do Usuário & Pitch Detection Algorithm
+
+    @objc func startVoiceCalibration() {
+        guard !isCalibratingVoice else { return }
+        isCalibratingVoice = true
+        calibrationPitches.removeAll()
+        
+        let wasMonitoring = isMonitoring
+        if !wasMonitoring {
+            startMonitoring()
+        }
+        
+        calibrationTimer?.invalidate()
+        calibrationTimer = Timer.scheduledTimer(withTimeInterval: 4.5, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            self.finishVoiceCalibration(wasMonitoringBefore: wasMonitoring)
+        }
+    }
+
+    private func finishVoiceCalibration(wasMonitoringBefore: Bool) {
+        isCalibratingVoice = false
+        calibrationTimer?.invalidate()
+        calibrationTimer = nil
+        
+        guard calibrationPitches.count >= 5 else {
+            DispatchQueue.main.async { [weak self] in
+                self?.onVoiceCalibrationComplete?(false, NSLocalizedString("Não foi possível captar a voz com clareza. Fale em tom normal em um ambiente quieto e tente novamente.", comment: ""))
+            }
+            if !wasMonitoringBefore { stopMonitoring() }
+            return
+        }
+
+        let sum = calibrationPitches.reduce(0, +)
+        let mean = sum / Float(calibrationPitches.count)
+        let variance = calibrationPitches.map { pow($0 - mean, 2) }.reduce(0, +) / Float(calibrationPitches.count)
+        let stdDev = sqrt(variance)
+
+        let minPitch = max(60.0, mean - (1.5 * stdDev) - 15.0)
+        let maxPitch = min(400.0, mean + (1.5 * stdDev) + 20.0)
+
+        UserDefaults.standard.set(true, forKey: voiceCalibratedKey)
+        UserDefaults.standard.set(minPitch, forKey: voicePitchMinKey)
+        UserDefaults.standard.set(maxPitch, forKey: voicePitchMaxKey)
+        
+        NSLog("[SentinelAcousticMonitor] Calibração de voz concluída! Média: %.1f Hz (Faixa: %.0f Hz - %.0f Hz)", mean, minPitch, maxPitch)
+
+        DispatchQueue.main.async { [weak self] in
+            let msg = String(format: NSLocalizedString("Assinatura vocal gravada com sucesso! Faixa: %.0f Hz - %.0f Hz", comment: ""), minPitch, maxPitch)
+            self?.onVoiceCalibrationComplete?(true, msg)
+        }
+        
+        if !wasMonitoringBefore {
+            stopMonitoring()
+        }
+    }
+
+    @objc func resetVoiceProfile() {
+        UserDefaults.standard.removeObject(forKey: voiceCalibratedKey)
+        UserDefaults.standard.removeObject(forKey: voicePitchMinKey)
+        UserDefaults.standard.removeObject(forKey: voicePitchMaxKey)
+        UserDefaults.standard.removeObject(forKey: triggerUnknownVoiceKey)
+    }
+
+    /// Estimativa de Frequência Fundamental (F0 Pitch em Hz) via Autocorrelação PCM em tempo real
+    private func estimateFundamentalFrequency(buffer: AVAudioPCMBuffer) -> Float? {
+        guard let channelData = buffer.floatChannelData?[0] else { return nil }
+        let frameLength = Int(buffer.frameLength)
+        let sampleRate = Float(buffer.format.sampleRate)
+        guard frameLength > 256, sampleRate > 0 else { return nil }
+
+        var sumSquares: Float = 0.0
+        for i in 0..<frameLength {
+            let s = channelData[i]
+            sumSquares += s * s
+        }
+        let rms = sqrt(sumSquares / Float(frameLength))
+        guard rms > 0.015 else { return nil } // Filtra silêncio e ruído de fundo fraco
+
+        let minFreq: Float = 60.0
+        let maxFreq: Float = 400.0
+        let minLag = Int(sampleRate / maxFreq)
+        let maxLag = Int(sampleRate / minFreq)
+
+        guard maxLag < frameLength else { return nil }
+
+        var maxAutocorr: Float = 0.0
+        var bestLag = 0
+
+        for lag in minLag...maxLag {
+            var sum: Float = 0.0
+            for i in 0..<(frameLength - lag) {
+                sum += channelData[i] * channelData[i + lag]
+            }
+            if sum > maxAutocorr {
+                maxAutocorr = sum
+                bestLag = lag
+            }
+        }
+
+        guard bestLag > 0, maxAutocorr > (sumSquares * 0.35) else { return nil }
+        let pitch = sampleRate / Float(bestLag)
+
+        if pitch >= 60.0 && pitch <= 400.0 {
+            return pitch
+        }
+        return nil
     }
 
     // MARK: - Transição de Estado

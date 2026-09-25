@@ -328,6 +328,106 @@ import ContactsUI
         return stack
     }()
 
+    // MARK: - Voice Profile & Unknown Voice Card
+    private let voiceCardView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 22/255, green: 34/255, blue: 38/255, alpha: 1.0)
+        view.layer.cornerRadius = 16
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0).cgColor
+        return view
+    }()
+
+    private let voiceIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "mic.badge.plus") ?? UIImage(systemName: "waveform.path.ecg") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let voiceTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Perfil Vocal & Vozes Externas", comment: "")
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let voiceBadgeLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Não Calibrada", comment: "")
+        label.font = .systemFont(ofSize: 11, weight: .bold)
+        label.textColor = UIColor(red: 245/255, green: 158/255, blue: 11/255, alpha: 1.0)
+        label.backgroundColor = UIColor(red: 245/255, green: 158/255, blue: 11/255, alpha: 0.15)
+        label.layer.cornerRadius = 6
+        label.layer.masksToBounds = true
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let voiceSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Calibre a frequência fundamental da sua voz (F0 Pitch) para identificar quando uma voz diferente ou externa estiver falando no ambiente.", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let calibrateVoiceButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle(NSLocalizedString("Calibrar Assinatura Vocal (4.5s)", comment: ""), for: .normal)
+        btn.setTitleColor(UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0), for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
+        btn.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.1)
+        btn.layer.cornerRadius = 10
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.3).cgColor
+        return btn
+    }()
+
+    private let voiceDividerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0)
+        return view
+    }()
+
+    private let unknownVoiceTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Alerta de Voz Externa / Desconhecida", comment: "")
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .white
+        return label
+    }()
+
+    private let unknownVoiceSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Dispara emergência se uma voz de outra pessoa for detectada continuadamente.", comment: "")
+        label.font = .systemFont(ofSize: 11, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let unknownVoiceSwitch: UISwitch = {
+        let sw = UISwitch()
+        sw.translatesAutoresizingMaskIntoConstraints = false
+        sw.onTintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return sw
+    }()
+
     // MARK: - Custom Distress Keywords Card (Até 3 frases)
     private let keywordsCardView: UIView = {
         let view = UIView()
@@ -688,6 +788,7 @@ import ContactsUI
         syncStateWithMonitor()
         refreshContactsUI()
         refreshKeywordsUI()
+        refreshVoiceProfileUI()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -695,6 +796,7 @@ import ContactsUI
         syncStateWithMonitor()
         refreshContactsUI()
         refreshKeywordsUI()
+        refreshVoiceProfileUI()
     }
 
     deinit {
@@ -736,6 +838,7 @@ import ContactsUI
         contentView.addSubview(meterCardView)
         contentView.addSubview(gracePeriodCardView)
         contentView.addSubview(aiCardView)
+        contentView.addSubview(voiceCardView)
         contentView.addSubview(keywordsCardView)
         contentView.addSubview(contactsCardView)
         contentView.addSubview(guidelinesCardView)
@@ -782,6 +885,17 @@ import ContactsUI
         aiCardView.addSubview(aiSubtitleLabel)
         aiCardView.addSubview(aiBadgesStackView)
         setupAIBadges()
+
+        // Voice Card Subviews
+        voiceCardView.addSubview(voiceIconView)
+        voiceCardView.addSubview(voiceTitleLabel)
+        voiceCardView.addSubview(voiceBadgeLabel)
+        voiceCardView.addSubview(voiceSubtitleLabel)
+        voiceCardView.addSubview(calibrateVoiceButton)
+        voiceCardView.addSubview(voiceDividerView)
+        voiceCardView.addSubview(unknownVoiceTitleLabel)
+        voiceCardView.addSubview(unknownVoiceSubtitleLabel)
+        voiceCardView.addSubview(unknownVoiceSwitch)
 
         // Keywords Card Subviews
         keywordsCardView.addSubview(keywordsIconView)
@@ -957,12 +1071,59 @@ import ContactsUI
 
             aiBadgesStackView.topAnchor.constraint(equalTo: aiSubtitleLabel.bottomAnchor, constant: 12),
             aiBadgesStackView.leadingAnchor.constraint(equalTo: aiCardView.leadingAnchor, constant: 16),
+            aiBadgesStackView.trailingAnchor.constraint(equalTo: aiCardView.trailingAnchor, constant: -16),
             aiBadgesStackView.bottomAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: -16)
         ])
 
         NSLayoutConstraint.activate([
+            // Voice Profile & Unknown Voice Card
+            voiceCardView.topAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: 16),
+            voiceCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            voiceCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            voiceIconView.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
+            voiceIconView.topAnchor.constraint(equalTo: voiceCardView.topAnchor, constant: 16),
+            voiceIconView.widthAnchor.constraint(equalToConstant: 22),
+            voiceIconView.heightAnchor.constraint(equalToConstant: 22),
+
+            voiceTitleLabel.leadingAnchor.constraint(equalTo: voiceIconView.trailingAnchor, constant: 10),
+            voiceTitleLabel.centerYAnchor.constraint(equalTo: voiceIconView.centerYAnchor),
+            voiceTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: voiceBadgeLabel.leadingAnchor, constant: -8),
+
+            voiceBadgeLabel.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
+            voiceBadgeLabel.centerYAnchor.constraint(equalTo: voiceIconView.centerYAnchor),
+            voiceBadgeLabel.heightAnchor.constraint(equalToConstant: 22),
+
+            voiceSubtitleLabel.topAnchor.constraint(equalTo: voiceIconView.bottomAnchor, constant: 8),
+            voiceSubtitleLabel.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
+            voiceSubtitleLabel.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
+
+            calibrateVoiceButton.topAnchor.constraint(equalTo: voiceSubtitleLabel.bottomAnchor, constant: 12),
+            calibrateVoiceButton.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
+            calibrateVoiceButton.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
+            calibrateVoiceButton.heightAnchor.constraint(equalToConstant: 44),
+
+            voiceDividerView.topAnchor.constraint(equalTo: calibrateVoiceButton.bottomAnchor, constant: 14),
+            voiceDividerView.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
+            voiceDividerView.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
+            voiceDividerView.heightAnchor.constraint(equalToConstant: 1),
+
+            unknownVoiceTitleLabel.topAnchor.constraint(equalTo: voiceDividerView.bottomAnchor, constant: 14),
+            unknownVoiceTitleLabel.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
+            unknownVoiceTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: unknownVoiceSwitch.leadingAnchor, constant: -8),
+
+            unknownVoiceSubtitleLabel.topAnchor.constraint(equalTo: unknownVoiceTitleLabel.bottomAnchor, constant: 4),
+            unknownVoiceSubtitleLabel.leadingAnchor.constraint(equalTo: voiceCardView.leadingAnchor, constant: 16),
+            unknownVoiceSubtitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: unknownVoiceSwitch.leadingAnchor, constant: -8),
+            unknownVoiceSubtitleLabel.bottomAnchor.constraint(equalTo: voiceCardView.bottomAnchor, constant: -16),
+
+            unknownVoiceSwitch.trailingAnchor.constraint(equalTo: voiceCardView.trailingAnchor, constant: -16),
+            unknownVoiceSwitch.centerYAnchor.constraint(equalTo: unknownVoiceTitleLabel.bottomAnchor, constant: 2)
+        ])
+
+        NSLayoutConstraint.activate([
             // Custom Keywords Card
-            keywordsCardView.topAnchor.constraint(equalTo: aiCardView.bottomAnchor, constant: 16),
+            keywordsCardView.topAnchor.constraint(equalTo: voiceCardView.bottomAnchor, constant: 16),
             keywordsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             keywordsCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
@@ -1176,6 +1337,58 @@ import ContactsUI
         cancelGraceButton.addTarget(self, action: #selector(cancelGraceTapped), for: .touchUpInside)
         addContactButton.addTarget(self, action: #selector(addContactTapped), for: .touchUpInside)
         addKeywordButton.addTarget(self, action: #selector(addKeywordTapped), for: .touchUpInside)
+        calibrateVoiceButton.addTarget(self, action: #selector(calibrateVoiceTapped), for: .touchUpInside)
+        unknownVoiceSwitch.addTarget(self, action: #selector(unknownVoiceSwitchChanged(_:)), for: .valueChanged)
+    }
+
+    @objc private func calibrateVoiceTapped() {
+        let modal = VoiceCalibrationModalViewController()
+        modal.modalPresentationStyle = .overFullScreen
+        modal.modalTransitionStyle = .crossDissolve
+        modal.onComplete = { [weak self] in
+            self?.refreshVoiceProfileUI()
+        }
+        present(modal, animated: true, completion: nil)
+    }
+
+    @objc private func unknownVoiceSwitchChanged(_ sender: UISwitch) {
+        let monitor = SentinelAcousticMonitor.shared
+        if sender.isOn && !monitor.isUserVoiceCalibrated {
+            sender.setOn(false, animated: true)
+            let alert = UIAlertController(
+                title: NSLocalizedString("Voz Não Calibrada", comment: ""),
+                message: NSLocalizedString("Por favor, realize a calibração da sua assinatura vocal antes de ativar o alerta de vozes externas.", comment: ""),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: NSLocalizedString("Calibrar Agora", comment: ""), style: .default, handler: { [weak self] _ in
+                self?.calibrateVoiceTapped()
+            }))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("Cancelar", comment: ""), style: .cancel, handler: nil))
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        monitor.triggerUnknownVoice = sender.isOn
+    }
+
+    private func refreshVoiceProfileUI() {
+        let monitor = SentinelAcousticMonitor.shared
+        if monitor.isUserVoiceCalibrated {
+            let minP = monitor.userVoicePitchMin
+            let maxP = monitor.userVoicePitchMax
+            voiceBadgeLabel.text = String(format: NSLocalizedString("Calibrada (%.0f-%.0f Hz)", comment: ""), minP, maxP)
+            voiceBadgeLabel.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+            voiceBadgeLabel.backgroundColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.15)
+            calibrateVoiceButton.setTitle(NSLocalizedString("Recalibrar Voz (4.5s)", comment: ""), for: .normal)
+            unknownVoiceSwitch.isEnabled = true
+            unknownVoiceSwitch.isOn = monitor.triggerUnknownVoice
+        } else {
+            voiceBadgeLabel.text = NSLocalizedString("Não Calibrada", comment: "")
+            voiceBadgeLabel.textColor = UIColor(red: 245/255, green: 158/255, blue: 11/255, alpha: 1.0)
+            voiceBadgeLabel.backgroundColor = UIColor(red: 245/255, green: 158/255, blue: 11/255, alpha: 0.15)
+            calibrateVoiceButton.setTitle(NSLocalizedString("Calibrar Assinatura Vocal (4.5s)", comment: ""), for: .normal)
+            unknownVoiceSwitch.isEnabled = true
+            unknownVoiceSwitch.isOn = false
+        }
     }
 
     @objc private func toggleSwitchChanged(_ sender: UISwitch) {
@@ -1491,6 +1704,7 @@ import ContactsUI
         thresholdSlider.value = monitor.thresholdDB
         sliderCurrentValueLabel.text = String(format: "%.0f dB", monitor.thresholdDB)
         updateImpactsUI(enabled: monitor.detectImpacts)
+        refreshVoiceProfileUI()
         handleStateChange(monitor.currentState)
     }
 
@@ -1592,6 +1806,8 @@ import ContactsUI
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: 13, weight: .bold)
         titleLabel.textColor = .white
+        titleLabel.numberOfLines = 0
+        titleLabel.lineBreakMode = .byWordWrapping
 
         let subLabel = UILabel()
         subLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -1599,6 +1815,7 @@ import ContactsUI
         subLabel.font = .systemFont(ofSize: 11, weight: .regular)
         subLabel.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
         subLabel.numberOfLines = 0
+        subLabel.lineBreakMode = .byWordWrapping
 
         let vStack = UIStackView(arrangedSubviews: [titleLabel, subLabel])
         vStack.translatesAutoresizingMaskIntoConstraints = false
@@ -2178,5 +2395,199 @@ class SentinelActivationModalViewController: UIViewController {
         dismiss(animated: true) { [weak self] in
             self?.onCancel?()
         }
+    }
+}
+
+// MARK: - Modal Controller para Calibração de Voz do Usuário
+
+class VoiceCalibrationModalViewController: UIViewController {
+
+    var onComplete: (() -> Void)?
+
+    private let backdropView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.85)
+        return view
+    }()
+
+    private let containerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 22/255, green: 34/255, blue: 38/255, alpha: 1.0)
+        view.layer.cornerRadius = 20
+        view.layer.borderWidth = 1.2
+        view.layer.borderColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 0.5).cgColor
+        return view
+    }()
+
+    private let micIconView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        if #available(iOS 13.0, *), let img = UIImage(systemName: "mic.circle.fill") {
+            iv.image = img
+        }
+        iv.tintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        return iv
+    }()
+
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Calibrando Sua Voz", comment: "")
+        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.textColor = .white
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Por favor, fale normalmente (ex: conte de 1 a 10 ou fale frases do dia a dia) para que o Sentinela aprenda seu tom de voz (pitch baseline).", comment: "")
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.textColor = UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let progressView: UIProgressView = {
+        let pv = UIProgressView(progressViewStyle: .bar)
+        pv.translatesAutoresizingMaskIntoConstraints = false
+        pv.progressTintColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        pv.trackTintColor = UIColor(red: 35/255, green: 53/255, blue: 59/255, alpha: 1.0)
+        pv.layer.cornerRadius = 4
+        pv.clipsToBounds = true
+        return pv
+    }()
+
+    private let statusMessageLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = NSLocalizedString("Ouvindo tom de voz... 0%", comment: "")
+        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let cancelButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle(NSLocalizedString("Cancelar", comment: ""), for: .normal)
+        btn.setTitleColor(UIColor(red: 160/255, green: 175/255, blue: 180/255, alpha: 1.0), for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        return btn
+    }()
+
+    private var progressTimer: Timer?
+    private var progressCounter: Float = 0.0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        startCalibrationProcess()
+    }
+
+    private func setupUI() {
+        view.addSubview(backdropView)
+        view.addSubview(containerView)
+
+        containerView.addSubview(micIconView)
+        containerView.addSubview(titleLabel)
+        containerView.addSubview(subtitleLabel)
+        containerView.addSubview(progressView)
+        containerView.addSubview(statusMessageLabel)
+        containerView.addSubview(cancelButton)
+
+        NSLayoutConstraint.activate([
+            backdropView.topAnchor.constraint(equalTo: view.topAnchor),
+            backdropView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backdropView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backdropView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 28),
+            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -28),
+
+            micIconView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 24),
+            micIconView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            micIconView.widthAnchor.constraint(equalToConstant: 48),
+            micIconView.heightAnchor.constraint(equalToConstant: 48),
+
+            titleLabel.topAnchor.constraint(equalTo: micIconView.bottomAnchor, constant: 14),
+            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            subtitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            subtitleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+
+            progressView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 20),
+            progressView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            progressView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+            progressView.heightAnchor.constraint(equalToConstant: 8),
+
+            statusMessageLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 10),
+            statusMessageLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            statusMessageLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+
+            cancelButton.topAnchor.constraint(equalTo: statusMessageLabel.bottomAnchor, constant: 16),
+            cancelButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            cancelButton.heightAnchor.constraint(equalToConstant: 38),
+            cancelButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
+        ])
+
+        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+    }
+
+    private func startCalibrationProcess() {
+        progressCounter = 0.0
+        progressView.setProgress(0.0, animated: false)
+
+        SentinelAcousticMonitor.shared.onVoiceCalibrationComplete = { [weak self] success, message in
+            guard let self = self else { return }
+            self.progressTimer?.invalidate()
+            self.progressTimer = nil
+
+            if success {
+                self.progressView.setProgress(1.0, animated: true)
+                self.statusMessageLabel.text = "✅ " + message
+                self.statusMessageLabel.textColor = UIColor(red: 20/255, green: 184/255, blue: 166/255, alpha: 1.0)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                    self.dismiss(animated: true) {
+                        self.onComplete?()
+                    }
+                }
+            } else {
+                self.statusMessageLabel.text = "⚠️ " + message
+                self.statusMessageLabel.textColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    self.dismiss(animated: true) {
+                        self.onComplete?()
+                    }
+                }
+            }
+        }
+
+        SentinelAcousticMonitor.shared.startVoiceCalibration()
+
+        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            self.progressCounter += 0.1
+            let progress = min(1.0, self.progressCounter / 4.5)
+            self.progressView.setProgress(progress, animated: true)
+            let pct = Int(progress * 100)
+            self.statusMessageLabel.text = String(format: NSLocalizedString("Ouvindo tom de voz... %d%%", comment: ""), pct)
+        }
+    }
+
+    @objc private func cancelTapped() {
+        progressTimer?.invalidate()
+        progressTimer = nil
+        SentinelAcousticMonitor.shared.onVoiceCalibrationComplete = nil
+        dismiss(animated: true, completion: nil)
     }
 }
