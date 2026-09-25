@@ -659,14 +659,16 @@ struct DistressPhrase {
         }
     }
     
-    /// Cancela o Grace Period caso tenha sido um falso alarme
+    /// Cancela o Grace Period / Modo de Atenção / Emergência caso tenha sido um falso alarme
     @objc public func cancelGracePeriod() {
-        guard currentState == .gracePeriod else { return }
+        guard currentState == .gracePeriod || currentState == .attentionMode || currentState == .emergencyDispatched else { return }
         
         stopGracePeriodTimers()
+        requiredAttentionImpactsCounter = 0
+        lastAttentionImpactTime = nil
         feedbackGenerator.notificationOccurred(.success)
         lastTriggerReason = ""
-        NSLog("[SentinelAcousticMonitor] Grace Period cancelado pelo usuário. Retomando escuta passiva.")
+        NSLog("[SentinelAcousticMonitor] Alerta / Modo de atenção cancelado pelo usuário. Retomando escuta passiva.")
         
         transition(to: .listening)
     }

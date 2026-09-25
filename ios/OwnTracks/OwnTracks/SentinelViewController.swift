@@ -225,7 +225,9 @@ class SentinelPaddingLabel: UILabel {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "10s"
-        label.font = .systemFont(ofSize: 42, weight: .black)
+        label.font = .systemFont(ofSize: 34, weight: .black)
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.5
         label.textColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
         label.textAlignment = .center
         return label
@@ -1441,7 +1443,7 @@ class SentinelPaddingLabel: UILabel {
         aiCardTopToGraceConstraint = aiCardView.topAnchor.constraint(equalTo: gracePeriodCardView.bottomAnchor, constant: 16)
         aiCardTopToMeterConstraint = aiCardView.topAnchor.constraint(equalTo: meterCardView.bottomAnchor, constant: 16)
 
-        let isInitialGrace = (SentinelAcousticMonitor.shared.currentState == .gracePeriod)
+        let isInitialGrace = (SentinelAcousticMonitor.shared.currentState == .gracePeriod || SentinelAcousticMonitor.shared.currentState == .attentionMode || SentinelAcousticMonitor.shared.currentState == .emergencyDispatched)
         updateGracePeriodVisibility(isInitialGrace, animated: false)
     }
 
@@ -1901,7 +1903,7 @@ class SentinelPaddingLabel: UILabel {
     }
 
     private func handleStateChange(_ state: SentinelState) {
-        let isGrace = (state == .gracePeriod)
+        let isGrace = (state == .gracePeriod || state == .attentionMode || state == .emergencyDispatched)
         updateGracePeriodVisibility(isGrace, animated: true)
 
         switch state {
@@ -1919,11 +1921,18 @@ class SentinelPaddingLabel: UILabel {
             toggleSwitch.isOn = true
 
         case .attentionMode:
+            let reason = SentinelAcousticMonitor.shared.lastTriggerReason
             statusLabel.text = NSLocalizedString("Atenção (Modo Silencioso)", comment: "")
             statusDotView.backgroundColor = .systemYellow
             shieldImageView.tintColor = .systemYellow
             toggleSwitch.isOn = true
-
+            graceCountdownLabel.text = NSLocalizedString("MODO DE ATENÇÃO", comment: "")
+            if !reason.isEmpty {
+                graceReasonLabel.text = "⚠️ \(reason)"
+            } else {
+                graceReasonLabel.text = "⚠️ " + NSLocalizedString("Impacto acústico detectado em aguardo", comment: "")
+            }
+            graceDescriptionLabel.text = NSLocalizedString("Aguardando confirmação vocal ou novos impactos. Toque abaixo para cancelar.", comment: "")
 
         case .gracePeriod:
             let reason = SentinelAcousticMonitor.shared.lastTriggerReason
@@ -1937,10 +1946,21 @@ class SentinelPaddingLabel: UILabel {
             } else {
                 graceReasonLabel.text = "🚨 " + NSLocalizedString("Ruído de emergência detectado", comment: "")
             }
+            graceDescriptionLabel.text = NSLocalizedString("Alerta de emergência e localização serão enviados aos contatos se não houver cancelamento.", comment: "")
 
         case .emergencyDispatched:
+            let reason = SentinelAcousticMonitor.shared.lastTriggerReason
             statusLabel.text = NSLocalizedString("Alerta de Emergência Disparado", comment: "")
             statusDotView.backgroundColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+            shieldImageView.tintColor = UIColor(red: 239/255, green: 68/255, blue: 68/255, alpha: 1.0)
+            toggleSwitch.isOn = true
+            graceCountdownLabel.text = NSLocalizedString("ENVIADO", comment: "")
+            if !reason.isEmpty {
+                graceReasonLabel.text = "🚨 \(reason)"
+            } else {
+                graceReasonLabel.text = "🚨 " + NSLocalizedString("Emergência Despachada", comment: "")
+            }
+            graceDescriptionLabel.text = NSLocalizedString("Alerta e localização enviados aos contatos. Toque abaixo para encerrar o alerta.", comment: "")
 
         case .batteryCritical:
             statusLabel.text = NSLocalizedString("Pausado: Bateria Crítica (<= 15%)", comment: "")
