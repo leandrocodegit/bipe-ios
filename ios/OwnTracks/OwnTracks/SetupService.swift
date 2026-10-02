@@ -55,7 +55,7 @@ enum SetupError: LocalizedError {
 @objc class SetupService: NSObject {
 
     // MARK: - Constantes
-    private static let setupURL = "https://dev.simodapp.com:2087/bipe/devices/setup"
+    private static let setupURL = "https://api.bipeme.com/bipe/devices/setup"
 
     /// Host MQTT a persistir (hardcoded, igual ao Android)
     private static let mqttHost = "broker.simodapp.com"
@@ -249,7 +249,7 @@ enum SetupError: LocalizedError {
         self.fetchFCMToken { fcmToken in
             AuthManager.shared.getBearerToken { bearerToken in
                 guard let bearerToken = bearerToken else { return }
-                let urlString = "https://dev.simodapp.com:2087/bipe/devices/\(devId)/tokens"
+                let urlString = "https://api.bipeme.com/bipe/devices/\(devId)/tokens"
                 guard let url = URL(string: urlString) else { return }
                 
                 var request = URLRequest(url: url)
