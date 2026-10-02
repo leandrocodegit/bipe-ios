@@ -85,8 +85,8 @@ import FirebaseMessaging
 
 @objc class BipeLiveActivityManager: NSObject {
     
-    private static let tokenEndpoint = "https://dev.simodapp.com:2087/bipe/live-activity/token"
-    private static let activityEndpointPrefix = "https://dev.simodapp.com:2087/bipe/live-activity/activity/"
+    private static let tokenEndpoint = "https://api.bipeme.com/bipe/live-activity/token"
+    private static let activityEndpointPrefix = "https://api.bipeme.com/bipe/live-activity/activity/"
     private static let appGroupSuite = "group.br.com.bipe.me"
     private static var lastSentTokens: [String: String] = [:]
 
@@ -778,7 +778,7 @@ import FirebaseMessaging
             }
             
             // 2. Atualiza no endpoint especifico do dispositivo /bipe/devices/{id}/tokens se o deviceId existir
-            if let devId = deviceId, !devId.isEmpty, let patchUrl = URL(string: "https://dev.simodapp.com:2087/bipe/devices/\(devId)/tokens") {
+            if let devId = deviceId, !devId.isEmpty, let patchUrl = URL(string: "https://api.bipeme.com/bipe/devices/\(devId)/tokens") {
                 group.enter()
                 var patchReq = URLRequest(url: patchUrl)
                 patchReq.httpMethod = "PATCH"
