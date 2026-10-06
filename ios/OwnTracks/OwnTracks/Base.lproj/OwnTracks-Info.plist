@@ -125,13 +125,13 @@
 OwnTracks will then display the contact name and image instead of the device Id.
 No information of your address book will be uploaded to any server.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Your location is used to share and record it on a server of your choice</string>
+	<string>Bipe uses your location in the background to track your vehicles and devices in real time on the map and send panic and geofence alerts, for example, monitoring movements even when the app is closed.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Your location is used to share and record it on a server of your choice</string>
+	<string>Bipe uses your location in the background to track your vehicles and devices in real time on the map and send panic and geofence alerts, for example, monitoring movements even when the app is closed.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>Your location is used to share and record it on a server of your choice</string>
+	<string>Bipe uses your location in the background to track your vehicles and devices in real time on the map and send panic and geofence alerts, for example, monitoring movements even when the app is closed.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location is used to share and record it on a server of your choice</string>
+	<string>Bipe uses your location to track your vehicles and devices in real time on the map and send panic and geofence alerts, for example, monitoring movements while using the app.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>OwnTracks delivers your step count, floors climbed, distance walked and activty on request</string>
 	<key>NSUserActivityTypes</key>

@@ -1239,13 +1239,13 @@ import ActivityKit
         view.bringSubviewToFront(topBar)
         view.bringSubviewToFront(webView)
 
-        if let url = URL(string: "https://bipe.simodapp.com/android-setup") {
+        if let url = URL(string: "https://bipe.simodapp.com/setup-app") {
             webView.load(URLRequest(url: url))
         }
     }
 
-    @objc func loadAndroidSetupRoute() {
-        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/android-setup") else { return }
+    @objc func loadSetupRoute() {
+        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/setup-app") else { return }
         DispatchQueue.main.async {
             webView.load(URLRequest(url: url))
         }
@@ -1314,7 +1314,7 @@ import ActivityKit
         if let webView = webView {
             if let url = webView.url {
                 webView.load(URLRequest(url: url))
-            } else if let url = URL(string: "https://bipe.simodapp.com/android-setup") {
+            } else if let url = URL(string: "https://bipe.simodapp.com/setup-app") {
                 webView.load(URLRequest(url: url))
             }
         }

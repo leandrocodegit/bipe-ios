@@ -260,8 +260,8 @@
             OwnTracksLogDefault("[OwnTracksAppDelegate] Setup concluído — iniciando monitoramento");
             [weakSelf startOwnTracksMonitoring];
             UIViewController *rootVC = weakSelf.window.rootViewController;
-            if ([rootVC respondsToSelector:@selector(loadAndroidSetupRoute)]) {
-                [rootVC performSelector:@selector(loadAndroidSetupRoute)];
+            if ([rootVC respondsToSelector:@selector(loadSetupRoute)]) {
+                [rootVC performSelector:@selector(loadSetupRoute)];
             }
         }];
         
