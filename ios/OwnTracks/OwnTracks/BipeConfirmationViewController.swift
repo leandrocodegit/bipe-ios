@@ -110,7 +110,7 @@ public class BipeConfirmationViewController: UIViewController {
         let moc = CoreData.sharedInstance().mainMOC
         let enableEmergency = Settings.bool(forKey: "enableEmergency", inMOC: moc)
         if enableEmergency {
-            BipeEmergencyHelper.sendEmergencyAlert(type: "emergency")
+            BipeEmergencyHelper.sendEmergencyAlert(type: "emergency", completion: nil)
             sendMqttStatus("FORCED")
         } else {
             sendMqttStatus("FORCED")

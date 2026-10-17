@@ -2152,6 +2152,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         sendEmergencyAlert(type: "emergency", completion: completion)
     }
 
+    @objc static func sendEmergencyAlert(type: String) {
+        sendEmergencyAlert(type: type, completion: nil)
+    }
+
     @objc static func sendEmergencyAlert(type: String, completion: ((Bool) -> Void)?) {
         DispatchQueue.main.async {
             // Feedback tátil ao pressionar o botão de ação / acionar o atalho
