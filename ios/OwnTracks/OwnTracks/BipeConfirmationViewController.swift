@@ -107,7 +107,14 @@ public class BipeConfirmationViewController: UIViewController {
     }
     
     @objc private func closeTapped() {
-        sendMqttStatus("FORCED")
+        let moc = CoreData.sharedInstance().mainMOC
+        let enableEmergency = Settings.bool(forKey: "enableEmergency", inMOC: moc)
+        if enableEmergency {
+            BipeEmergencyHelper.sendEmergencyAlert(type: "emergency")
+            sendMqttStatus("FORCED")
+        } else {
+            sendMqttStatus("FORCED")
+        }
         dismiss(animated: true, completion: nil)
     }
     
@@ -117,7 +124,8 @@ public class BipeConfirmationViewController: UIViewController {
             var json = [String: Any]()
             json["_type"] = "bipe"
             json["status"] = status
-            json["button"] = "VOL_TICK";
+            json["button"] = "VOL_TICK"
+            json["isEmergency"] = OwnTracking.isEmergencyActive()
             
             if let execId = execucaoId, !execId.isEmpty {
                 json["execucaoId"] = execId

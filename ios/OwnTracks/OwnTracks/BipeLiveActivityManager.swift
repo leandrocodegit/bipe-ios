@@ -870,7 +870,8 @@ import FirebaseMessaging
             let moc = CoreData.sharedInstance().mainMOC
             var json: [String: Any] = [
                 "_type": "bipe",
-                "status": status
+                "status": status,
+                "isEmergency": OwnTracking.isEmergencyActive()
             ]
             if let btn = button, !btn.isEmpty {
                 json["button"] = btn

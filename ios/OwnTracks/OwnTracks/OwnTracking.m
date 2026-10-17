@@ -555,7 +555,7 @@ static OwnTracking *theInstance = nil;
     NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
     json[@"_type"] = @"location";
     
-    BOOL isEmergency = [BipeEmergencyHelper isEmergencyActive];
+    BOOL isEmergency = [OwnTracking isEmergencyActive];
     json[@"isEmergency"] = @(isEmergency);
     
     NSString *userName = [Settings stringForKey:@"user_preference" inMOC:waypoint.managedObjectContext];
@@ -744,6 +744,56 @@ static OwnTracking *theInstance = nil;
                      (region.major).unsignedIntValue ? [NSString stringWithFormat: @":%@", region.major] : @"",
                      (region.minor).unsignedIntValue? [NSString stringWithFormat: @":%@", region.minor] : @""];
     return json;
+}
+
+#pragma mark - Emergency State Management
+
+static NSString * const kEmergencyTimestampKey = @"emergency_timestamp";
+static NSString * const kAppGroupSuite = @"group.br.com.bipe.me";
+static NSTimeInterval const kEmergencyDurationSeconds = 30.0 * 60.0; // 30 minutos
+
++ (void)setEmergencyActive {
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    [[NSUserDefaults standardUserDefaults] setDouble:now forKey:kEmergencyTimestampKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupSuite];
+    if (shared) {
+        [shared setDouble:now forKey:kEmergencyTimestampKey];
+        [shared synchronize];
+    }
+    OwnTracksLogDefault("[OwnTracking] Estado de emergência ativado por 30 minutos (timestamp: %f)", now);
+}
+
++ (BOOL)isEmergencyActive {
+    NSTimeInterval timestamp = [[NSUserDefaults standardUserDefaults] doubleForKey:kEmergencyTimestampKey];
+    if (timestamp <= 0) {
+        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupSuite];
+        if (shared) {
+            timestamp = [shared doubleForKey:kEmergencyTimestampKey];
+        }
+    }
+    if (timestamp <= 0) {
+        return NO;
+    }
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval elapsed = now - timestamp;
+    if (elapsed >= 0 && elapsed < kEmergencyDurationSeconds) {
+        return YES;
+    }
+    return NO;
+}
+
++ (void)clearEmergency {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kEmergencyTimestampKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupSuite];
+    if (shared) {
+        [shared removeObjectForKey:kEmergencyTimestampKey];
+        [shared synchronize];
+    }
+    OwnTracksLogDefault("[OwnTracking] Estado de emergência limpo.");
 }
 
 @end

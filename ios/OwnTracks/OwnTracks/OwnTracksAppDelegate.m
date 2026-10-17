@@ -2009,7 +2009,7 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
         @"_type": @"card"
     } mutableCopy];
     
-    BOOL isEmergency = [BipeEmergencyHelper isEmergencyActive];
+    BOOL isEmergency = [OwnTracking isEmergencyActive];
     json[@"isEmergency"] = @(isEmergency);
     
     if (myself) {

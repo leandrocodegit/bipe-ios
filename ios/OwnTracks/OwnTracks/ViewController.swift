@@ -1176,14 +1176,24 @@ import ActivityKit
             openQRScanner: function() { if (window.webkit && window.webkit.messageHandlers.openQRScanner) window.webkit.messageHandlers.openQRScanner.postMessage({}); else window.prompt("open_qr_scanner", ""); },
             scanQRCode: function() { if (window.webkit && window.webkit.messageHandlers.scanQRCode) window.webkit.messageHandlers.scanQRCode.postMessage({}); else window.prompt("open_qr_scanner", ""); },
             openSentinel: function() { if (window.webkit && window.webkit.messageHandlers.openSentinel) window.webkit.messageHandlers.openSentinel.postMessage({}); },
-            openSentinela: function() { if (window.webkit && window.webkit.messageHandlers.openSentinela) window.webkit.messageHandlers.openSentinela.postMessage({}); }
+            openSentinela: function() { if (window.webkit && window.webkit.messageHandlers.openSentinela) window.webkit.messageHandlers.openSentinela.postMessage({}); },
+            sendEmergency: function() { if (window.webkit && window.webkit.messageHandlers.sendEmergency) window.webkit.messageHandlers.sendEmergency.postMessage({}); else if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
+            triggerEmergency: function() { if (window.webkit && window.webkit.messageHandlers.triggerEmergency) window.webkit.messageHandlers.triggerEmergency.postMessage({}); else if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
+            emergency: function() { if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
+            panic: function() { if (window.webkit && window.webkit.messageHandlers.panic) window.webkit.messageHandlers.panic.postMessage({}); else if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
+            isEmergency: function() { return window.prompt("is_emergency", "") === "true"; }
         };
         window.iOS = {
             isIosApp: function() { return true; },
             subscribePlan: function(planId) { if (window.webkit && window.webkit.messageHandlers.subscribePlan) window.webkit.messageHandlers.subscribePlan.postMessage(planId || "2_start"); },
             subscribeMonthlyPlan: function() { if (window.webkit && window.webkit.messageHandlers.subscribePlan) window.webkit.messageHandlers.subscribePlan.postMessage("2_start"); },
             restorePurchases: function() { if (window.webkit && window.webkit.messageHandlers.restorePurchases) window.webkit.messageHandlers.restorePurchases.postMessage({}); },
-            getSubscriptionStatus: function() { return window.prompt("get_subscription_status", ""); }
+            getSubscriptionStatus: function() { return window.prompt("get_subscription_status", ""); },
+            sendEmergency: window.Android.sendEmergency,
+            triggerEmergency: window.Android.triggerEmergency,
+            emergency: window.Android.emergency,
+            panic: window.Android.panic,
+            isEmergency: window.Android.isEmergency
         };
         window.Android.subscribePlan = window.iOS.subscribePlan;
         window.Android.subscribeMonthlyPlan = window.iOS.subscribeMonthlyPlan;
@@ -1195,7 +1205,7 @@ import ActivityKit
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "deleteAccount", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken", "openSentinel", "openSentinela"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "deleteAccount", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken", "openSentinel", "openSentinela", "emergency", "sendEmergency", "triggerEmergency", "openEmergency", "panic", "bipeEmergency"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1355,7 +1365,14 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
-            if url.scheme == "bipe" || url.scheme == "bipe.me" || url.scheme == "bipe.ia" {
+            if url.scheme == "bipe" || url.scheme == "bipe.me" || url.scheme == "bipe.ia" || url.scheme == "owntracks" {
+                if url.host == "emergency" || url.host == "panic" || url.host == "alerta" || url.path.contains("emergency") || url.path.contains("panic") || url.path.contains("alerta") {
+                    decisionHandler(.cancel)
+                    DispatchQueue.main.async {
+                        BipeEmergencyHelper.sendEmergencyAlert()
+                    }
+                    return
+                }
                 if url.host == "scan-qr" || url.host == "scan-qrcode" || url.host == "qrcode" || url.path.contains("scan-qr") || url.path.contains("scan-qrcode") {
                     decisionHandler(.cancel)
                     openNativeQRScanner()
@@ -1472,6 +1489,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
+                configDict["isEmergency"] = OwnTracking.isEmergencyActive()
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
             let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -1504,6 +1522,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
                 configDict["soundWaypoint"] = UserDefaults.standard.object(forKey: "soundWaypoint") != nil ? Settings.bool(forKey: "soundWaypoint", inMOC: moc) : true
+                configDict["isEmergency"] = OwnTracking.isEmergencyActive()
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
             let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -1583,6 +1602,15 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 completionHandler("{\"isSubscribed\":false,\"isConnected\":false}")
             }
             return
+        } else if prompt == "send_emergency" || prompt == "trigger_emergency" || prompt == "emergency" || prompt == "panic" {
+            DispatchQueue.main.async {
+                BipeEmergencyHelper.sendEmergencyAlert()
+            }
+            completionHandler("{\"success\": true}")
+            return
+        } else if prompt == "is_emergency" || prompt == "get_emergency" {
+            completionHandler(OwnTracking.isEmergencyActive() ? "true" : "false")
+            return
         }
 
         completionHandler(nil)
@@ -1597,6 +1625,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["username"] = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
             configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
             configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            configDict["isEmergency"] = OwnTracking.isEmergencyActive()
         }
         let token = AuthManager.shared.getAccessToken() ?? ""
         let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -1616,6 +1645,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         switch message.name {
+        case "emergency", "sendEmergency", "triggerEmergency", "openEmergency", "panic", "bipeEmergency":
+            DispatchQueue.main.async {
+                BipeEmergencyHelper.sendEmergencyAlert()
+            }
         case "logout":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -2037,12 +2070,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     private static var autoExpirationTimer: Timer?
     
     @objc static func setEmergencyActive() {
-        let now = Date().timeIntervalSince1970
-        UserDefaults.standard.set(now, forKey: emergencyTimestampKey)
-        if let shared = UserDefaults(suiteName: appGroupSuite) {
-            shared.set(now, forKey: emergencyTimestampKey)
-        }
-        NSLog("[BipeEmergencyHelper] Estado de emergência ativado por 30 minutos (timestamp: %f)", now)
+        OwnTracking.setEmergencyActive()
+        NSLog("[BipeEmergencyHelper] Estado de emergência ativado por 30 minutos")
         
         DispatchQueue.main.async {
             autoExpirationTimer?.invalidate()
@@ -2053,26 +2082,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     }
     
     @objc static func isEmergencyActive() -> Bool {
-        var timestamp = UserDefaults.standard.double(forKey: emergencyTimestampKey)
-        if timestamp == 0, let shared = UserDefaults(suiteName: appGroupSuite) {
-            timestamp = shared.double(forKey: emergencyTimestampKey)
-        }
-        if timestamp <= 0 { return false }
-        
-        let now = Date().timeIntervalSince1970
-        let elapsed = now - timestamp
-        if elapsed >= 0 && elapsed < emergencyDurationSeconds {
-            return true
-        } else {
-            return false
-        }
+        return OwnTracking.isEmergencyActive()
     }
     
     @objc static func clearEmergency() {
-        UserDefaults.standard.removeObject(forKey: emergencyTimestampKey)
-        if let shared = UserDefaults(suiteName: appGroupSuite) {
-            shared.removeObject(forKey: emergencyTimestampKey)
-        }
+        OwnTracking.clearEmergency()
         DispatchQueue.main.async {
             autoExpirationTimer?.invalidate()
             autoExpirationTimer = nil
@@ -2108,13 +2122,19 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
     }
     
     @objc static func handleEmergencyExpired() {
-        guard !isEmergencyActive() else { return }
+        guard !OwnTracking.isEmergencyActive() else { return }
         clearEmergency()
         NSLog("[BipeEmergencyHelper] Período de 30 minutos de emergência expirou. Notificando servidor com isEmergency = false.")
         
         DispatchQueue.main.async {
             if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
-                let location = LocationManager.sharedInstance().location
+                var location = LocationManager.sharedInstance().location
+                if !CLLocationCoordinate2DIsValid(location.coordinate) || (location.coordinate.latitude == 0.0 && location.coordinate.longitude == 0.0) {
+                    location = LocationManager.sharedInstance().lastLocationWithMovement
+                }
+                if !CLLocationCoordinate2DIsValid(location.coordinate) || (location.coordinate.latitude == 0.0 && location.coordinate.longitude == 0.0) {
+                    location = LocationManager.sharedInstance().lastUsedLocation
+                }
                 delegate.sendNow(location, withPOI: nil, withImage: nil, withImageName: nil)
                 delegate.sendCard()
             }
@@ -2198,11 +2218,17 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 BipeAudioHelper.playSound(named: "bipe_enter")
                 
                 // Envia localização atualizada e Card imediatamente marcados como emergência
-                let location = LocationManager.sharedInstance().location
+                var location = LocationManager.sharedInstance().location
+                if !CLLocationCoordinate2DIsValid(location.coordinate) || (location.coordinate.latitude == 0.0 && location.coordinate.longitude == 0.0) {
+                    location = LocationManager.sharedInstance().lastLocationWithMovement
+                }
+                if !CLLocationCoordinate2DIsValid(location.coordinate) || (location.coordinate.latitude == 0.0 && location.coordinate.longitude == 0.0) {
+                    location = LocationManager.sharedInstance().lastUsedLocation
+                }
                 let poi = (type == "sentinela") ? "SENTINEL_EMERGENCY" : "EMERGENCY"
-                delegate.sendNow(location, withPOI: poi, withImage: nil, withImageName: nil)
+                let sent = delegate.sendNow(location, withPOI: poi, withImage: nil, withImageName: nil)
                 delegate.sendCard()
-                NSLog("[BipeEmergencyHelper] Localização de emergência (%@) e Card enviados via sendNow", poi)
+                NSLog("[BipeEmergencyHelper] Localização de emergência (%@) enviada: %d e Card enviados via sendNow", poi, sent)
                 
                 // Atualiza a Live Activity local para o estado de EMERGÊNCIA imediatamente
                 if #available(iOS 16.1, *) {

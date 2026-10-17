@@ -36,4 +36,8 @@ lon:(double)lon;
 - (NSDictionary *)waypointAsJSON:(Waypoint *)waypoint;
 - (NSDictionary *)regionAsJSON:(Region *)region;
 
++ (BOOL)isEmergencyActive;
++ (void)setEmergencyActive;
++ (void)clearEmergency;
+
 @end
