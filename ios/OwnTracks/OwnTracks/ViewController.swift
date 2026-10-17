@@ -1181,7 +1181,9 @@ import ActivityKit
             triggerEmergency: function() { if (window.webkit && window.webkit.messageHandlers.triggerEmergency) window.webkit.messageHandlers.triggerEmergency.postMessage({}); else if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
             emergency: function() { if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
             panic: function() { if (window.webkit && window.webkit.messageHandlers.panic) window.webkit.messageHandlers.panic.postMessage({}); else if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
-            isEmergency: function() { return window.prompt("is_emergency", "") === "true"; }
+            isEmergency: function() { return window.prompt("is_emergency", "") === "true"; },
+            isSentinela: function() { return window.prompt("is_sentinela", "") === "true"; },
+            isSentinel: function() { return window.prompt("is_sentinela", "") === "true"; }
         };
         window.iOS = {
             isIosApp: function() { return true; },
@@ -1193,7 +1195,9 @@ import ActivityKit
             triggerEmergency: window.Android.triggerEmergency,
             emergency: window.Android.emergency,
             panic: window.Android.panic,
-            isEmergency: window.Android.isEmergency
+            isEmergency: window.Android.isEmergency,
+            isSentinela: window.Android.isSentinela,
+            isSentinel: window.Android.isSentinel
         };
         window.Android.subscribePlan = window.iOS.subscribePlan;
         window.Android.subscribeMonthlyPlan = window.iOS.subscribeMonthlyPlan;
@@ -1490,6 +1494,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
                 configDict["isEmergency"] = OwnTracking.isEmergencyActive()
+                configDict["isSentinela"] = OwnTracking.isSentinelaActive()
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
             let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -1523,6 +1528,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
                 configDict["soundWaypoint"] = UserDefaults.standard.object(forKey: "soundWaypoint") != nil ? Settings.bool(forKey: "soundWaypoint", inMOC: moc) : true
                 configDict["isEmergency"] = OwnTracking.isEmergencyActive()
+                configDict["isSentinela"] = OwnTracking.isSentinelaActive()
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
             let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -1611,6 +1617,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         } else if prompt == "is_emergency" || prompt == "get_emergency" {
             completionHandler(OwnTracking.isEmergencyActive() ? "true" : "false")
             return
+        } else if prompt == "is_sentinela" || prompt == "get_sentinela" || prompt == "is_sentinel" {
+            completionHandler(OwnTracking.isSentinelaActive() ? "true" : "false")
+            return
         }
 
         completionHandler(nil)
@@ -1626,6 +1635,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
             configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
             configDict["isEmergency"] = OwnTracking.isEmergencyActive()
+            configDict["isSentinela"] = OwnTracking.isSentinelaActive()
         }
         let token = AuthManager.shared.getAccessToken() ?? ""
         let refreshToken = AuthManager.shared.getRefreshToken() ?? ""
@@ -2187,6 +2197,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 "deviceId": deviceId,
                 "nickname": nickname,
                 "isEmergency": true,
+                "isSentinela": OwnTracking.isSentinelaActive(),
                 "tst": Int64(Date().timeIntervalSince1970)
             ]
             if !face.isEmpty { payload["face"] = face }

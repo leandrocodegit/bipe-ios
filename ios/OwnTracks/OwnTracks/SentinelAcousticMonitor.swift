@@ -43,7 +43,7 @@ struct DistressPhrase {
     let lang: String
 }
 
-@objc class SentinelAcousticMonitor: NSObject {
+@objc(SentinelAcousticMonitor) public class SentinelAcousticMonitor: NSObject {
     
     @objc static let shared = SentinelAcousticMonitor()
     
@@ -984,10 +984,27 @@ struct DistressPhrase {
             attentionImpactsCount = 0
             lastImpactTimestamp = nil
         }
-        NSLog("[SentinelAcousticMonitor] Estado alterado para: %@", newState.description)
+        
+        let active = (newState == .listening || newState == .attentionMode || newState == .gracePeriod)
+        OwnTracking.setSentinelaActive(active)
+        NSLog("[SentinelAcousticMonitor] Estado alterado para: %@ (isSentinela: %d)", newState.description, active)
+        
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.onStateChange?(self.currentState)
+            
+            // Retransmite imediatamente a localização e o Card para atualizar o servidor com o novo estado isSentinela
+            if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                var location = LocationManager.sharedInstance().location
+                if !CLLocationCoordinate2DIsValid(location.coordinate) || (location.coordinate.latitude == 0.0 && location.coordinate.longitude == 0.0) {
+                    location = LocationManager.sharedInstance().lastLocationWithMovement
+                }
+                if !CLLocationCoordinate2DIsValid(location.coordinate) || (location.coordinate.latitude == 0.0 && location.coordinate.longitude == 0.0) {
+                    location = LocationManager.sharedInstance().lastUsedLocation
+                }
+                delegate.sendNow(location, withPOI: active ? "SENTINEL_ACTIVE" : "SENTINEL_INACTIVE", withImage: nil, withImageName: nil)
+                delegate.sendCard()
+            }
         }
     }
 }

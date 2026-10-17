@@ -558,6 +558,9 @@ static OwnTracking *theInstance = nil;
     BOOL isEmergency = [OwnTracking isEmergencyActive];
     json[@"isEmergency"] = @(isEmergency);
     
+    BOOL isSentinela = [OwnTracking isSentinelaActive];
+    json[@"isSentinela"] = @(isSentinela);
+    
     NSString *userName = [Settings stringForKey:@"user_preference" inMOC:waypoint.managedObjectContext];
     if (userName && userName.length > 0) {
         json[@"userName"] = userName;
@@ -794,6 +797,49 @@ static NSTimeInterval const kEmergencyDurationSeconds = 30.0 * 60.0; // 30 minut
         [shared synchronize];
     }
     OwnTracksLogDefault("[OwnTracking] Estado de emergência limpo.");
+}
+
+#pragma mark - Sentinela State Management
+
+static NSString * const kSentinelaActiveKey = @"sentinel_active";
+
++ (BOOL)isSentinelaActive {
+    // 1. Consulta o monitor singleton caso esteja em memória
+    Class monitorClass = NSClassFromString(@"SentinelAcousticMonitor");
+    if (!monitorClass) {
+        monitorClass = NSClassFromString(@"OwnTracks.SentinelAcousticMonitor");
+    }
+    if (monitorClass && [monitorClass respondsToSelector:@selector(sharedMonitor)]) {
+        id monitor = [monitorClass performSelector:@selector(sharedMonitor)];
+        if (monitor && [monitor respondsToSelector:@selector(isMonitoring)]) {
+            BOOL (*isMonFunc)(id, SEL) = (BOOL (*)(id, SEL))[monitor methodForSelector:@selector(isMonitoring)];
+            if (isMonFunc) {
+                return isMonFunc(monitor, @selector(isMonitoring));
+            }
+        }
+    }
+    
+    // 2. Consulta persistência no UserDefaults padrão e App Group
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:kSentinelaActiveKey]) {
+        return YES;
+    }
+    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupSuite];
+    if (shared && [shared boolForKey:kSentinelaActiveKey]) {
+        return YES;
+    }
+    return NO;
+}
+
++ (void)setSentinelaActive:(BOOL)active {
+    [[NSUserDefaults standardUserDefaults] setBool:active forKey:kSentinelaActiveKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupSuite];
+    if (shared) {
+        [shared setBool:active forKey:kSentinelaActiveKey];
+        [shared synchronize];
+    }
+    OwnTracksLogDefault("[OwnTracking] Estado do Sentinela alterado para: %d", active);
 }
 
 @end

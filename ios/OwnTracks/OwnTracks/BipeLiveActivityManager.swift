@@ -871,7 +871,8 @@ import FirebaseMessaging
             var json: [String: Any] = [
                 "_type": "bipe",
                 "status": status,
-                "isEmergency": OwnTracking.isEmergencyActive()
+                "isEmergency": OwnTracking.isEmergencyActive(),
+                "isSentinela": OwnTracking.isSentinelaActive()
             ]
             if let btn = button, !btn.isEmpty {
                 json["button"] = btn

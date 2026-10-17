@@ -40,4 +40,7 @@ lon:(double)lon;
 + (void)setEmergencyActive;
 + (void)clearEmergency;
 
++ (BOOL)isSentinelaActive;
++ (void)setSentinelaActive:(BOOL)active;
+
 @end

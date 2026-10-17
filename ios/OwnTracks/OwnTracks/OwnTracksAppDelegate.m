@@ -2012,6 +2012,9 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
     BOOL isEmergency = [OwnTracking isEmergencyActive];
     json[@"isEmergency"] = @(isEmergency);
     
+    BOOL isSentinela = [OwnTracking isSentinelaActive];
+    json[@"isSentinela"] = @(isSentinela);
+    
     if (myself) {
         if (myself.cardName && myself.cardName.length > 0) {
             json[@"name"] = myself.cardName;

@@ -126,6 +126,7 @@ public class BipeConfirmationViewController: UIViewController {
             json["status"] = status
             json["button"] = "VOL_TICK"
             json["isEmergency"] = OwnTracking.isEmergencyActive()
+            json["isSentinela"] = OwnTracking.isSentinelaActive()
             
             if let execId = execucaoId, !execId.isEmpty {
                 json["execucaoId"] = execId
