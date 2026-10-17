@@ -555,6 +555,9 @@ static OwnTracking *theInstance = nil;
     NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
     json[@"_type"] = @"location";
     
+    BOOL isEmergency = [BipeEmergencyHelper isEmergencyActive];
+    json[@"isEmergency"] = @(isEmergency);
+    
     NSString *userName = [Settings stringForKey:@"user_preference" inMOC:waypoint.managedObjectContext];
     if (userName && userName.length > 0) {
         json[@"userName"] = userName;

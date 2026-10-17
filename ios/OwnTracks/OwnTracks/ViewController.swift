@@ -2031,13 +2031,105 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 // MARK: - BipeEmergencyHelper (Suporte ao Botão de Ação e Deep Links)
 
 @objc class BipeEmergencyHelper: NSObject {
+    @objc static let emergencyDurationSeconds: TimeInterval = 30 * 60 // 30 minutos
+    private static let emergencyTimestampKey = "emergency_timestamp"
+    private static let appGroupSuite = "group.br.com.bipe.me"
+    private static var autoExpirationTimer: Timer?
+    
+    @objc static func setEmergencyActive() {
+        let now = Date().timeIntervalSince1970
+        UserDefaults.standard.set(now, forKey: emergencyTimestampKey)
+        if let shared = UserDefaults(suiteName: appGroupSuite) {
+            shared.set(now, forKey: emergencyTimestampKey)
+        }
+        NSLog("[BipeEmergencyHelper] Estado de emergência ativado por 30 minutos (timestamp: %f)", now)
+        
+        DispatchQueue.main.async {
+            autoExpirationTimer?.invalidate()
+            autoExpirationTimer = Timer.scheduledTimer(withTimeInterval: emergencyDurationSeconds, repeats: false) { _ in
+                handleEmergencyExpired()
+            }
+        }
+    }
+    
+    @objc static func isEmergencyActive() -> Bool {
+        var timestamp = UserDefaults.standard.double(forKey: emergencyTimestampKey)
+        if timestamp == 0, let shared = UserDefaults(suiteName: appGroupSuite) {
+            timestamp = shared.double(forKey: emergencyTimestampKey)
+        }
+        if timestamp <= 0 { return false }
+        
+        let now = Date().timeIntervalSince1970
+        let elapsed = now - timestamp
+        if elapsed >= 0 && elapsed < emergencyDurationSeconds {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    @objc static func clearEmergency() {
+        UserDefaults.standard.removeObject(forKey: emergencyTimestampKey)
+        if let shared = UserDefaults(suiteName: appGroupSuite) {
+            shared.removeObject(forKey: emergencyTimestampKey)
+        }
+        DispatchQueue.main.async {
+            autoExpirationTimer?.invalidate()
+            autoExpirationTimer = nil
+        }
+        NSLog("[BipeEmergencyHelper] Estado de emergência limpo.")
+    }
+    
+    @objc static func checkAndScheduleExpiration() {
+        var timestamp = UserDefaults.standard.double(forKey: emergencyTimestampKey)
+        if timestamp == 0, let shared = UserDefaults(suiteName: appGroupSuite) {
+            timestamp = shared.double(forKey: emergencyTimestampKey)
+        }
+        guard timestamp > 0 else { return }
+        
+        let now = Date().timeIntervalSince1970
+        let elapsed = now - timestamp
+        let remaining = emergencyDurationSeconds - elapsed
+        
+        DispatchQueue.main.async {
+            autoExpirationTimer?.invalidate()
+            autoExpirationTimer = nil
+            
+            if remaining > 0 {
+                NSLog("[BipeEmergencyHelper] Timer de expiração de emergência agendado para daqui a %.1f segundos", remaining)
+                autoExpirationTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { _ in
+                    handleEmergencyExpired()
+                }
+            } else {
+                NSLog("[BipeEmergencyHelper] Emergência já havia expirado enquanto o app esteve inativo. Finalizando.")
+                handleEmergencyExpired()
+            }
+        }
+    }
+    
+    @objc static func handleEmergencyExpired() {
+        guard !isEmergencyActive() else { return }
+        clearEmergency()
+        NSLog("[BipeEmergencyHelper] Período de 30 minutos de emergência expirou. Notificando servidor com isEmergency = false.")
+        
+        DispatchQueue.main.async {
+            if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                let location = LocationManager.sharedInstance().location
+                delegate.sendNow(location, withPOI: nil, withImage: nil, withImageName: nil)
+                delegate.sendCard()
+            }
+            if #available(iOS 16.1, *) {
+                BipeLiveActivityManager.endEmergencyLiveActivity()
+            }
+        }
+    }
     
     @objc static func sendEmergencyAlert() {
-        sendEmergencyAlert(type: "sentinela", completion: nil)
+        sendEmergencyAlert(type: "emergency", completion: nil)
     }
 
     @objc static func sendEmergencyAlert(completion: ((Bool) -> Void)?) {
-        sendEmergencyAlert(type: "sentinela", completion: completion)
+        sendEmergencyAlert(type: "emergency", completion: completion)
     }
 
     @objc static func sendEmergencyAlert(type: String, completion: ((Bool) -> Void)?) {
@@ -2045,6 +2137,9 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             // Feedback tátil ao pressionar o botão de ação / acionar o atalho
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.warning)
+            
+            // Ativa o estado de emergência por 30 minutos
+            setEmergencyActive()
             
             guard let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate else {
                 NSLog("[BipeEmergencyHelper] Erro: OwnTracksAppDelegate não disponível")
@@ -2067,6 +2162,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 "status": "EMERGENCY",
                 "deviceId": deviceId,
                 "nickname": nickname,
+                "isEmergency": true,
                 "tst": Int64(Date().timeIntervalSince1970)
             ]
             if !face.isEmpty { payload["face"] = face }
@@ -2081,7 +2177,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
             
             let triggerReason = SentinelAcousticMonitor.shared.lastTriggerReason
-            if !triggerReason.isEmpty {
+            if type == "sentinela" && !triggerReason.isEmpty {
                 payload["triggerReason"] = triggerReason
             }
             
@@ -2101,14 +2197,27 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 // Reproduz o áudio bipe_enter ao transmitir o evento de emergência
                 BipeAudioHelper.playSound(named: "bipe_enter")
                 
+                // Envia localização atualizada e Card imediatamente marcados como emergência
+                let location = LocationManager.sharedInstance().location
+                let poi = (type == "sentinela") ? "SENTINEL_EMERGENCY" : "EMERGENCY"
+                delegate.sendNow(location, withPOI: poi, withImage: nil, withImageName: nil)
+                delegate.sendCard()
+                NSLog("[BipeEmergencyHelper] Localização de emergência (%@) e Card enviados via sendNow", poi)
+                
                 // Atualiza a Live Activity local para o estado de EMERGÊNCIA imediatamente
                 if #available(iOS 16.1, *) {
+                    let descAddress: String
+                    if type == "sentinela" && !triggerReason.isEmpty {
+                        descAddress = triggerReason
+                    } else {
+                        descAddress = NSLocalizedString("Alerta de Emergência Acionado", comment: "")
+                    }
                     BipeLiveActivityManager.processBipePushNotificationPayload([
                         "type": type,
                         "status": "EMERGENCY",
                         "activityType": "emergency",
                         "nickname": nickname.isEmpty ? "Bipe.me" : nickname,
-                        "address": triggerReason.isEmpty ? NSLocalizedString("Alerta de Emergência Acionado", comment: "") : triggerReason
+                        "address": descAddress
                     ] as NSDictionary)
                 }
                 

@@ -691,18 +691,9 @@ struct DistressPhrase {
         // Reproduz o som bipe_enter ao enviar evento Sentinela
         BipeAudioHelper.playSound(named: "bipe_enter")
         
-        // 1. Despacho pelo canal de emergência Bipe (MQTT /bipe)
+        // 1. Despacho pelo canal de emergência Bipe (MQTT /bipe), ativação do estado de emergência (30 min) e envio de localização/card
         BipeEmergencyHelper.sendEmergencyAlert(type: "sentinela") { success in
             NSLog("[SentinelAcousticMonitor] BipeEmergencyHelper dispatch finalizado: %d", success)
-        }
-        
-        // 2. Envio forçado de localização imediata para o servidor
-        DispatchQueue.main.async {
-            if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
-                let location = LocationManager.sharedInstance().location
-                delegate.sendNow(location, withPOI: "SENTINEL_EMERGENCY", withImage: nil, withImageName: nil)
-                NSLog("[SentinelAcousticMonitor] Localização de emergência enviada via sendNow: %@", location.description)
-            }
         }
         
         // 3. Após despacho e confirmação, retomar escuta passiva automaticamente após 10 segundos

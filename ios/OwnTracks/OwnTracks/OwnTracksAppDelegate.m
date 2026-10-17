@@ -215,6 +215,8 @@
         [self presentLoginViewController];
     }
     
+    [BipeEmergencyHelper checkAndScheduleExpiration];
+    
     return YES;
 }
 
@@ -932,6 +934,8 @@
     if ([SetupService.shared isSetupCompleted] && [AuthManager.shared isAuthorized]) {
         [BipeLiveActivityManager startLiveActivityOnAppLaunch];
     }
+    
+    [BipeEmergencyHelper checkAndScheduleExpiration];
     
     [self.connection connectToLast];
     
@@ -2004,6 +2008,9 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
     NSMutableDictionary *json = [@{
         @"_type": @"card"
     } mutableCopy];
+    
+    BOOL isEmergency = [BipeEmergencyHelper isEmergencyActive];
+    json[@"isEmergency"] = @(isEmergency);
     
     if (myself) {
         if (myself.cardName && myself.cardName.length > 0) {
