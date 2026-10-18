@@ -591,7 +591,11 @@ static SettingsDefaults *defaults;
     object = dictionary[@"mute"];
     if (object) {
         [self setString:object forKey:@"mute" inMOC:context];
-        [[NSUserDefaults standardUserDefaults] setBool:[object boolValue] forKey:@"mute"];
+        BOOL isMute = NO;
+        if ([object respondsToSelector:@selector(boolValue)]) {
+            isMute = [(id)object boolValue];
+        }
+        [[NSUserDefaults standardUserDefaults] setBool:isMute forKey:@"mute"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
         
