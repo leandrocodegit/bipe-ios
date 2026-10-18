@@ -1183,7 +1183,9 @@ import ActivityKit
             panic: function() { if (window.webkit && window.webkit.messageHandlers.panic) window.webkit.messageHandlers.panic.postMessage({}); else if (window.webkit && window.webkit.messageHandlers.emergency) window.webkit.messageHandlers.emergency.postMessage({}); else window.prompt("send_emergency", ""); },
             isEmergency: function() { return window.prompt("is_emergency", "") === "true"; },
             isSentinela: function() { return window.prompt("is_sentinela", "") === "true"; },
-            isSentinel: function() { return window.prompt("is_sentinela", "") === "true"; }
+            isSentinel: function() { return window.prompt("is_sentinela", "") === "true"; },
+            getMute: function() { return window.prompt("get_mute", "") === "true"; },
+            isMute: function() { return window.prompt("get_mute", "") === "true"; }
         };
         window.iOS = {
             isIosApp: function() { return true; },
@@ -1191,13 +1193,16 @@ import ActivityKit
             subscribeMonthlyPlan: function() { if (window.webkit && window.webkit.messageHandlers.subscribePlan) window.webkit.messageHandlers.subscribePlan.postMessage("2_start"); },
             restorePurchases: function() { if (window.webkit && window.webkit.messageHandlers.restorePurchases) window.webkit.messageHandlers.restorePurchases.postMessage({}); },
             getSubscriptionStatus: function() { return window.prompt("get_subscription_status", ""); },
+            saveConfig: window.Android.saveConfig,
             sendEmergency: window.Android.sendEmergency,
             triggerEmergency: window.Android.triggerEmergency,
             emergency: window.Android.emergency,
             panic: window.Android.panic,
             isEmergency: window.Android.isEmergency,
             isSentinela: window.Android.isSentinela,
-            isSentinel: window.Android.isSentinel
+            isSentinel: window.Android.isSentinel,
+            getMute: window.Android.getMute,
+            isMute: window.Android.isMute
         };
         window.Android.subscribePlan = window.iOS.subscribePlan;
         window.Android.subscribeMonthlyPlan = window.iOS.subscribeMonthlyPlan;
@@ -1493,6 +1498,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
+                let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
+                configDict["mute"] = isMute
                 configDict["isEmergency"] = OwnTracking.isEmergencyActive()
                 configDict["isSentinela"] = OwnTracking.isSentinelaActive()
             }
@@ -1527,6 +1534,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
                 configDict["soundWaypoint"] = UserDefaults.standard.object(forKey: "soundWaypoint") != nil ? Settings.bool(forKey: "soundWaypoint", inMOC: moc) : true
+                let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
+                configDict["mute"] = isMute
                 configDict["isEmergency"] = OwnTracking.isEmergencyActive()
                 configDict["isSentinela"] = OwnTracking.isSentinelaActive()
             }
@@ -1620,6 +1629,17 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         } else if prompt == "is_sentinela" || prompt == "get_sentinela" || prompt == "is_sentinel" {
             completionHandler(OwnTracking.isSentinelaActive() ? "true" : "false")
             return
+        } else if prompt == "get_mute" || prompt == "is_mute" {
+            var isMute = false
+            if UserDefaults.standard.object(forKey: "mute") != nil {
+                isMute = UserDefaults.standard.bool(forKey: "mute")
+            } else {
+                moc.performAndWait {
+                    isMute = Settings.bool(forKey: "mute", inMOC: moc)
+                }
+            }
+            completionHandler(isMute ? "true" : "false")
+            return
         }
 
         completionHandler(nil)
@@ -1634,6 +1654,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["username"] = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
             configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
             configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
+            configDict["mute"] = isMute
             configDict["isEmergency"] = OwnTracking.isEmergencyActive()
             configDict["isSentinela"] = OwnTracking.isSentinelaActive()
         }
@@ -1888,9 +1910,17 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 }
             }
         case "saveConfig":
-            if let jsonString = message.body as? String,
-               let data = jsonString.data(using: .utf8),
-               let config = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+            let configDict: [String: Any]?
+            if let dict = message.body as? [String: Any] {
+                configDict = dict
+            } else if let jsonString = message.body as? String,
+                      let data = jsonString.data(using: .utf8),
+                      let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                configDict = dict
+            } else {
+                configDict = nil
+            }
+            if let config = configDict {
                 DispatchQueue.main.async {
                     let moc = CoreData.sharedInstance().mainMOC
                     moc.performAndWait {
@@ -1908,21 +1938,30 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
                         if let apelido = config["apelido"] as? String {
                             Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
+                            Settings.setString(apelido as NSString, forKey: "nickname_preference", inMOC: moc)
                         }
-                        if let tempoRetencao = config["tempoRetencao"] as? Int32 {
+                        if let tempoRetencao = config["tempoRetencao"] as? Int {
+                            Settings.setInt(Int32(tempoRetencao), forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+                        } else if let tempoRetencao = config["tempoRetencao"] as? Int32 {
                             Settings.setInt(tempoRetencao, forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
                         }
                         if let icon = config["icon"] as? String {
                             Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
                             Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
                         }
-                        if let displacement = config["locatorDisplacement"] as? Int32 {
+                        if let displacement = config["locatorDisplacement"] as? Int {
+                            Settings.setInt(Int32(displacement), forKey: "displacement_preference", inMOC: moc)
+                        } else if let displacement = config["locatorDisplacement"] as? Int32 {
                             Settings.setInt(displacement, forKey: "displacement_preference", inMOC: moc)
                         }
-                        if let interval = config["locatorInterval"] as? Int32 {
+                        if let interval = config["locatorInterval"] as? Int {
+                            Settings.setInt(Int32(interval), forKey: "interval_preference", inMOC: moc)
+                        } else if let interval = config["locatorInterval"] as? Int32 {
                             Settings.setInt(interval, forKey: "interval_preference", inMOC: moc)
                         }
-                        if let ping = config["ping"] as? Int32 {
+                        if let ping = config["ping"] as? Int {
+                            Settings.setInt(Int32(ping), forKey: "keepalive_preference", inMOC: moc)
+                        } else if let ping = config["ping"] as? Int32 {
                             Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
                         }
                         if let pubRetain = config["pubRetain"] as? Bool {
@@ -1939,7 +1978,30 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         }
                         if let soundWaypoint = config["soundWaypoint"] as? Bool {
                             Settings.setBool(soundWaypoint, forKey: "soundWaypoint", inMOC: moc)
+                            UserDefaults.standard.set(soundWaypoint, forKey: "soundWaypoint")
+                            UserDefaults.standard.synchronize()
                         }
+                        
+                        // Salva preferência de mute (em CoreData Settings e UserDefaults)
+                        if let mute = config["mute"] as? Bool {
+                            Settings.setBool(mute, forKey: "mute", inMOC: moc)
+                            UserDefaults.standard.set(mute, forKey: "mute")
+                            UserDefaults.standard.synchronize()
+                            NSLog("[saveConfig] Mute salvo como: %d", mute)
+                        } else if let muteNum = config["mute"] as? NSNumber {
+                            let b = muteNum.boolValue
+                            Settings.setBool(b, forKey: "mute", inMOC: moc)
+                            UserDefaults.standard.set(b, forKey: "mute")
+                            UserDefaults.standard.synchronize()
+                            NSLog("[saveConfig] Mute (num) salvo como: %d", b)
+                        } else if let muteStr = config["mute"] as? String {
+                            let b = (muteStr.lowercased() == "true" || muteStr == "1")
+                            Settings.setBool(b, forKey: "mute", inMOC: moc)
+                            UserDefaults.standard.set(b, forKey: "mute")
+                            UserDefaults.standard.synchronize()
+                            NSLog("[saveConfig] Mute (str) salvo como: %d", b)
+                        }
+
                         if let opMode = config["opMode"] as? Int {
                             Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
                             
@@ -1959,6 +2021,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                             if let monitorEnum = LocationMonitoring(rawValue: monitoringMode) {
                                 LocationManager.sharedInstance().monitoring = monitorEnum
                             }
+                        } else if let opMode = config["opMode"] as? Int32 {
+                            Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
                         }
                         if moc.hasChanges {
                             try? moc.save()

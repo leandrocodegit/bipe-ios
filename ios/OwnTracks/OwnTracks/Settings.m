@@ -588,6 +588,13 @@ static SettingsDefaults *defaults;
     object = dictionary[@"remoteConfiguration"];
     if (object) [self setString:object forKey:@"allowremoteconfiguration_preference" inMOC:context];
         
+    object = dictionary[@"mute"];
+    if (object) {
+        [self setString:object forKey:@"mute" inMOC:context];
+        [[NSUserDefaults standardUserDefaults] setBool:[object boolValue] forKey:@"mute"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+        
     object = dictionary[@"extendedData"];
     if (object) [self setString:object forKey:@"extendeddata_preference" inMOC:context];
     
@@ -890,6 +897,7 @@ static SettingsDefaults *defaults;
     dict[@"mode"] =                         @([Settings intForKey:@"mode" inMOC:context]);
     dict[@"ranging"] =                      @([Settings boolForKey:@"ranging_preference" inMOC:context]);
     dict[@"locked"] =                       @([Settings boolForKey:@"locked" inMOC:context]);
+    dict[@"mute"] =                         @([Settings boolForKey:@"mute" inMOC:context]);
     dict[@"tid"] =                          [Settings stringOrZeroForKey:@"trackerid_preference" inMOC:context];
     dict[@"pubTopicBase"] =                 [Settings stringOrZeroForKey:@"topic_preference" inMOC:context];
     dict[@"monitoring"] =                   @([Settings intForKey:@"monitoring_preference" inMOC:context]);

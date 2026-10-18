@@ -1172,7 +1172,12 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
         [BipeLiveActivityManager updateLiveActivityForRegionChangeWithRegionName:initialComponents[0] enter:enter insecure:insecure];
     }
     
-    BOOL mute = [Settings boolForKey:@"mute" inMOC:moc];
+    BOOL mute = NO;
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"mute"] != nil) {
+        mute = [[NSUserDefaults standardUserDefaults] boolForKey:@"mute"];
+    } else {
+        mute = [Settings boolForKey:@"mute" inMOC:moc];
+    }
     BOOL soundWaypoint = [[NSUserDefaults standardUserDefaults] objectForKey:@"soundWaypoint"] == nil ? YES : [Settings boolForKey:@"soundWaypoint" inMOC:moc];
     
     if (!mute && soundWaypoint) {

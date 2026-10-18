@@ -142,53 +142,87 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == "saveConfig", let jsonString = message.body as? String {
-            if let data = jsonString.data(using: .utf8) {
-                do {
-                    if let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                        moc.performAndWait {
-                            if let apelido = dict["apelido"] as? String {
-                                Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
-                                Settings.setString(apelido as NSString, forKey: "nickname_preference", inMOC: moc)
-                            }
-                            if let tempoRetencao = dict["tempoRetencao"] as? Int32 {
-                                Settings.setInt(tempoRetencao, forKey: "pubretain_preference", inMOC: moc)
-                            }
-                            if let locatorDisplacement = dict["locatorDisplacement"] as? Int32 {
-                                Settings.setInt(locatorDisplacement, forKey: "locatordisplacement_preference", inMOC: moc)
-                            }
-                            if let locatorInterval = dict["locatorInterval"] as? Int32 {
-                                Settings.setInt(locatorInterval, forKey: "locatorinterval_preference", inMOC: moc)
-                            }
-                            if let ping = dict["ping"] as? Int32 {
-                                Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
-                            }
-                            if let pubRetain = dict["pubRetain"] as? Bool {
-                                Settings.setBool(pubRetain, forKey: "pubretain_preference", inMOC: moc)
-                            }
-                            if let locked = dict["locked"] as? Bool {
-                                Settings.setBool(locked, forKey: "locked", inMOC: moc)
-                            }
-                            if let opMode = dict["opMode"] as? Int32 {
-                                Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
-                            }
-                            if let icon = dict["icon"] as? String {
-                                Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
-                            }
-                            if let enableEmergency = dict["enableEmergency"] as? Bool {
-                                Settings.setBool(enableEmergency, forKey: "enableEmergency", inMOC: moc)
-                            }
-                            if let onlyVibrateEmergency = dict["onlyVibrateEmergency"] as? Bool {
-                                Settings.setBool(onlyVibrateEmergency, forKey: "onlyVibrateEmergency", inMOC: moc)
-                            }
-                            
-                            if moc.hasChanges {
-                                try? moc.save()
-                            }
-                        }
+        if message.name == "saveConfig" {
+            let configDict: [String: Any]?
+            if let dict = message.body as? [String: Any] {
+                configDict = dict
+            } else if let jsonString = message.body as? String,
+                      let data = jsonString.data(using: .utf8),
+                      let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                configDict = dict
+            } else {
+                configDict = nil
+            }
+            if let dict = configDict {
+                moc.performAndWait {
+                    if let apelido = dict["apelido"] as? String {
+                        Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
+                        Settings.setString(apelido as NSString, forKey: "nickname_preference", inMOC: moc)
                     }
-                } catch {
-                    print("Error parsing JSON: \(error)")
+                    if let tempoRetencao = dict["tempoRetencao"] as? Int {
+                        Settings.setInt(Int32(tempoRetencao), forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+                    } else if let tempoRetencao = dict["tempoRetencao"] as? Int32 {
+                        Settings.setInt(tempoRetencao, forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+                    }
+                    if let locatorDisplacement = dict["locatorDisplacement"] as? Int {
+                        Settings.setInt(Int32(locatorDisplacement), forKey: "displacement_preference", inMOC: moc)
+                    } else if let locatorDisplacement = dict["locatorDisplacement"] as? Int32 {
+                        Settings.setInt(locatorDisplacement, forKey: "displacement_preference", inMOC: moc)
+                    }
+                    if let locatorInterval = dict["locatorInterval"] as? Int {
+                        Settings.setInt(Int32(locatorInterval), forKey: "interval_preference", inMOC: moc)
+                    } else if let locatorInterval = dict["locatorInterval"] as? Int32 {
+                        Settings.setInt(locatorInterval, forKey: "interval_preference", inMOC: moc)
+                    }
+                    if let ping = dict["ping"] as? Int {
+                        Settings.setInt(Int32(ping), forKey: "keepalive_preference", inMOC: moc)
+                    } else if let ping = dict["ping"] as? Int32 {
+                        Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
+                    }
+                    if let pubRetain = dict["pubRetain"] as? Bool {
+                        Settings.setBool(pubRetain, forKey: "retain_preference", inMOC: moc)
+                    }
+                    if let locked = dict["locked"] as? Bool {
+                        Settings.setBool(locked, forKey: "locked", inMOC: moc)
+                    }
+                    if let opMode = dict["opMode"] as? Int {
+                        Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
+                    } else if let opMode = dict["opMode"] as? Int32 {
+                        Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
+                    }
+                    if let icon = dict["icon"] as? String {
+                        Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
+                        Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
+                    }
+                    if let enableEmergency = dict["enableEmergency"] as? Bool {
+                        Settings.setBool(enableEmergency, forKey: "enableEmergency", inMOC: moc)
+                    }
+                    if let onlyVibrateEmergency = dict["onlyVibrateEmergency"] as? Bool {
+                        Settings.setBool(onlyVibrateEmergency, forKey: "onlyVibrateEmergency", inMOC: moc)
+                    }
+                    if let soundWaypoint = dict["soundWaypoint"] as? Bool {
+                        Settings.setBool(soundWaypoint, forKey: "soundWaypoint", inMOC: moc)
+                        UserDefaults.standard.set(soundWaypoint, forKey: "soundWaypoint")
+                        UserDefaults.standard.synchronize()
+                    }
+                    if let mute = dict["mute"] as? Bool {
+                        Settings.setBool(mute, forKey: "mute", inMOC: moc)
+                        UserDefaults.standard.set(mute, forKey: "mute")
+                        UserDefaults.standard.synchronize()
+                    } else if let muteNum = dict["mute"] as? NSNumber {
+                        Settings.setBool(muteNum.boolValue, forKey: "mute", inMOC: moc)
+                        UserDefaults.standard.set(muteNum.boolValue, forKey: "mute")
+                        UserDefaults.standard.synchronize()
+                    } else if let muteStr = dict["mute"] as? String {
+                        let isMute = (muteStr.lowercased() == "true" || muteStr == "1")
+                        Settings.setBool(isMute, forKey: "mute", inMOC: moc)
+                        UserDefaults.standard.set(isMute, forKey: "mute")
+                        UserDefaults.standard.synchronize()
+                    }
+                    
+                    if moc.hasChanges {
+                        try? moc.save()
+                    }
                 }
             }
         } else if message.name == "openPermissions" {
@@ -286,6 +320,8 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["color"] = Settings.string(forKey: "markerColor", inMOC: moc) ?? ""
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? ""
                 configDict["locked"] = locked
+                let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
+                configDict["mute"] = isMute
             }
             configDict["token"] = AuthManager.shared.getAccessToken() ?? ""
             
@@ -313,6 +349,9 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+                configDict["soundWaypoint"] = UserDefaults.standard.object(forKey: "soundWaypoint") != nil ? Settings.bool(forKey: "soundWaypoint", inMOC: moc) : true
+                let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
+                configDict["mute"] = isMute
             }
             let token = AuthManager.shared.getAccessToken() ?? ""
             configDict["token"] = token
