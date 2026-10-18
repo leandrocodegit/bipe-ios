@@ -2302,7 +2302,6 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 return
             }
             
-            let moc = CoreData.sharedInstance().mainMOC
             let userName = Settings.string(forKey: "user_preference", inMOC: moc) ?? "user"
             let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? "device"
             let bipeTopic = "owntracks/\(userName)/\(deviceId)/bipe"
