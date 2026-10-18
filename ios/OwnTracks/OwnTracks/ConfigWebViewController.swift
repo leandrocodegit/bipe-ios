@@ -194,11 +194,37 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                         Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
                         Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
                     }
-                    if let enableEmergency = dict["enableEmergency"] as? Bool {
-                        Settings.setBool(enableEmergency, forKey: "enableEmergency", inMOC: moc)
+                    var newEnableEmergency: Bool? = nil
+                    if let ee = dict["enableEmergency"] as? Bool {
+                        newEnableEmergency = ee
+                    } else if let eeNum = dict["enableEmergency"] as? NSNumber {
+                        newEnableEmergency = eeNum.boolValue
+                    } else if let eeStr = dict["enableEmergency"] as? String {
+                        newEnableEmergency = (eeStr.lowercased() == "true" || eeStr == "1")
                     }
-                    if let onlyVibrateEmergency = dict["onlyVibrateEmergency"] as? Bool {
-                        Settings.setBool(onlyVibrateEmergency, forKey: "onlyVibrateEmergency", inMOC: moc)
+                    if let ee = newEnableEmergency {
+                        Settings.setBool(ee, forKey: "enableEmergency", inMOC: moc)
+                        UserDefaults.standard.set(ee, forKey: "enableEmergency")
+                        UserDefaults.standard.synchronize()
+                        let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+                        shared?.set(ee, forKey: "enableEmergency")
+                        shared?.synchronize()
+                        if !ee {
+                            OwnTracking.clearEmergency()
+                        }
+                    }
+                    var newOnlyVibrate: Bool? = nil
+                    if let ov = dict["onlyVibrateEmergency"] as? Bool {
+                        newOnlyVibrate = ov
+                    } else if let ovNum = dict["onlyVibrateEmergency"] as? NSNumber {
+                        newOnlyVibrate = ovNum.boolValue
+                    } else if let ovStr = dict["onlyVibrateEmergency"] as? String {
+                        newOnlyVibrate = (ovStr.lowercased() == "true" || ovStr == "1")
+                    }
+                    if let ov = newOnlyVibrate {
+                        Settings.setBool(ov, forKey: "onlyVibrateEmergency", inMOC: moc)
+                        UserDefaults.standard.set(ov, forKey: "onlyVibrateEmergency")
+                        UserDefaults.standard.synchronize()
                     }
                     if let soundWaypoint = dict["soundWaypoint"] as? Bool {
                         Settings.setBool(soundWaypoint, forKey: "soundWaypoint", inMOC: moc)
@@ -320,6 +346,8 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["color"] = Settings.string(forKey: "markerColor", inMOC: moc) ?? ""
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? ""
                 configDict["locked"] = locked
+                let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
+                configDict["enableEmergency"] = isEnableEmergency
                 let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
                 configDict["mute"] = isMute
             }
@@ -347,8 +375,10 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
-                configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
-                configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+                let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
+                configDict["enableEmergency"] = isEnableEmergency
+                let isOnlyVibrate = UserDefaults.standard.object(forKey: "onlyVibrateEmergency") != nil ? UserDefaults.standard.bool(forKey: "onlyVibrateEmergency") : Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+                configDict["onlyVibrateEmergency"] = isOnlyVibrate
                 configDict["soundWaypoint"] = UserDefaults.standard.object(forKey: "soundWaypoint") != nil ? Settings.bool(forKey: "soundWaypoint", inMOC: moc) : true
                 let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
                 configDict["mute"] = isMute

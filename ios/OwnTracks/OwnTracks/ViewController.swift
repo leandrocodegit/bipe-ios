@@ -1498,6 +1498,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
+                let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
+                configDict["enableEmergency"] = isEnableEmergency
                 let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
                 configDict["mute"] = isMute
                 configDict["isEmergency"] = OwnTracking.isEmergencyActive()
@@ -1531,8 +1533,10 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
                 configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
-                configDict["enableEmergency"] = Settings.bool(forKey: "enableEmergency", inMOC: moc)
-                configDict["onlyVibrateEmergency"] = Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+                let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
+                configDict["enableEmergency"] = isEnableEmergency
+                let isOnlyVibrate = UserDefaults.standard.object(forKey: "onlyVibrateEmergency") != nil ? UserDefaults.standard.bool(forKey: "onlyVibrateEmergency") : Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
+                configDict["onlyVibrateEmergency"] = isOnlyVibrate
                 configDict["soundWaypoint"] = UserDefaults.standard.object(forKey: "soundWaypoint") != nil ? Settings.bool(forKey: "soundWaypoint", inMOC: moc) : true
                 let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
                 configDict["mute"] = isMute
@@ -1654,6 +1658,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["username"] = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
             configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
             configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
+            configDict["enableEmergency"] = isEnableEmergency
             let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
             configDict["mute"] = isMute
             configDict["isEmergency"] = OwnTracking.isEmergencyActive()
@@ -1967,11 +1973,42 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         if let pubRetain = config["pubRetain"] as? Bool {
                             Settings.setBool(pubRetain, forKey: "retain_preference", inMOC: moc)
                         }
-                        if let onlyVibrate = config["onlyVibrateEmergency"] as? Bool {
-                            Settings.setBool(onlyVibrate, forKey: "onlyVibrateEmergency", inMOC: moc)
+                        var newOnlyVibrate: Bool? = nil
+                        if let ov = config["onlyVibrateEmergency"] as? Bool {
+                            newOnlyVibrate = ov
+                        } else if let ovNum = config["onlyVibrateEmergency"] as? NSNumber {
+                            newOnlyVibrate = ovNum.boolValue
+                        } else if let ovStr = config["onlyVibrateEmergency"] as? String {
+                            newOnlyVibrate = (ovStr.lowercased() == "true" || ovStr == "1")
                         }
-                        if let enableEmergency = config["enableEmergency"] as? Bool {
-                            Settings.setBool(enableEmergency, forKey: "enableEmergency", inMOC: moc)
+                        if let ov = newOnlyVibrate {
+                            Settings.setBool(ov, forKey: "onlyVibrateEmergency", inMOC: moc)
+                            UserDefaults.standard.set(ov, forKey: "onlyVibrateEmergency")
+                            UserDefaults.standard.synchronize()
+                        }
+                        
+                        var newEnableEmergency: Bool? = nil
+                        if let ee = config["enableEmergency"] as? Bool {
+                            newEnableEmergency = ee
+                        } else if let eeNum = config["enableEmergency"] as? NSNumber {
+                            newEnableEmergency = eeNum.boolValue
+                        } else if let eeStr = config["enableEmergency"] as? String {
+                            newEnableEmergency = (eeStr.lowercased() == "true" || eeStr == "1")
+                        }
+                        if let ee = newEnableEmergency {
+                            Settings.setBool(ee, forKey: "enableEmergency", inMOC: moc)
+                            UserDefaults.standard.set(ee, forKey: "enableEmergency")
+                            UserDefaults.standard.synchronize()
+                            let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+                            shared?.set(ee, forKey: "enableEmergency")
+                            shared?.synchronize()
+                            NSLog("[saveConfig] enableEmergency salvo como: %d", ee)
+                            
+                            // Se foi desativado, cancela qualquer emergência ativa imediatamente
+                            if !ee {
+                                OwnTracking.clearEmergency()
+                                handleEmergencyExpired()
+                            }
                         }
                         if let locked = config["locked"] as? Bool {
                             Settings.setBool(locked, forKey: "locked", inMOC: moc)
@@ -2232,6 +2269,27 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
 
     @objc static func sendEmergencyAlert(type: String, completion: ((Bool) -> Void)?) {
         DispatchQueue.main.async {
+            let moc = CoreData.sharedInstance().mainMOC
+            var enableEmergency = false
+            let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+            if let shared = shared, shared.object(forKey: "enableEmergency") != nil {
+                enableEmergency = shared.bool(forKey: "enableEmergency")
+            } else if UserDefaults.standard.object(forKey: "enableEmergency") != nil {
+                enableEmergency = UserDefaults.standard.bool(forKey: "enableEmergency")
+            } else {
+                moc.performAndWait {
+                    enableEmergency = Settings.bool(forKey: "enableEmergency", inMOC: moc)
+                }
+            }
+            
+            // Se a funcionalidade de emergência estiver desativada nas configurações, cancela e não envia MQTT
+            guard enableEmergency else {
+                NSLog("[BipeEmergencyHelper] Disparo de alerta de emergência (%@) IGNORADO: enableEmergency está DESATIVADO.", type)
+                clearEmergency()
+                completion?(false)
+                return
+            }
+            
             // Feedback tátil ao pressionar o botão de ação / acionar o atalho
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.warning)

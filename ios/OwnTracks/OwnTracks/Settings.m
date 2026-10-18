@@ -590,13 +590,37 @@ static SettingsDefaults *defaults;
         
     object = dictionary[@"mute"];
     if (object) {
-        [self setString:object forKey:@"mute" inMOC:context];
         BOOL isMute = NO;
         if ([object respondsToSelector:@selector(boolValue)]) {
             isMute = [(id)object boolValue];
         }
+        [self setBool:isMute forKey:@"mute" inMOC:context];
         [[NSUserDefaults standardUserDefaults] setBool:isMute forKey:@"mute"];
         [[NSUserDefaults standardUserDefaults] synchronize];
+        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
+        if (shared) {
+            [shared setBool:isMute forKey:@"mute"];
+            [shared synchronize];
+        }
+    }
+        
+    object = dictionary[@"enableEmergency"];
+    if (object) {
+        BOOL isEnableEmergency = NO;
+        if ([object respondsToSelector:@selector(boolValue)]) {
+            isEnableEmergency = [(id)object boolValue];
+        }
+        [self setBool:isEnableEmergency forKey:@"enableEmergency" inMOC:context];
+        [[NSUserDefaults standardUserDefaults] setBool:isEnableEmergency forKey:@"enableEmergency"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:@"group.br.com.bipe.me"];
+        if (shared) {
+            [shared setBool:isEnableEmergency forKey:@"enableEmergency"];
+            [shared synchronize];
+        }
+        if (!isEnableEmergency) {
+            [OwnTracking clearEmergency];
+        }
     }
         
     object = dictionary[@"extendedData"];
@@ -902,6 +926,7 @@ static SettingsDefaults *defaults;
     dict[@"ranging"] =                      @([Settings boolForKey:@"ranging_preference" inMOC:context]);
     dict[@"locked"] =                       @([Settings boolForKey:@"locked" inMOC:context]);
     dict[@"mute"] =                         @([Settings boolForKey:@"mute" inMOC:context]);
+    dict[@"enableEmergency"] =              @([Settings boolForKey:@"enableEmergency" inMOC:context]);
     dict[@"tid"] =                          [Settings stringOrZeroForKey:@"trackerid_preference" inMOC:context];
     dict[@"pubTopicBase"] =                 [Settings stringOrZeroForKey:@"topic_preference" inMOC:context];
     dict[@"monitoring"] =                   @([Settings intForKey:@"monitoring_preference" inMOC:context]);

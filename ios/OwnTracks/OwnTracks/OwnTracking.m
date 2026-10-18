@@ -769,6 +769,23 @@ static NSTimeInterval const kEmergencyDurationSeconds = 30.0 * 60.0; // 30 minut
 }
 
 + (BOOL)isEmergencyActive {
+    // Se a funcionalidade de emergência estiver desativada nas configurações, o estado de emergência é sempre inativo
+    BOOL emergencyEnabled = NO;
+    NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupSuite];
+    if (shared && [shared objectForKey:@"enableEmergency"] != nil) {
+        emergencyEnabled = [shared boolForKey:@"enableEmergency"];
+    } else if ([[NSUserDefaults standardUserDefaults] objectForKey:@"enableEmergency"] != nil) {
+        emergencyEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"enableEmergency"];
+    } else {
+        NSManagedObjectContext *moc = [CoreData sharedInstance].mainMOC;
+        if (moc) {
+            emergencyEnabled = [Settings boolForKey:@"enableEmergency" inMOC:moc];
+        }
+    }
+    if (!emergencyEnabled) {
+        return NO;
+    }
+    
     NSTimeInterval timestamp = [[NSUserDefaults standardUserDefaults] doubleForKey:kEmergencyTimestampKey];
     if (timestamp <= 0) {
         NSUserDefaults *shared = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupSuite];

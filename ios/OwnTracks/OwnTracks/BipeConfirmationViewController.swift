@@ -108,7 +108,15 @@ public class BipeConfirmationViewController: UIViewController {
     
     @objc private func closeTapped() {
         let moc = CoreData.sharedInstance().mainMOC
-        let enableEmergency = Settings.bool(forKey: "enableEmergency", inMOC: moc)
+        var enableEmergency = false
+        let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+        if let shared = shared, shared.object(forKey: "enableEmergency") != nil {
+            enableEmergency = shared.bool(forKey: "enableEmergency")
+        } else if UserDefaults.standard.object(forKey: "enableEmergency") != nil {
+            enableEmergency = UserDefaults.standard.bool(forKey: "enableEmergency")
+        } else {
+            enableEmergency = Settings.bool(forKey: "enableEmergency", inMOC: moc)
+        }
         if enableEmergency {
             BipeEmergencyHelper.sendEmergencyAlert(type: "emergency", completion: nil)
             sendMqttStatus("FORCED")
