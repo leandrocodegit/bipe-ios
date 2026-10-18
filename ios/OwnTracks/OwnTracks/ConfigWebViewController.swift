@@ -210,7 +210,7 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                         shared?.set(ee, forKey: "enableEmergency")
                         shared?.synchronize()
                         if !ee {
-                            OwnTracking.clearEmergency()
+                            BipeEmergencyHelper.clearEmergency()
                         }
                     }
                     var newOnlyVibrate: Bool? = nil

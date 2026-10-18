@@ -2006,8 +2006,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                             
                             // Se foi desativado, cancela qualquer emergência ativa imediatamente
                             if !ee {
-                                OwnTracking.clearEmergency()
-                                handleEmergencyExpired()
+                                BipeEmergencyHelper.clearEmergency()
                             }
                         }
                         if let locked = config["locked"] as? Bool {
