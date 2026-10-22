@@ -206,6 +206,8 @@ import ActivityKit
                         self.notifyWebviewSession()
                     } else {
                         NSLog("[ViewController] Falha ao renovar token na biometria: %@", authError?.localizedDescription ?? "")
+                        BiometricAuthManager.shared.removeStoredRefreshToken()
+                        AuthManager.shared.clearAuthState()
                         
                         if !AuthManager.shared.isAuthorized {
                             DispatchQueue.main.async {

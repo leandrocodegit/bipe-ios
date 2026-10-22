@@ -134,6 +134,11 @@ class LoginViewController: UIViewController {
         }
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        biometricButton.isHidden = !BiometricAuthManager.shared.canLoginWithBiometrics
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -143,6 +148,8 @@ class LoginViewController: UIViewController {
                 hasPromptedBiometrics = true
                 biometricLoginTapped()
             }
+        } else {
+            biometricButton.isHidden = true
         }
     }
 
@@ -231,7 +238,11 @@ class LoginViewController: UIViewController {
     }
 
     @objc private func biometricLoginTapped() {
-        guard BiometricAuthManager.shared.canLoginWithBiometrics else { return }
+        guard BiometricAuthManager.shared.canLoginWithBiometrics else {
+            biometricButton.isHidden = true
+            loginTapped()
+            return
+        }
         setLoading(true, status: "Autenticando via \(BiometricAuthManager.shared.biometricName)…")
         clearError()
 
@@ -250,15 +261,26 @@ class LoginViewController: UIViewController {
                             self.performSetup(isStandardLogin: false)
                         }
                     } else {
-                        let msg = authError?.localizedDescription ?? "Sessão expirada"
-                        self.showError("Falha na renovação da biometria: \(msg)")
-                        self.setLoading(false, status: "")
+                        NSLog("[LoginViewController] Falha na renovação via biometria (token expirado/inválido): %@", authError?.localizedDescription ?? "Sessão expirada")
+                        BiometricAuthManager.shared.removeStoredRefreshToken()
+                        self.authManager.clearAuthState()
+                        DispatchQueue.main.async {
+                            self.biometricButton.isHidden = true
+                            self.loginTapped()
+                        }
                     }
                 }
             } else {
-                let msg = error?.localizedDescription ?? "Cancelado"
-                self.showError("Autenticação por \(BiometricAuthManager.shared.biometricName) não concluída.")
-                self.setLoading(false, status: "")
+                if let laError = error as? LAError, laError.code == .userCancel {
+                    // Usuário cancelou explicitamente o diálogo da biometria
+                    self.setLoading(false, status: "")
+                } else {
+                    NSLog("[LoginViewController] Erro na autenticação biométrica: %@", error?.localizedDescription ?? "")
+                    // Se deu erro ao tentar autenticar via biometria, chama a tela de autenticação
+                    DispatchQueue.main.async {
+                        self.loginTapped()
+                    }
+                }
             }
         }
     }

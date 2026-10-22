@@ -285,10 +285,15 @@ import SafariServices
         }.resume()
     }
 
-    /// Remove todos os tokens e estado salvo
-    @objc func logout() {
+    /// Limpa apenas o estado de autorização atual (ex: token expirado ou inválido)
+    @objc func clearAuthState() {
         authState = nil
         UserDefaults.standard.removeObject(forKey: AuthManager.authStateKey)
+    }
+
+    /// Remove todos os tokens e estado salvo
+    @objc func logout() {
+        clearAuthState()
         BiometricAuthManager.shared.clearBiometricData()
     }
 

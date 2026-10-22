@@ -75,9 +75,43 @@ import Security
         }
     }
 
+    /// Verifica se uma string de token JWT expirou baseando-se no claim "exp"
+    static func isJwtExpired(_ token: String) -> Bool {
+        let parts = token.components(separatedBy: ".")
+        guard parts.count >= 2 else { return false }
+        var base64 = parts[1]
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        let remainder = base64.count % 4
+        if remainder > 0 {
+            base64 += String(repeating: "=", count: 4 - remainder)
+        }
+        guard let data = Data(base64Encoded: base64),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let expNumber = json["exp"] as? NSNumber else {
+            return false
+        }
+        let exp = expNumber.doubleValue
+        // Se a data atual for maior ou igual ao exp (com margem de 10s)
+        return Date().timeIntervalSince1970 >= (exp - 10)
+    }
+
     /// Verifica se há um refresh token salvo no Keychain e a biometria está pronta para uso
     @objc var canLoginWithBiometrics: Bool {
-        return isBiometricsAvailable && isBiometricsEnabled && getStoredRefreshToken() != nil
+        guard isBiometricsAvailable && isBiometricsEnabled,
+              let token = getStoredRefreshToken(), !token.isEmpty else {
+            return false
+        }
+
+        // Se o token JWT já expirou, limpa o token e retorna false
+        if BiometricAuthManager.isJwtExpired(token) {
+            NSLog("[BiometricAuthManager] Refresh token expirado. canLoginWithBiometrics = false")
+            removeStoredRefreshToken()
+            AuthManager.shared.clearAuthState()
+            return false
+        }
+
+        return true
     }
 
     private(set) var isAuthenticating = false
@@ -170,14 +204,19 @@ import Security
         return nil
     }
 
-    /// Limpa os dados biométricos e tokens armazenados (chamado no logout)
-    @objc func clearBiometricData() {
+    /// Remove apenas o Refresh Token do Keychain (por exemplo, quando o token expirar)
+    @objc func removeStoredRefreshToken() {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: keychainAccount
         ]
         SecItemDelete(query as CFDictionary)
+    }
+
+    /// Limpa os dados biométricos e tokens armazenados (chamado no logout)
+    @objc func clearBiometricData() {
+        removeStoredRefreshToken()
         isBiometricsEnabled = false
     }
 }
