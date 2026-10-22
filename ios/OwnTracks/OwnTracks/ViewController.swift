@@ -1185,7 +1185,9 @@ import ActivityKit
             isSentinela: function() { return window.prompt("is_sentinela", "") === "true"; },
             isSentinel: function() { return window.prompt("is_sentinela", "") === "true"; },
             getMute: function() { return window.prompt("get_mute", "") === "true"; },
-            isMute: function() { return window.prompt("get_mute", "") === "true"; }
+            isMute: function() { return window.prompt("get_mute", "") === "true"; },
+            openUrl: function(url) { if (window.webkit && window.webkit.messageHandlers.openUrl) window.webkit.messageHandlers.openUrl.postMessage(url); else window.prompt("open_url", url); },
+            openExternalUrl: function(url) { if (window.webkit && window.webkit.messageHandlers.openUrl) window.webkit.messageHandlers.openUrl.postMessage(url); else window.prompt("open_url", url); }
         };
         window.iOS = {
             isIosApp: function() { return true; },
@@ -1202,7 +1204,9 @@ import ActivityKit
             isSentinela: window.Android.isSentinela,
             isSentinel: window.Android.isSentinel,
             getMute: window.Android.getMute,
-            isMute: window.Android.isMute
+            isMute: window.Android.isMute,
+            openUrl: window.Android.openUrl,
+            openExternalUrl: window.Android.openExternalUrl
         };
         window.Android.subscribePlan = window.iOS.subscribePlan;
         window.Android.subscribeMonthlyPlan = window.iOS.subscribeMonthlyPlan;
@@ -1214,7 +1218,7 @@ import ActivityKit
         let userContentController = WKUserContentController()
         userContentController.addUserScript(userScript)
 
-        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "deleteAccount", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken", "openSentinel", "openSentinela", "emergency", "sendEmergency", "triggerEmergency", "openEmergency", "panic", "bipeEmergency"]
+        let handlers = ["openSettings", "openPermissions", "openWaypoints", "openAccountManagement", "logout", "deleteAccount", "startVoiceCall", "stopVoiceCall", "saveConfig", "saveWaypoints", "enableBiometrics", "disableBiometrics", "openQRScanner", "scanQRCode", "subscribePlan", "restorePurchases", "getSubscriptionStatus", "refreshSessionToken", "openSentinel", "openSentinela", "emergency", "sendEmergency", "triggerEmergency", "openEmergency", "panic", "bipeEmergency", "openUrl", "openExternalUrl"]
         for handler in handlers {
             userContentController.add(self, name: handler)
         }
@@ -1464,6 +1468,21 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     return
                 }
             }
+            let scheme = url.scheme?.lowercased() ?? ""
+            if scheme == "tel" || scheme == "sms" || scheme == "mailto" || scheme == "whatsapp" || scheme == "itms-apps" {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    decisionHandler(.cancel)
+                    return
+                }
+            }
+            if navigationAction.targetFrame == nil {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    decisionHandler(.cancel)
+                    return
+                }
+            }
         }
         decisionHandler(.allow)
     }
@@ -1644,9 +1663,33 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
             completionHandler(isMute ? "true" : "false")
             return
+        } else if prompt == "open_url" || prompt == "open_external_url" {
+            if let urlString = defaultText,
+               let url = URL(string: urlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                DispatchQueue.main.async {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    }
+                }
+                completionHandler("{\"success\": true}")
+                return
+            }
+            completionHandler("{\"error\": \"invalid_url\"}")
+            return
         }
 
         completionHandler(nil)
+    }
+
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if let url = navigationAction.request.url {
+            DispatchQueue.main.async {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }
+        }
+        return nil
     }
 
     @objc func notifyWebviewSession() {
@@ -1852,6 +1895,15 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             }
         case "openQRScanner", "scanQRCode":
             openNativeQRScanner()
+        case "openUrl", "openExternalUrl":
+            if let urlString = message.body as? String,
+               let url = URL(string: urlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                DispatchQueue.main.async {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    }
+                }
+            }
         case "subscribePlan":
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }

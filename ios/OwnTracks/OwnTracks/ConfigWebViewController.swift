@@ -2,7 +2,7 @@ import UIKit
 import WebKit
 import CoreData
 
-class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
+class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavigationDelegate {
 
     var webView: WKWebView!
     var moc: NSManagedObjectContext!
@@ -29,6 +29,8 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         contentController.add(self, name: "cancelSentinelGracePeriod")
         contentController.add(self, name: "openSentinel")
         contentController.add(self, name: "openSentinela")
+        contentController.add(self, name: "openUrl")
+        contentController.add(self, name: "openExternalUrl")
         
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
@@ -98,6 +100,20 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
                 },
                 isSentinelMonitoring: function() {
                     return "\(SentinelAcousticMonitor.shared.isMonitoring)";
+                },
+                openUrl: function(url) {
+                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.openUrl) {
+                        window.webkit.messageHandlers.openUrl.postMessage(url);
+                    } else {
+                        window.prompt("open_url", url);
+                    }
+                },
+                openExternalUrl: function(url) {
+                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.openUrl) {
+                        window.webkit.messageHandlers.openUrl.postMessage(url);
+                    } else {
+                        window.prompt("open_url", url);
+                    }
                 }
             };
         """
@@ -120,6 +136,7 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
         webView.isOpaque = false
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.uiDelegate = self
+        webView.navigationDelegate = self
         self.view.addSubview(webView)
         
         NSLayoutConstraint.activate([
@@ -318,6 +335,15 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler {
             DispatchQueue.main.async {
                 SentinelAcousticMonitor.shared.cancelGracePeriod()
             }
+        } else if message.name == "openUrl" || message.name == "openExternalUrl" {
+            if let urlString = message.body as? String,
+               let url = URL(string: urlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                DispatchQueue.main.async {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    }
+                }
+            }
         }
     }
 
@@ -414,8 +440,55 @@ extension ConfigWebViewController: WKUIDelegate {
             
             completionHandler("{}")
             return
+        } else if prompt == "open_url" || prompt == "open_external_url" {
+            if let urlString = defaultText,
+               let url = URL(string: urlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                DispatchQueue.main.async {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    }
+                }
+                completionHandler("{\"success\": true}")
+                return
+            }
+            completionHandler("{\"error\": \"invalid_url\"}")
+            return
         }
         
         completionHandler(nil)
+    }
+
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if let url = navigationAction.request.url {
+            DispatchQueue.main.async {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }
+        }
+        return nil
+    }
+}
+
+extension ConfigWebViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let url = navigationAction.request.url {
+            let scheme = url.scheme?.lowercased() ?? ""
+            if scheme == "tel" || scheme == "sms" || scheme == "mailto" || scheme == "whatsapp" || scheme == "itms-apps" {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    decisionHandler(.cancel)
+                    return
+                }
+            }
+            if navigationAction.targetFrame == nil {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    decisionHandler(.cancel)
+                    return
+                }
+            }
+        }
+        decisionHandler(.allow)
     }
 }
