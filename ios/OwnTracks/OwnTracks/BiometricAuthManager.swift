@@ -24,20 +24,24 @@ import Security
 
     // MARK: - Status e Capacidades
 
-    /// Retorna se a biometria (Face ID / Touch ID) está disponível no dispositivo
+    /// Retorna se a biometria (Face ID / Touch ID) está disponível no dispositivo (inclusive se estiver em lockout temporário)
     @objc var isBiometricsAvailable: Bool {
         let context = LAContext()
         var error: NSError?
-        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            return true
+        }
+        if let laError = error as? LAError, laError.code == .biometryLockout {
+            return true
+        }
+        return context.biometryType != .none
     }
 
     /// Retorna o tipo de biometria suportada pelo aparelho (.faceID, .touchID ou .none)
     var biometricType: LABiometryType {
         let context = LAContext()
         var error: NSError?
-        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            return .none
-        }
+        _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         return context.biometryType
     }
 
@@ -118,7 +122,7 @@ import Security
 
     // MARK: - Autenticação Biométrica
 
-    /// Executa a leitura da biometria (Face ID / Touch ID) com fallback automático para a Senha do Dispositivo
+    /// Executa a leitura da biometria (Face ID / Touch ID) com fallback automático nativo do iOS para a Senha/Código do Dispositivo
     @objc func authenticate(reason: String? = nil, completion: @escaping (Bool, Error?) -> Void) {
         if isAuthenticating {
             NSLog("[BiometricAuthManager] Autenticação biométrica já está em andamento. Ignorando chamada duplicada.")
@@ -129,31 +133,31 @@ import Security
         isAuthenticating = true
         let context = LAContext()
         context.localizedCancelTitle = NSLocalizedString("Cancelar", comment: "")
-        context.localizedFallbackTitle = NSLocalizedString("Digite a Senha", comment: "")
-        
+
         let localizedReason = reason ?? String(format: NSLocalizedString("Autentique-se com %@ para acessar o Bipe.me", comment: ""), biometricName)
 
-        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: localizedReason) { [weak self] success, error in
-            if success {
-                DispatchQueue.main.async {
-                    self?.isAuthenticating = false
-                    completion(true, nil)
-                }
-            } else if let laError = error as? LAError, laError.code == .userFallback || laError.code == .biometryLockout {
-                // Se o usuário clicou em "Digite a Senha" ou se o Face ID foi bloqueado após tentativas incorretas,
-                // solicita a senha do dispositivo (.deviceOwnerAuthentication)
-                let passcodeContext = LAContext()
-                passcodeContext.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: localizedReason) { passcodeSuccess, passcodeError in
-                    DispatchQueue.main.async {
-                        self?.isAuthenticating = false
-                        completion(passcodeSuccess, passcodeError)
-                    }
-                }
+        // Usamos .deviceOwnerAuthentication para que o iOS execute a biometria (Face ID / Touch ID)
+        // e, caso falhe algumas vezes ou esteja bloqueada, o próprio sistema solicite automaticamente
+        // o código do dispositivo (passcode).
+        var policy: LAPolicy = .deviceOwnerAuthentication
+        var authError: NSError?
+
+        if !context.canEvaluatePolicy(policy, error: &authError) {
+            if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) {
+                policy = .deviceOwnerAuthenticationWithBiometrics
             } else {
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
                     self?.isAuthenticating = false
-                    completion(false, error)
+                    completion(false, authError)
                 }
+                return
+            }
+        }
+
+        context.evaluatePolicy(policy, localizedReason: localizedReason) { [weak self] success, error in
+            DispatchQueue.main.async {
+                self?.isAuthenticating = false
+                completion(success, error)
             }
         }
     }

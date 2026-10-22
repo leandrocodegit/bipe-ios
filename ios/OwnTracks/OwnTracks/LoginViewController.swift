@@ -272,8 +272,8 @@ class LoginViewController: UIViewController {
                     }
                 }
             } else {
-                if let laError = error as? LAError, laError.code == .userCancel {
-                    // Usuário cancelou explicitamente o diálogo da biometria
+                if let laError = error as? LAError, laError.code == .userCancel || laError.code == .appCancel || laError.code == .systemCancel {
+                    // Usuário ou sistema cancelou o diálogo da biometria
                     self.setLoading(false, status: "")
                 } else {
                     NSLog("[LoginViewController] Erro na autenticação biométrica: %@", error?.localizedDescription ?? "")
