@@ -160,8 +160,10 @@ public class BipeConfirmationViewController: UIViewController {
             if let nick = nickname, !nick.isEmpty {
                 json["nickname"] = nick
             }
-            if let face = Settings.string(forKey: "icon", inMOC: moc), !face.isEmpty {
+            let face = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            if !face.isEmpty {
                 json["face"] = face
+                json["icon"] = face
             }
             if let color = Settings.string(forKey: "color", inMOC: moc), !color.isEmpty {
                 json["color"] = color

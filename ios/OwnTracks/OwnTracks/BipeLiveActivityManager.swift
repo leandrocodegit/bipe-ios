@@ -512,7 +512,7 @@ import FirebaseMessaging
             let address = extractValue(keys: ["address", "endereco", "locationName", "desc", "text", "location"], userInfo: userInfo, dataDict: dataDict)
                 ?? "Localização atual"
             
-            let appDeviceIcon = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc)
+            let appDeviceIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc)
             let iconUrl = extractValue(keys: ["icon", "iconUrl", "image", "imageUrl", "avatar"], userInfo: userInfo, dataDict: dataDict) ?? appDeviceIcon
             
             if isBipe || isEmergency {
@@ -900,7 +900,7 @@ import FirebaseMessaging
                 if nickname == nil || nickname!.isEmpty {
                     nickname = Settings.string(forKey: "nickname_preference", inMOC: moc)
                 }
-                face = Settings.string(forKey: "icon", inMOC: moc)
+                face = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc)
                 color = Settings.string(forKey: "color", inMOC: moc)
                 qosVal = Settings.int(forKey: "qos_preference", inMOC: moc)
                 baseTopic = Settings.theGeneralTopic(inMOC: moc)

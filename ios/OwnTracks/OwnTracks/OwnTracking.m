@@ -582,9 +582,16 @@ static OwnTracking *theInstance = nil;
     NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:waypoint.managedObjectContext]);
     json[@"opMode"] = [opModeNum stringValue];
     
-    NSString *icon = [Settings stringForKey:@"icon" inMOC:waypoint.managedObjectContext];
+    NSString *icon = [[NSUserDefaults standardUserDefaults] stringForKey:@"icon"];
+    if (!icon || icon.length == 0) {
+        icon = [Settings stringForKey:@"icon" inMOC:waypoint.managedObjectContext];
+    }
+    if (!icon || icon.length == 0) {
+        icon = [Settings stringForKey:@"face_preference" inMOC:waypoint.managedObjectContext];
+    }
     if (icon && icon.length > 0) {
         json[@"icon"] = icon;
+        json[@"face"] = icon;
     }
     
     NSString *color = [Settings stringForKey:@"color" inMOC:waypoint.managedObjectContext];

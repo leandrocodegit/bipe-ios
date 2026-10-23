@@ -538,8 +538,17 @@
         if (!nickname || nickname.length == 0) nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
         if (nickname && nickname.length > 0) json[@"nickname"] = nickname;
         
-        NSString *face = [Settings stringForKey:@"icon" inMOC:moc];
-        if (face && face.length > 0) json[@"face"] = face;
+        NSString *face = [[NSUserDefaults standardUserDefaults] stringForKey:@"icon"];
+        if (!face || face.length == 0) {
+            face = [Settings stringForKey:@"icon" inMOC:moc];
+        }
+        if (!face || face.length == 0) {
+            face = [Settings stringForKey:@"face_preference" inMOC:moc];
+        }
+        if (face && face.length > 0) {
+            json[@"face"] = face;
+            json[@"icon"] = face;
+        }
         
         NSString *color = [Settings stringForKey:@"color" inMOC:moc];
         if (color && color.length > 0) json[@"color"] = color;
@@ -1236,9 +1245,16 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completio
             NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:moc]);
             json[@"opMode"] = [opModeNum stringValue];
             
-            NSString *icon = [Settings stringForKey:@"icon" inMOC:moc];
+            NSString *icon = [[NSUserDefaults standardUserDefaults] stringForKey:@"icon"];
+            if (!icon || icon.length == 0) {
+                icon = [Settings stringForKey:@"icon" inMOC:moc];
+            }
+            if (!icon || icon.length == 0) {
+                icon = [Settings stringForKey:@"face_preference" inMOC:moc];
+            }
             if (icon && icon.length > 0) {
                 json[@"icon"] = icon;
+                json[@"face"] = icon;
             }
             
             NSString *color = [Settings stringForKey:@"color" inMOC:moc];
@@ -2040,7 +2056,13 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
     NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:moc]);
     json[@"opMode"] = [opModeNum stringValue];
     
-    NSString *icon = [Settings stringForKey:@"icon" inMOC:moc];
+    NSString *icon = [[NSUserDefaults standardUserDefaults] stringForKey:@"icon"];
+    if (!icon || icon.length == 0) {
+        icon = [Settings stringForKey:@"icon" inMOC:moc];
+    }
+    if (!icon || icon.length == 0) {
+        icon = [Settings stringForKey:@"face_preference" inMOC:moc];
+    }
     if (icon && icon.length > 0) {
         json[@"icon"] = icon;
         json[@"face"] = icon; // App usa a mesma string do icon ("polvo", etc)

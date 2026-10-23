@@ -44,6 +44,9 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavig
                 getConfig: function() {
                     return window.prompt("get_config", "");
                 },
+                getFace: function() {
+                    return window.prompt("get_face", "");
+                },
                 getLocation: function() {
                     return window.prompt("get_location", "");
                 },
@@ -210,6 +213,14 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavig
                     if let icon = dict["icon"] as? String {
                         Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
                         Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
+                        UserDefaults.standard.set(icon, forKey: "icon")
+                        UserDefaults.standard.set(icon, forKey: "face_preference")
+                        UserDefaults.standard.synchronize()
+                        let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+                        shared?.set(icon, forKey: "icon")
+                        shared?.set(icon, forKey: "face")
+                        shared?.synchronize()
+                        NSLog("[saveConfig ConfigWeb] icon salvo como: %@", icon)
                     }
                     var newEnableEmergency: Bool? = nil
                     if let ee = dict["enableEmergency"] as? Bool {
@@ -263,9 +274,15 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavig
                         UserDefaults.standard.synchronize()
                     }
                     
-                    if moc.hasChanges {
-                        try? moc.save()
-                    }
+                    CoreData.sharedInstance().sync(moc)
+                }
+                
+                if let icon = dict["icon"] as? String {
+                    let script = "window.dispatchEvent(new CustomEvent('onIconChanged', { detail: { icon: '\(icon)' } }));"
+                    self.webView?.evaluateJavaScript(script, completionHandler: nil)
+                }
+                if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+                    delegate.sendCard()
                 }
             }
         } else if message.name == "openPermissions" {
@@ -370,7 +387,8 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["deviceId"] = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
                 configDict["username"] = Settings.string(forKey: "username_preference", inMOC: moc) ?? ""
                 configDict["color"] = Settings.string(forKey: "markerColor", inMOC: moc) ?? ""
-                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? ""
+                let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                configDict["icon"] = currentIcon
                 configDict["locked"] = locked
                 let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["enableEmergency"] = isEnableEmergency
@@ -400,7 +418,8 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["pubRetain"] = Settings.bool(forKey: "retain_preference", inMOC: moc)
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
-                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                configDict["icon"] = currentIcon
                 let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["enableEmergency"] = isEnableEmergency
                 let isOnlyVibrate = UserDefaults.standard.object(forKey: "onlyVibrateEmergency") != nil ? UserDefaults.standard.bool(forKey: "onlyVibrateEmergency") : Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
@@ -418,6 +437,19 @@ extension ConfigWebViewController: WKUIDelegate {
                 completionHandler(jsonString)
                 return
             }
+        } else if prompt == "get_face" {
+            if locked {
+                completionHandler("")
+                return
+            }
+            var faceStr = UserDefaults.standard.string(forKey: "icon") ?? UserDefaults.standard.string(forKey: "face_preference") ?? ""
+            if faceStr.isEmpty {
+                moc.performAndWait {
+                    faceStr = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                }
+            }
+            completionHandler(faceStr)
+            return
         } else if prompt == "get_location" {
             if locked {
                 completionHandler("{\"locked\": true}")

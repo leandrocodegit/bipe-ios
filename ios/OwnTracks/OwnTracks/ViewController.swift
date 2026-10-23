@@ -1132,7 +1132,7 @@ import ActivityKit
         let deviceId = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
         let username = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
         let color = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
-        let face = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+        let face = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
         let token = AuthManager.shared.getAccessToken() ?? ""
         let langCode = Locale.current.languageCode ?? "pt"
 
@@ -1516,7 +1516,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["deviceId"] = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
                 configDict["username"] = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
                 configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
-                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                configDict["icon"] = currentIcon
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
                 let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
@@ -1553,7 +1554,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 configDict["pubRetain"] = Settings.bool(forKey: "retain_preference", inMOC: moc)
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
-                configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                configDict["icon"] = currentIcon
                 let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["enableEmergency"] = isEnableEmergency
                 let isOnlyVibrate = UserDefaults.standard.object(forKey: "onlyVibrateEmergency") != nil ? UserDefaults.standard.bool(forKey: "onlyVibrateEmergency") : Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
@@ -1603,9 +1605,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 completionHandler("")
                 return
             }
-            var faceStr = ""
-            moc.performAndWait {
-                faceStr = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            var faceStr = UserDefaults.standard.string(forKey: "icon") ?? UserDefaults.standard.string(forKey: "face_preference") ?? ""
+            if faceStr.isEmpty {
+                moc.performAndWait {
+                    faceStr = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+                }
             }
             completionHandler(faceStr)
             return
@@ -1702,7 +1706,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["deviceId"] = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
             configDict["username"] = Settings.string(forKey: "user_preference", inMOC: moc) ?? ""
             configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
-            configDict["icon"] = Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
+            configDict["icon"] = currentIcon
             let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
             configDict["enableEmergency"] = isEnableEmergency
             let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
@@ -2008,6 +2013,14 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         if let icon = config["icon"] as? String {
                             Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
                             Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
+                            UserDefaults.standard.set(icon, forKey: "icon")
+                            UserDefaults.standard.set(icon, forKey: "face_preference")
+                            UserDefaults.standard.synchronize()
+                            let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+                            shared?.set(icon, forKey: "icon")
+                            shared?.set(icon, forKey: "face")
+                            shared?.synchronize()
+                            NSLog("[saveConfig] icon salvo como: %@", icon)
                         }
                         if let displacement = config["locatorDisplacement"] as? Int {
                             Settings.setInt(Int32(displacement), forKey: "displacement_preference", inMOC: moc)
@@ -2114,15 +2127,18 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                         } else if let opMode = config["opMode"] as? Int32 {
                             Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
                         }
-                        if moc.hasChanges {
-                            try? moc.save()
-                        }
+                        CoreData.sharedInstance().sync(moc)
                     }
                     NotificationCenter.default.post(name: NSNotification.Name("ConfigUpdated"), object: nil)
                     NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil) // To force LocationManager refresh
                     
                     if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
                         delegate.sendCard()
+                    }
+                    
+                    if let icon = config["icon"] as? String {
+                        let script = "window.dispatchEvent(new CustomEvent('onIconChanged', { detail: { icon: '\(icon)' } }));"
+                        self.webView?.evaluateJavaScript(script, completionHandler: nil)
                     }
                     
                     let alert = UIAlertController(title: nil, message: "Configurações salvas", preferredStyle: .alert)
@@ -2361,7 +2377,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             let bipeTopic = "owntracks/\(userName)/\(deviceId)/bipe"
             
             let nickname = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? ""
-            let face = Settings.string(forKey: "icon", inMOC: moc) ?? ""
+            let face = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
             let color = Settings.string(forKey: "color", inMOC: moc) ?? ""
             
             var payload: [String: Any] = [
