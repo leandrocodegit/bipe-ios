@@ -174,116 +174,7 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavig
                 configDict = nil
             }
             if let dict = configDict {
-                moc.performAndWait {
-                    if let apelido = dict["apelido"] as? String {
-                        Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
-                        Settings.setString(apelido as NSString, forKey: "nickname_preference", inMOC: moc)
-                    }
-                    if let tempoRetencao = dict["tempoRetencao"] as? Int {
-                        Settings.setInt(Int32(tempoRetencao), forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
-                    } else if let tempoRetencao = dict["tempoRetencao"] as? Int32 {
-                        Settings.setInt(tempoRetencao, forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
-                    }
-                    if let locatorDisplacement = dict["locatorDisplacement"] as? Int {
-                        Settings.setInt(Int32(locatorDisplacement), forKey: "displacement_preference", inMOC: moc)
-                    } else if let locatorDisplacement = dict["locatorDisplacement"] as? Int32 {
-                        Settings.setInt(locatorDisplacement, forKey: "displacement_preference", inMOC: moc)
-                    }
-                    if let locatorInterval = dict["locatorInterval"] as? Int {
-                        Settings.setInt(Int32(locatorInterval), forKey: "interval_preference", inMOC: moc)
-                    } else if let locatorInterval = dict["locatorInterval"] as? Int32 {
-                        Settings.setInt(locatorInterval, forKey: "interval_preference", inMOC: moc)
-                    }
-                    if let ping = dict["ping"] as? Int {
-                        Settings.setInt(Int32(ping), forKey: "keepalive_preference", inMOC: moc)
-                    } else if let ping = dict["ping"] as? Int32 {
-                        Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
-                    }
-                    if let pubRetain = dict["pubRetain"] as? Bool {
-                        Settings.setBool(pubRetain, forKey: "retain_preference", inMOC: moc)
-                    }
-                    if let locked = dict["locked"] as? Bool {
-                        Settings.setBool(locked, forKey: "locked", inMOC: moc)
-                    }
-                    if let opMode = dict["opMode"] as? Int {
-                        Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
-                    } else if let opMode = dict["opMode"] as? Int32 {
-                        Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
-                    }
-                    if let icon = dict["icon"] as? String {
-                        Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
-                        Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
-                        UserDefaults.standard.set(icon, forKey: "icon")
-                        UserDefaults.standard.set(icon, forKey: "face_preference")
-                        UserDefaults.standard.synchronize()
-                        let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
-                        shared?.set(icon, forKey: "icon")
-                        shared?.set(icon, forKey: "face")
-                        shared?.synchronize()
-                        NSLog("[saveConfig ConfigWeb] icon salvo como: %@", icon)
-                    }
-                    var newEnableEmergency: Bool? = nil
-                    if let ee = dict["enableEmergency"] as? Bool {
-                        newEnableEmergency = ee
-                    } else if let eeNum = dict["enableEmergency"] as? NSNumber {
-                        newEnableEmergency = eeNum.boolValue
-                    } else if let eeStr = dict["enableEmergency"] as? String {
-                        newEnableEmergency = (eeStr.lowercased() == "true" || eeStr == "1")
-                    }
-                    if let ee = newEnableEmergency {
-                        Settings.setBool(ee, forKey: "enableEmergency", inMOC: moc)
-                        UserDefaults.standard.set(ee, forKey: "enableEmergency")
-                        UserDefaults.standard.synchronize()
-                        let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
-                        shared?.set(ee, forKey: "enableEmergency")
-                        shared?.synchronize()
-                        if !ee {
-                            BipeEmergencyHelper.clearEmergency()
-                        }
-                    }
-                    var newOnlyVibrate: Bool? = nil
-                    if let ov = dict["onlyVibrateEmergency"] as? Bool {
-                        newOnlyVibrate = ov
-                    } else if let ovNum = dict["onlyVibrateEmergency"] as? NSNumber {
-                        newOnlyVibrate = ovNum.boolValue
-                    } else if let ovStr = dict["onlyVibrateEmergency"] as? String {
-                        newOnlyVibrate = (ovStr.lowercased() == "true" || ovStr == "1")
-                    }
-                    if let ov = newOnlyVibrate {
-                        Settings.setBool(ov, forKey: "onlyVibrateEmergency", inMOC: moc)
-                        UserDefaults.standard.set(ov, forKey: "onlyVibrateEmergency")
-                        UserDefaults.standard.synchronize()
-                    }
-                    if let soundWaypoint = dict["soundWaypoint"] as? Bool {
-                        Settings.setBool(soundWaypoint, forKey: "soundWaypoint", inMOC: moc)
-                        UserDefaults.standard.set(soundWaypoint, forKey: "soundWaypoint")
-                        UserDefaults.standard.synchronize()
-                    }
-                    if let mute = dict["mute"] as? Bool {
-                        Settings.setBool(mute, forKey: "mute", inMOC: moc)
-                        UserDefaults.standard.set(mute, forKey: "mute")
-                        UserDefaults.standard.synchronize()
-                    } else if let muteNum = dict["mute"] as? NSNumber {
-                        Settings.setBool(muteNum.boolValue, forKey: "mute", inMOC: moc)
-                        UserDefaults.standard.set(muteNum.boolValue, forKey: "mute")
-                        UserDefaults.standard.synchronize()
-                    } else if let muteStr = dict["mute"] as? String {
-                        let isMute = (muteStr.lowercased() == "true" || muteStr == "1")
-                        Settings.setBool(isMute, forKey: "mute", inMOC: moc)
-                        UserDefaults.standard.set(isMute, forKey: "mute")
-                        UserDefaults.standard.synchronize()
-                    }
-                    
-                    CoreData.sharedInstance().sync(moc)
-                }
-                
-                if let icon = dict["icon"] as? String {
-                    let script = "window.dispatchEvent(new CustomEvent('onIconChanged', { detail: { icon: '\(icon)' } }));"
-                    self.webView?.evaluateJavaScript(script, completionHandler: nil)
-                }
-                if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
-                    delegate.sendCard()
-                }
+                self.handleSaveConfig(dict)
             }
         } else if message.name == "openPermissions" {
             DispatchQueue.main.async { [weak self] in
@@ -364,6 +255,139 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavig
         }
     }
 
+    func handleSaveConfig(_ dict: [String: Any]) {
+        moc.performAndWait {
+            if let apelido = (dict["apelido"] as? String) ?? (dict["name"] as? String) ?? (dict["nickname"] as? String) {
+                Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
+                Settings.setString(apelido as NSString, forKey: "nickname_preference", inMOC: moc)
+                UserDefaults.standard.set(apelido, forKey: "apelido")
+                UserDefaults.standard.set(apelido, forKey: "device_name_preference")
+                UserDefaults.standard.set(apelido, forKey: "nickname_preference")
+                UserDefaults.standard.synchronize()
+                let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+                shared?.set(apelido, forKey: "apelido")
+                shared?.set(apelido, forKey: "nickname")
+                shared?.synchronize()
+                NSLog("[saveConfig ConfigWeb] apelido salvo como: %@", apelido)
+            }
+            if let tempoRetencao = dict["tempoRetencao"] as? Int {
+                Settings.setInt(Int32(tempoRetencao), forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+            } else if let tempoRetencao = dict["tempoRetencao"] as? Int32 {
+                Settings.setInt(tempoRetencao, forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+            }
+            if let locatorDisplacement = dict["locatorDisplacement"] as? Int {
+                Settings.setInt(Int32(locatorDisplacement), forKey: "displacement_preference", inMOC: moc)
+            } else if let locatorDisplacement = dict["locatorDisplacement"] as? Int32 {
+                Settings.setInt(locatorDisplacement, forKey: "displacement_preference", inMOC: moc)
+            }
+            if let locatorInterval = dict["locatorInterval"] as? Int {
+                Settings.setInt(Int32(locatorInterval), forKey: "interval_preference", inMOC: moc)
+            } else if let locatorInterval = dict["locatorInterval"] as? Int32 {
+                Settings.setInt(locatorInterval, forKey: "interval_preference", inMOC: moc)
+            }
+            if let ping = dict["ping"] as? Int {
+                Settings.setInt(Int32(ping), forKey: "keepalive_preference", inMOC: moc)
+            } else if let ping = dict["ping"] as? Int32 {
+                Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
+            }
+            if let pubRetain = dict["pubRetain"] as? Bool {
+                Settings.setBool(pubRetain, forKey: "retain_preference", inMOC: moc)
+            }
+            if let locked = dict["locked"] as? Bool {
+                Settings.setBool(locked, forKey: "locked", inMOC: moc)
+                UserDefaults.standard.set(locked, forKey: "locked")
+                UserDefaults.standard.synchronize()
+            }
+            if let opMode = dict["opMode"] as? Int {
+                Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
+            } else if let opMode = dict["opMode"] as? Int32 {
+                Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
+            }
+            let iconStr = (dict["icon"] as? String) ?? (dict["face"] as? String)
+            if let icon = iconStr, !icon.isEmpty {
+                Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
+                Settings.setString(icon as NSString, forKey: "face_preference", inMOC: moc)
+                UserDefaults.standard.set(icon, forKey: "icon")
+                UserDefaults.standard.set(icon, forKey: "face_preference")
+                UserDefaults.standard.synchronize()
+                let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+                shared?.set(icon, forKey: "icon")
+                shared?.set(icon, forKey: "face")
+                shared?.synchronize()
+                NSLog("[saveConfig ConfigWeb] icon salvo como: %@", icon)
+            }
+            var newEnableEmergency: Bool? = nil
+            if let ee = dict["enableEmergency"] as? Bool {
+                newEnableEmergency = ee
+            } else if let eeNum = dict["enableEmergency"] as? NSNumber {
+                newEnableEmergency = eeNum.boolValue
+            } else if let eeStr = dict["enableEmergency"] as? String {
+                newEnableEmergency = (eeStr.lowercased() == "true" || eeStr == "1")
+            }
+            if let ee = newEnableEmergency {
+                Settings.setBool(ee, forKey: "enableEmergency", inMOC: moc)
+                UserDefaults.standard.set(ee, forKey: "enableEmergency")
+                UserDefaults.standard.synchronize()
+                let shared = UserDefaults(suiteName: "group.br.com.bipe.me")
+                shared?.set(ee, forKey: "enableEmergency")
+                shared?.synchronize()
+                if !ee {
+                    BipeEmergencyHelper.clearEmergency()
+                }
+            }
+            var newOnlyVibrate: Bool? = nil
+            if let ov = dict["onlyVibrateEmergency"] as? Bool {
+                newOnlyVibrate = ov
+            } else if let ovNum = dict["onlyVibrateEmergency"] as? NSNumber {
+                newOnlyVibrate = ovNum.boolValue
+            } else if let ovStr = dict["onlyVibrateEmergency"] as? String {
+                newOnlyVibrate = (ovStr.lowercased() == "true" || ovStr == "1")
+            }
+            if let ov = newOnlyVibrate {
+                Settings.setBool(ov, forKey: "onlyVibrateEmergency", inMOC: moc)
+                UserDefaults.standard.set(ov, forKey: "onlyVibrateEmergency")
+                UserDefaults.standard.synchronize()
+            }
+            if let soundWaypoint = dict["soundWaypoint"] as? Bool {
+                Settings.setBool(soundWaypoint, forKey: "soundWaypoint", inMOC: moc)
+                UserDefaults.standard.set(soundWaypoint, forKey: "soundWaypoint")
+                UserDefaults.standard.synchronize()
+            }
+            if let mute = dict["mute"] as? Bool {
+                Settings.setBool(mute, forKey: "mute", inMOC: moc)
+                UserDefaults.standard.set(mute, forKey: "mute")
+                UserDefaults.standard.synchronize()
+            } else if let muteNum = dict["mute"] as? NSNumber {
+                Settings.setBool(muteNum.boolValue, forKey: "mute", inMOC: moc)
+                UserDefaults.standard.set(muteNum.boolValue, forKey: "mute")
+                UserDefaults.standard.synchronize()
+            } else if let muteStr = dict["mute"] as? String {
+                let isMute = (muteStr.lowercased() == "true" || muteStr == "1")
+                Settings.setBool(isMute, forKey: "mute", inMOC: moc)
+                UserDefaults.standard.set(isMute, forKey: "mute")
+                UserDefaults.standard.synchronize()
+            }
+            
+            CoreData.sharedInstance().sync(moc)
+        }
+        
+        let iconStr = (dict["icon"] as? String) ?? (dict["face"] as? String)
+        if let icon = iconStr, !icon.isEmpty {
+            let script = """
+            window.__currentFace = '\(icon)';
+            if (window.Android) { window.Android.face = '\(icon)'; }
+            window.dispatchEvent(new CustomEvent('onIconChanged', { detail: { icon: '\(icon)' } }));
+            """
+            self.webView?.evaluateJavaScript(script, completionHandler: nil)
+        }
+        if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
+            delegate.sendCard()
+            if let loc = LocationManager.sharedInstance().location {
+                _ = delegate.sendNow(loc, withPOI: nil, withImage: nil, withImageName: nil)
+            }
+        }
+    }
+
     @objc private func closeTapped() {
         dismiss(animated: true, completion: nil)
     }
@@ -378,10 +402,6 @@ extension ConfigWebViewController: WKUIDelegate {
         }
         
         if prompt == "get_user_config" {
-            if locked {
-                completionHandler("{\"locked\": true}")
-                return
-            }
             var configDict: [String: Any] = [:]
             moc.performAndWait {
                 configDict["deviceId"] = Settings.string(forKey: "deviceid_preference", inMOC: moc) ?? ""
@@ -389,6 +409,11 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["color"] = Settings.string(forKey: "markerColor", inMOC: moc) ?? ""
                 let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["icon"] = currentIcon
+                configDict["face"] = currentIcon
+                let apelido = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? UserDefaults.standard.string(forKey: "apelido") ?? ""
+                configDict["apelido"] = apelido
+                configDict["nickname"] = apelido
+                configDict["name"] = apelido
                 configDict["locked"] = locked
                 let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["enableEmergency"] = isEnableEmergency
@@ -403,14 +428,13 @@ extension ConfigWebViewController: WKUIDelegate {
                 return
             }
         } else if prompt == "get_config" {
-            if locked {
-                completionHandler("{\"locked\": true}")
-                return
-            }
             var configDict: [String: Any] = [:]
             
             moc.performAndWait {
-                configDict["apelido"] = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? ""
+                let apelido = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? UserDefaults.standard.string(forKey: "apelido") ?? ""
+                configDict["apelido"] = apelido
+                configDict["nickname"] = apelido
+                configDict["name"] = apelido
                 configDict["tempoRetencao"] = Settings.int(forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
                 configDict["locatorDisplacement"] = Settings.int(forKey: "displacement_preference", inMOC: moc)
                 configDict["locatorInterval"] = Settings.int(forKey: "interval_preference", inMOC: moc)
@@ -420,6 +444,7 @@ extension ConfigWebViewController: WKUIDelegate {
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
                 let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
                 configDict["icon"] = currentIcon
+                configDict["face"] = currentIcon
                 let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
                 configDict["enableEmergency"] = isEnableEmergency
                 let isOnlyVibrate = UserDefaults.standard.object(forKey: "onlyVibrateEmergency") != nil ? UserDefaults.standard.bool(forKey: "onlyVibrateEmergency") : Settings.bool(forKey: "onlyVibrateEmergency", inMOC: moc)
@@ -438,10 +463,6 @@ extension ConfigWebViewController: WKUIDelegate {
                 return
             }
         } else if prompt == "get_face" {
-            if locked {
-                completionHandler("")
-                return
-            }
             var faceStr = UserDefaults.standard.string(forKey: "icon") ?? UserDefaults.standard.string(forKey: "face_preference") ?? ""
             if faceStr.isEmpty {
                 moc.performAndWait {
@@ -484,6 +505,16 @@ extension ConfigWebViewController: WKUIDelegate {
                 return
             }
             completionHandler("{\"error\": \"invalid_url\"}")
+            return
+        } else if prompt == "save_config" {
+            if let text = defaultText,
+               let data = text.data(using: .utf8),
+               let dict = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String: Any] {
+                self.handleSaveConfig(dict)
+                completionHandler("{\"success\": true}")
+                return
+            }
+            completionHandler("{\"error\": \"invalid_payload\"}")
             return
         }
         
