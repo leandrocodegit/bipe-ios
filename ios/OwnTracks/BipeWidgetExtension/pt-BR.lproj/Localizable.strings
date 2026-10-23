@@ -47,3 +47,8 @@
 "Distância:" = "Distância:";
 "Região Monitorada" = "Região Monitorada";
 "Casa da Vovó" = "Casa da Vovó";
+
+// Widget Configuration Intent
+"Configuration" = "Configuração";
+"This is an example widget." = "Este é um widget de exemplo.";
+"Favorite Emoji" = "Emoji Favorito";
