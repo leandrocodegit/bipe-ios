@@ -382,9 +382,8 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavig
         }
         if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
             delegate.sendCard()
-            if let loc = LocationManager.sharedInstance().location {
-                _ = delegate.sendNow(loc, withPOI: nil, withImage: nil, withImageName: nil)
-            }
+            let loc = LocationManager.sharedInstance().location
+            _ = delegate.sendNow(loc, withPOI: nil, withImage: nil, withImageName: nil)
         }
     }
 

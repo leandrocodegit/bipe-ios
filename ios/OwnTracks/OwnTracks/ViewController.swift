@@ -2159,9 +2159,8 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil)
         if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
             delegate.sendCard()
-            if let loc = LocationManager.sharedInstance().location {
-                _ = delegate.sendNow(loc, withPOI: nil, withImage: nil, withImageName: nil)
-            }
+            let loc = LocationManager.sharedInstance().location
+            _ = delegate.sendNow(loc, withPOI: nil, withImage: nil, withImageName: nil)
         }
         let iconStr = (config["icon"] as? String) ?? (config["face"] as? String)
         if let icon = iconStr, !icon.isEmpty {
