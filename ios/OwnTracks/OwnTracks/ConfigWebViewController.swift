@@ -8,7 +8,7 @@ class ConfigWebViewController: UIViewController, WKScriptMessageHandler, WKNavig
     var moc: NSManagedObjectContext!
 
     // TODO: Ajuste esta URL para a rota correta do Angular onde está o configuracao-usuario.component.html
-    let webAppUrl = "https://app.simodapp.com/device/configuracao"
+    let webAppUrl = "https://app.bipeme.com/device/configuracao"
 
     override func viewDidLoad() {
         super.viewDidLoad()

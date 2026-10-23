@@ -1289,20 +1289,20 @@ import ActivityKit
         view.bringSubviewToFront(topBar)
         view.bringSubviewToFront(webView)
 
-        if let url = URL(string: "https://bipe.simodapp.com/setup-app") {
+        if let url = URL(string: "https://app.bipeme.com/setup-app") {
             webView.load(URLRequest(url: url))
         }
     }
 
     @objc func loadSetupRoute() {
-        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/setup-app") else { return }
+        guard let webView = webView, let url = URL(string: "https://app.bipeme.com/setup-app") else { return }
         DispatchQueue.main.async {
             webView.load(URLRequest(url: url))
         }
     }
 
     @objc func loadActivityHistoryRoute() {
-        guard let webView = webView, let url = URL(string: "https://bipe.simodapp.com/activity-history") else { return }
+        guard let webView = webView, let url = URL(string: "https://app.bipeme.com/activity-history") else { return }
         DispatchQueue.main.async {
             webView.load(URLRequest(url: url))
         }
@@ -1364,7 +1364,7 @@ import ActivityKit
         if let webView = webView {
             if let url = webView.url {
                 webView.load(URLRequest(url: url))
-            } else if let url = URL(string: "https://bipe.simodapp.com/setup-app") {
+            } else if let url = URL(string: "https://app.bipeme.com/setup-app") {
                 webView.load(URLRequest(url: url))
             }
         }
@@ -2606,12 +2606,12 @@ extension ViewController: QRCodeScannerViewControllerDelegate {
                 if let components = URLComponents(string: "http://dummy?\(trimmedResult)"),
                    let payloadItem = components.queryItems?.first(where: { $0.name == "payload" }),
                    let payloadVal = payloadItem.value {
-                    targetUrlString = "https://bipe.simodapp.com/share/accept?payload=\(payloadVal)"
+                    targetUrlString = "https://app.bipeme.com/share/accept?payload=\(payloadVal)"
                 } else {
-                    targetUrlString = "https://bipe.simodapp.com/share/accept?\(trimmedResult)"
+                    targetUrlString = "https://app.bipeme.com/share/accept?\(trimmedResult)"
                 }
             } else {
-                targetUrlString = "https://bipe.simodapp.com/share/accept?payload=\(trimmedResult)"
+                targetUrlString = "https://app.bipeme.com/share/accept?payload=\(trimmedResult)"
             }
             
             if let targetUrl = URL(string: targetUrlString) {
