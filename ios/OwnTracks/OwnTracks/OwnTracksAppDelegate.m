@@ -534,9 +534,13 @@
         NSString *deviceId = [Settings stringForKey:@"deviceid_preference" inMOC:moc];
         if (deviceId && deviceId.length > 0) json[@"deviceId"] = deviceId;
         
-        NSString *nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
+        NSString *nickname = [[NSUserDefaults standardUserDefaults] stringForKey:@"apelido"];
+        if (!nickname || nickname.length == 0) nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
         if (!nickname || nickname.length == 0) nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
-        if (nickname && nickname.length > 0) json[@"nickname"] = nickname;
+        if (nickname && nickname.length > 0) {
+            json[@"nickname"] = nickname;
+            json[@"apelido"] = nickname;
+        }
         
         NSString *face = [[NSUserDefaults standardUserDefaults] stringForKey:@"icon"];
         if (!face || face.length == 0) {
@@ -2045,12 +2049,16 @@ static NSString * _Nullable safeEventString(id _Nullable obj) {
         }
     }
     
-    NSString *nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
+    NSString *nickname = [[NSUserDefaults standardUserDefaults] stringForKey:@"apelido"];
+    if (!nickname || nickname.length == 0) {
+        nickname = [Settings stringForKey:@"device_name_preference" inMOC:moc];
+    }
     if (!nickname || nickname.length == 0) {
         nickname = [Settings stringForKey:@"nickname_preference" inMOC:moc];
     }
     if (nickname && nickname.length > 0) {
         json[@"nickname"] = nickname;
+        json[@"apelido"] = nickname;
     }
     
     NSNumber *opModeNum = @([Settings intForKey:@"custom_opmode" inMOC:moc]);

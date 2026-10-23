@@ -1179,14 +1179,17 @@ import ActivityKit
                 var jsonStr = (typeof json === 'object') ? JSON.stringify(json) : json;
                 try {
                     var parsed = JSON.parse(jsonStr);
-                    if (parsed && (parsed.icon || parsed.face)) {
-                        window.__currentFace = parsed.icon || parsed.face;
+                    if (parsed) {
+                        var newFace = parsed.icon || parsed.face;
+                        if (newFace) {
+                            window.__currentFace = newFace;
+                            if (window.Android) { window.Android.face = newFace; }
+                        }
                     }
                 } catch(e) {}
                 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.saveConfig) {
                     window.webkit.messageHandlers.saveConfig.postMessage(jsonStr);
                 }
-                return window.prompt("save_config", jsonStr) || "{\"success\": true}";
             },
             saveWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); },
             setWaypoints: function(json) { if (window.webkit && window.webkit.messageHandlers.saveWaypoints) window.webkit.messageHandlers.saveWaypoints.postMessage(typeof json === 'object' ? JSON.stringify(json) : json); },
@@ -1563,14 +1566,21 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         } else if prompt == "get_config" {
             var configDict: [String: Any] = [:]
             moc.performAndWait {
-                let apelido = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? UserDefaults.standard.string(forKey: "apelido") ?? ""
+                let apelido = UserDefaults.standard.string(forKey: "apelido") ?? Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? ""
                 configDict["apelido"] = apelido
                 configDict["nickname"] = apelido
                 configDict["name"] = apelido
-                configDict["tempoRetencao"] = Settings.int(forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
-                configDict["locatorDisplacement"] = Settings.int(forKey: "displacement_preference", inMOC: moc)
-                configDict["locatorInterval"] = Settings.int(forKey: "interval_preference", inMOC: moc)
-                configDict["ping"] = Settings.int(forKey: "keepalive_preference", inMOC: moc)
+                let tempo = Settings.int(forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+                configDict["tempoRetencao"] = tempo > 0 ? tempo : 30
+                let dispPref = Settings.int(forKey: "mindist_preference", inMOC: moc)
+                let dispLegacy = Settings.int(forKey: "displacement_preference", inMOC: moc)
+                configDict["locatorDisplacement"] = dispPref > 0 ? dispPref : (dispLegacy > 0 ? dispLegacy : 50)
+                let intPref = Settings.int(forKey: "mintime_preference", inMOC: moc)
+                let intLegacy = Settings.int(forKey: "interval_preference", inMOC: moc)
+                configDict["locatorInterval"] = intPref > 0 ? intPref : (intLegacy > 0 ? intLegacy : 60)
+                let pingPref = Settings.int(forKey: "keepalive_preference", inMOC: moc)
+                configDict["ping"] = pingPref > 0 ? pingPref : 300
+                configDict["keepalive"] = configDict["ping"]
                 configDict["pubRetain"] = Settings.bool(forKey: "retain_preference", inMOC: moc)
                 configDict["locked"] = locked
                 configDict["opMode"] = Settings.int(forKey: "custom_opmode", inMOC: moc)
@@ -1697,16 +1707,6 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 completionHandler("{\"success\": true}")
                 return
             }
-        } else if prompt == "save_config" {
-            if let text = defaultText,
-               let data = text.data(using: .utf8),
-               let dict = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String: Any] {
-                self.handleSaveConfig(dict)
-                completionHandler("{\"success\": true}")
-                return
-            }
-            completionHandler("{\"error\": \"invalid_payload\"}")
-            return
         }
 
         completionHandler(nil)
@@ -1733,6 +1733,11 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
             configDict["color"] = Settings.string(forKey: "color_preference", inMOC: moc) ?? "#000000"
             let currentIcon = UserDefaults.standard.string(forKey: "icon") ?? Settings.string(forKey: "icon", inMOC: moc) ?? Settings.string(forKey: "face_preference", inMOC: moc) ?? ""
             configDict["icon"] = currentIcon
+            configDict["face"] = currentIcon
+            let apelido = Settings.string(forKey: "device_name_preference", inMOC: moc) ?? Settings.string(forKey: "nickname_preference", inMOC: moc) ?? UserDefaults.standard.string(forKey: "apelido") ?? ""
+            configDict["apelido"] = apelido
+            configDict["nickname"] = apelido
+            configDict["name"] = apelido
             let isEnableEmergency = UserDefaults.standard.object(forKey: "enableEmergency") != nil ? UserDefaults.standard.bool(forKey: "enableEmergency") : Settings.bool(forKey: "enableEmergency", inMOC: moc)
             configDict["enableEmergency"] = isEnableEmergency
             let isMute = UserDefaults.standard.object(forKey: "mute") != nil ? UserDefaults.standard.bool(forKey: "mute") : Settings.bool(forKey: "mute", inMOC: moc)
@@ -2025,10 +2030,36 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
         }
     }
 
+    private func parseConfigInt(_ value: Any?) -> Int32? {
+        if let num = value as? NSNumber {
+            return num.int32Value
+        } else if let intVal = value as? Int {
+            return Int32(intVal)
+        } else if let int32Val = value as? Int32 {
+            return int32Val
+        } else if let str = value as? String, let intVal = Int32(str.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            return intVal
+        }
+        return nil
+    }
+
+    private func parseConfigBool(_ value: Any?) -> Bool? {
+        if let b = value as? Bool {
+            return b
+        } else if let num = value as? NSNumber {
+            return num.boolValue
+        } else if let str = value as? String {
+            let lower = str.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            return (lower == "true" || lower == "1")
+        }
+        return nil
+    }
+
     func handleSaveConfig(_ config: [String: Any]) {
         let moc = CoreData.sharedInstance().mainMOC
         moc.performAndWait {
-            if let apelido = (config["apelido"] as? String) ?? (config["name"] as? String) ?? (config["nickname"] as? String) {
+            let apelidoStr = (config["apelido"] as? String) ?? (config["name"] as? String) ?? (config["nickname"] as? String)
+            if let apelido = apelidoStr {
                 Settings.setString(apelido as NSString, forKey: "device_name_preference", inMOC: moc)
                 Settings.setString(apelido as NSString, forKey: "nickname_preference", inMOC: moc)
                 UserDefaults.standard.set(apelido, forKey: "apelido")
@@ -2041,11 +2072,7 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 shared?.synchronize()
                 NSLog("[handleSaveConfig] apelido salvo como: %@", apelido)
             }
-            if let tempoRetencao = config["tempoRetencao"] as? Int {
-                Settings.setInt(Int32(tempoRetencao), forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
-            } else if let tempoRetencao = config["tempoRetencao"] as? Int32 {
-                Settings.setInt(tempoRetencao, forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
-            }
+            
             let iconStr = (config["icon"] as? String) ?? (config["face"] as? String)
             if let icon = iconStr, !icon.isEmpty {
                 Settings.setString(icon as NSString, forKey: "icon", inMOC: moc)
@@ -2059,46 +2086,32 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                 shared?.synchronize()
                 NSLog("[handleSaveConfig] icon salvo como: %@", icon)
             }
-            if let displacement = config["locatorDisplacement"] as? Int {
-                Settings.setInt(Int32(displacement), forKey: "displacement_preference", inMOC: moc)
-            } else if let displacement = config["locatorDisplacement"] as? Int32 {
+            
+            if let tempoRetencao = self.parseConfigInt(config["tempoRetencao"]) {
+                Settings.setInt(tempoRetencao, forKey: "discardNetworkLocationThresholdSeconds", inMOC: moc)
+            }
+            if let displacement = self.parseConfigInt(config["locatorDisplacement"]) {
+                Settings.setInt(displacement, forKey: "mindist_preference", inMOC: moc)
                 Settings.setInt(displacement, forKey: "displacement_preference", inMOC: moc)
+                LocationManager.sharedInstance().minDist = Double(displacement)
             }
-            if let interval = config["locatorInterval"] as? Int {
-                Settings.setInt(Int32(interval), forKey: "interval_preference", inMOC: moc)
-            } else if let interval = config["locatorInterval"] as? Int32 {
+            if let interval = self.parseConfigInt(config["locatorInterval"]) {
+                Settings.setInt(interval, forKey: "mintime_preference", inMOC: moc)
                 Settings.setInt(interval, forKey: "interval_preference", inMOC: moc)
+                LocationManager.sharedInstance().minTime = Double(interval)
             }
-            if let ping = config["ping"] as? Int {
-                Settings.setInt(Int32(ping), forKey: "keepalive_preference", inMOC: moc)
-            } else if let ping = config["ping"] as? Int32 {
+            if let ping = self.parseConfigInt(config["ping"]) ?? self.parseConfigInt(config["keepalive"]) {
                 Settings.setInt(ping, forKey: "keepalive_preference", inMOC: moc)
             }
-            if let pubRetain = config["pubRetain"] as? Bool {
+            if let pubRetain = self.parseConfigBool(config["pubRetain"]) {
                 Settings.setBool(pubRetain, forKey: "retain_preference", inMOC: moc)
             }
-            var newOnlyVibrate: Bool? = nil
-            if let ov = config["onlyVibrateEmergency"] as? Bool {
-                newOnlyVibrate = ov
-            } else if let ovNum = config["onlyVibrateEmergency"] as? NSNumber {
-                newOnlyVibrate = ovNum.boolValue
-            } else if let ovStr = config["onlyVibrateEmergency"] as? String {
-                newOnlyVibrate = (ovStr.lowercased() == "true" || ovStr == "1")
-            }
-            if let ov = newOnlyVibrate {
+            if let ov = self.parseConfigBool(config["onlyVibrateEmergency"]) {
                 Settings.setBool(ov, forKey: "onlyVibrateEmergency", inMOC: moc)
                 UserDefaults.standard.set(ov, forKey: "onlyVibrateEmergency")
                 UserDefaults.standard.synchronize()
             }
-            var newEnableEmergency: Bool? = nil
-            if let ee = config["enableEmergency"] as? Bool {
-                newEnableEmergency = ee
-            } else if let eeNum = config["enableEmergency"] as? NSNumber {
-                newEnableEmergency = eeNum.boolValue
-            } else if let eeStr = config["enableEmergency"] as? String {
-                newEnableEmergency = (eeStr.lowercased() == "true" || eeStr == "1")
-            }
-            if let ee = newEnableEmergency {
+            if let ee = self.parseConfigBool(config["enableEmergency"]) {
                 Settings.setBool(ee, forKey: "enableEmergency", inMOC: moc)
                 UserDefaults.standard.set(ee, forKey: "enableEmergency")
                 UserDefaults.standard.synchronize()
@@ -2110,58 +2123,55 @@ extension ViewController: WKNavigationDelegate, WKUIDelegate, WKScriptMessageHan
                     BipeEmergencyHelper.clearEmergency()
                 }
             }
-            if let locked = config["locked"] as? Bool {
+            if let locked = self.parseConfigBool(config["locked"]) {
                 Settings.setBool(locked, forKey: "locked", inMOC: moc)
                 UserDefaults.standard.set(locked, forKey: "locked")
                 UserDefaults.standard.synchronize()
             }
-            if let soundWaypoint = config["soundWaypoint"] as? Bool {
+            if let soundWaypoint = self.parseConfigBool(config["soundWaypoint"]) {
                 Settings.setBool(soundWaypoint, forKey: "soundWaypoint", inMOC: moc)
                 UserDefaults.standard.set(soundWaypoint, forKey: "soundWaypoint")
                 UserDefaults.standard.synchronize()
             }
-            if let mute = config["mute"] as? Bool {
+            if let mute = self.parseConfigBool(config["mute"]) {
                 Settings.setBool(mute, forKey: "mute", inMOC: moc)
                 UserDefaults.standard.set(mute, forKey: "mute")
                 UserDefaults.standard.synchronize()
-            } else if let muteNum = config["mute"] as? NSNumber {
-                let b = muteNum.boolValue
-                Settings.setBool(b, forKey: "mute", inMOC: moc)
-                UserDefaults.standard.set(b, forKey: "mute")
-                UserDefaults.standard.synchronize()
-            } else if let muteStr = config["mute"] as? String {
-                let b = (muteStr.lowercased() == "true" || muteStr == "1")
-                Settings.setBool(b, forKey: "mute", inMOC: moc)
-                UserDefaults.standard.set(b, forKey: "mute")
-                UserDefaults.standard.synchronize()
             }
-            if let opMode = config["opMode"] as? Int {
-                Settings.setInt(Int32(opMode), forKey: "custom_opmode", inMOC: moc)
+            if let opModeVal = self.parseConfigInt(config["opMode"]) {
+                let opMode = Int(opModeVal)
+                Settings.setInt(opModeVal, forKey: "custom_opmode", inMOC: moc)
                 var monitoringMode = 2
                 switch opMode {
                 case 1, 2: monitoringMode = 0
                 case 3: monitoringMode = -1
                 default: monitoringMode = 2
                 }
-                if let locked = config["locked"] as? Bool, locked == true {
+                if let lockedVal = self.parseConfigBool(config["locked"]), lockedVal == true {
                     monitoringMode = -1
                 }
                 Settings.setInt(Int32(monitoringMode), forKey: "monitoring_preference", inMOC: moc)
                 if let monitorEnum = LocationMonitoring(rawValue: monitoringMode) {
                     LocationManager.sharedInstance().monitoring = monitorEnum
                 }
-            } else if let opMode = config["opMode"] as? Int32 {
-                Settings.setInt(opMode, forKey: "custom_opmode", inMOC: moc)
+            }
+            
+            do {
+                if moc.hasChanges {
+                    try moc.save()
+                }
+            } catch {
+                NSLog("[handleSaveConfig] Erro ao salvar CoreData: %@", error.localizedDescription)
             }
             CoreData.sharedInstance().sync(moc)
         }
+        
         NotificationCenter.default.post(name: NSNotification.Name("ConfigUpdated"), object: nil)
         NotificationCenter.default.post(name: NSNotification.Name("reload"), object: nil)
         if let delegate = UIApplication.shared.delegate as? OwnTracksAppDelegate {
             delegate.sendCard()
-            let loc = LocationManager.sharedInstance().location
-            _ = delegate.sendNow(loc, withPOI: nil, withImage: nil, withImageName: nil)
         }
+        
         let iconStr = (config["icon"] as? String) ?? (config["face"] as? String)
         if let icon = iconStr, !icon.isEmpty {
             let script = """
